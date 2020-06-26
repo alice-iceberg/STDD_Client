@@ -1,0 +1,2 @@
+rootProject.name='STDD_Client'
+include ':app'

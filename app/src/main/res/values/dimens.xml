@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="question_txt_title_size">18sp</dimen>
+    <dimen name="question_txt_size">16sp</dimen>
+    <dimen name="question_txt_big_size">20sp</dimen>
+
+</resources>

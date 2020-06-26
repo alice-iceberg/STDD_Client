@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".LocationSetActivity">
+
+    <LinearLayout
+        android:id="@+id/loading_frame"
+        android:layout_width="250dp"
+        android:layout_height="180dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:background="#80000000"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading_the_map"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:textSize="20sp" />
+
+        <ProgressBar
+            android:id="@id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/please_wait"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:layout_alignParentTop="true"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:gravity="center_horizontal"
+        android:titleTextColor="@color/colorPrimaryDark"
+        android:title="@string/setting_locations"
+        tools:targetApi="m" />
+
+
+    <TableLayout
+        android:id="@+id/buttons_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/my_toolbar">
+
+        <TableRow>
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:onClick="setHomeClick"
+                android:padding="15dp"
+                android:text="@string/set_home_location"
+                android:textSize="@dimen/question_txt_size"
+                android:textStyle="bold" />
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:onClick="setDormClick"
+                android:padding="15dp"
+                android:text="@string/set_dorm_location"
+                android:textSize="@dimen/question_txt_size"
+                android:textStyle="bold" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:onClick="setUnivClick"
+                android:padding="15dp"
+                android:text="@string/set_university_location"
+                android:textSize="@dimen/question_txt_size"
+                android:textStyle="bold" />
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:onClick="setLibraryClick"
+                android:padding="15dp"
+                android:text="@string/set_library_location"
+                android:textSize="@dimen/question_txt_size"
+                android:textStyle="bold" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:onClick="setAdditionalPlaceClick"
+                android:padding="15dp"
+                android:text="@string/set_additional_location"
+                android:textSize="@dimen/question_txt_size"
+                android:textStyle="bold" />
+        </TableRow>
+
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttons_view"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="@string/locations_set_instruction"
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/question_txt_size"
+        android:textStyle="bold" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_view" />
+
+</RelativeLayout>
