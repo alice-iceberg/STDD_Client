@@ -4,8 +4,8 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#03DAC5</color>
 
-    <color name="greenLight">#F9EBC8</color>
-    <color name="greenDark">#EFB630</color>
+    <color name="yellowLight">#F9EBC8</color>
+    <color name="yellowDark">#EFB630</color>
 
     <color name="black">#555</color>
     <color name="white">#FFFFFF</color>

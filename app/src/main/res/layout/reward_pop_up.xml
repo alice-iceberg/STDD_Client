@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        app:cardBackgroundColor="@color/greenLight"
+        app:cardBackgroundColor="@color/yellowLight"
         app:cardCornerRadius="15dp">
 
         <LinearLayout
@@ -42,7 +42,7 @@
                 android:layout_marginBottom="20dp"
                 android:text="@string/congratulations"
                 android:textAlignment="center"
-                android:textColor="@color/greenDark"
+                android:textColor="@color/yellowDark"
                 android:textSize="25dp"
                 android:textStyle="bold" />
 
@@ -61,7 +61,7 @@
                 android:layout_marginTop="20dp"
                 android:text="@string/you_earned"
                 android:textAlignment="center"
-                android:textColor="@color/greenDark"
+                android:textColor="@color/yellowDark"
                 android:textSize="18dp" />
 
             <TextView
@@ -73,7 +73,7 @@
                 android:layout_marginBottom="10dp"
                 android:text="+250 ₩"
                 android:textAlignment="center"
-                android:textColor="@color/greenDark"
+                android:textColor="@color/yellowDark"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
@@ -85,7 +85,7 @@
                 android:layout_marginTop="20dp"
                 android:background="@drawable/button_green_round"
                 android:text="@string/yessss"
-                android:textColor="@color/greenLight"
+                android:textColor="@color/yellowLight"
                 android:textStyle="bold" />
 
 
