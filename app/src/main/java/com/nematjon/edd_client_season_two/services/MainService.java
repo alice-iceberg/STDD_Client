@@ -24,6 +24,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -147,7 +150,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             }
             //endregion
 
-            mainHandler.postDelayed(this, 5 * 1000);
+            mainHandler.postDelayed(mainRunnable, 5 * 1000);
         }
     };
 
@@ -220,7 +223,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 sendNotificationForPermissionSetting(); // send notification if any permission is disabled
             }
             Tools.sendHeartbeat(MainService.this);
-            heartBeatHandler.postDelayed(this, HEARTBEAT_PERIOD * 1000);
+            heartBeatHandler.postDelayed(heartBeatSendRunnable, HEARTBEAT_PERIOD * 1000);
         }
     };
 
@@ -309,6 +312,15 @@ public class MainService extends Service implements SensorEventListener, Locatio
         appUsageSaveHandler.post(appUsageSaveRunnable);
         dataSubmissionHandler.post(dataSubmitRunnable);
         permissionNotificationPosted = false;
+
+        /*sr = SpeechRecognizer.createSpeechRecognizer(this);
+        sr.setRecognitionListener(new SpeechRec());
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"com.nematjon.edd_client_season_two");
+//        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
+        sr.startListening(intent);*/
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -475,5 +487,64 @@ public class MainService extends Service implements SensorEventListener, Locatio
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    static SpeechRecognizer sr;
+
+    static class SpeechRec implements RecognitionListener {
+
+        @Override
+        public void onReadyForSpeech(Bundle params) {
+            Log.e(TAG, "onReadyForSpeech: " + params.toString());
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+            Log.e(TAG, "onBeginningOfSpeech: ");
+            long nowTime = System.currentTimeMillis();
+            Log.e(TAG, "START TIME: " + nowTime);
+        }
+
+        @Override
+        public void onRmsChanged(float rmsdB) {
+            Log.e(TAG, "onRmsChanged: " + rmsdB);
+        }
+
+        @Override
+        public void onBufferReceived(byte[] buffer) {
+            Log.e(TAG, "onBufferReceived: " + Arrays.toString(buffer));
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+            Log.e(TAG, "onEndOfSpeech: ");
+            long nowTime = System.currentTimeMillis();
+            Log.e(TAG, "END TIME: " + nowTime);
+        }
+
+        @Override
+        public void onError(int error) {
+            Log.e(TAG, "onError: " + error);
+
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            Log.e(TAG, "onResults: " + results.toString());
+            for (String key: results.keySet())
+            {
+                Log.d ("myApplication", key + " is a key in the bundle");
+            }
+        }
+
+        @Override
+        public void onPartialResults(Bundle partialResults) {
+            Log.e(TAG, "onPartialResults: " + partialResults.toString());
+        }
+
+        @Override
+        public void onEvent(int eventType, Bundle params) {
+            Log.e(TAG, "onEvent: " + params.toString());
+        }
     }
 }

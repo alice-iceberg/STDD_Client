@@ -2,7 +2,7 @@
     <!-- REST API Server URLs -->
     <string name="grpc_host">165.246.21.202</string>
     <string name="grpc_port">50051</string>
-    <string name="campaign_id">11</string>
+    <string name="campaign_id">12</string>
     <string name="app_name">YouNoOne</string>
     <string name="dummy">Dummy</string>
     <string name="status">Status for today:</string>
