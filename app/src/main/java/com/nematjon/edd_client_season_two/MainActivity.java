@@ -26,6 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nematjon.edd_client_season_two.receivers.CallRcvr;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 import com.nematjon.edd_client_season_two.services.MainService;
 
@@ -65,6 +66,7 @@ public class MainActivity extends Activity {
     private TextView ema_tv_3;
     private TextView ema_tv_4;
     private TextView tvRewards;
+    private TextView tvBonus;
     //endregion
 
     private Intent customSensorsService;
@@ -128,6 +130,7 @@ public class MainActivity extends Activity {
         ema_tv_3 = findViewById(R.id.ema_tv_3);
         ema_tv_4 = findViewById(R.id.ema_tv_4);
         tvRewards = findViewById(R.id.reward_points);
+        tvBonus = findViewById(R.id.bonus_points);
         //endregion
 
         DbMgr.init(getApplicationContext());
@@ -196,6 +199,7 @@ public class MainActivity extends Activity {
         ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
 
         tvRewards.setText(getString(R.string.earned_points, 0));
+        tvBonus.setText(getString(R.string.earned_points, 0));
     }
 
     public void updateUI() {
@@ -306,6 +310,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void run() {
                                 tvRewards.setText("");
+                                tvBonus.setText("");
                                 ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
                                 ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
                                 ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
@@ -327,8 +332,10 @@ public class MainActivity extends Activity {
                                         if (!uniqueValues.contains(item))
                                             uniqueValues.add(item);
 
+
                                     int rewardPoints = uniqueValues.size() * 250;
                                     tvRewards.setText(getString(R.string.earned_points, rewardPoints));
+                                    tvBonus.setText(getString(R.string.earned_points, calculateBonusPoints(uniqueValues)));
                                     int ema_answered_count = 0;
                                     for (String val : uniqueValues) {
                                         if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal.getTimeInMillis())) {
@@ -364,6 +371,17 @@ public class MainActivity extends Activity {
                 }
             }
         }).start();
+    }
+
+    public int calculateBonusPoints(List<String> emaValues) {
+        int total_bonus = 0;
+        for (String val : emaValues) {
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]));
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+        }
+        return 0;
     }
 
     public void lateEMAClick(View view) {

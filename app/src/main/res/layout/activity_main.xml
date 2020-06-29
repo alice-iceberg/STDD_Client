@@ -288,28 +288,40 @@
                 android:layout_below="@id/ema_checkbox"
                 android:background="#c0c0c0" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/earned_rewards"
+                android:textColor="@color/black"
+                android:textSize="@dimen/question_txt_title_size"
+                android:textStyle="bold"
+                android:layout_below="@id/ema_checkbox"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:gravity="center"
                 android:layout_below="@id/ema_checkbox">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center"
-                    android:text="@string/earned_rewards"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/question_txt_title_size"
-                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/reward_points"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:textAlignment="center"
                     android:text="@string/dummy"
-                    android:gravity="center"
+                    android:textColor="#11B1CF"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/bonus_points"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="@string/dummy"
                     android:textColor="#11B1CF"
                     android:textSize="40sp"
                     android:textStyle="bold" />
