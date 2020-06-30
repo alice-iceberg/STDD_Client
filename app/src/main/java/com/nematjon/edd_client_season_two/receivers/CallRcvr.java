@@ -42,6 +42,7 @@ public class CallRcvr extends PhonecallReceiver {
     protected void onIncomingCallReceived(Context ctx, String number, long start) {
         Log.e(TAG, "onIncomingCallReceived -> " + "number: " + number + "; start date: " + start);
         //start the audio
+        // TODO: add speech recognition here
         AudioRunningForCall = true;
     }
 

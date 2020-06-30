@@ -35,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -49,6 +50,56 @@ import io.grpc.StatusRuntimeException;
 import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 
 public class MainActivity extends Activity {
+    List<String> myList = Arrays.asList(
+            "1583992120657 3 0 0 2 2",
+            "1584055872382 1 0 0 4 4",
+            "1584075944344 3 2 0 4 2",
+            "1584086643414 4 0 0 4 4",
+            "1584153965008 2 0 0 4 4",
+            "1584176319939 4 1 0 4 3",
+            "1584248496711 3 0 0 4 4",
+            "1584315673145 1 2 0 4 4",
+            "1584326241730 2 1 0 4 1",
+            "1584336174421 3 0 0 4 4",
+            "1584346768216 4 1 0 4 3",
+            "1584482927000 1 2 0 4 4",
+            "1584482927000 2 1 0 4 1",
+            "1584482927000 3 0 0 4 4",
+            "1584482927000 4 1 0 4 3",
+            "1584499652589 2 0 0 4 4",
+            "1584508901082 3 0 0 4 4",
+            "1584518449883 4 0 2 4 3",
+            "1584583322558 2 3 1 4 4",
+            "1584594441676 3 2 1 1 4",
+            "1584608251897 4 3 3 4 4",
+            "1584681611355 3 3 2 4 4",
+            "1584694360209 4 0 1 4 2",
+            "1584779126147 4 2 0 4 1",
+            "1584920729400 1 0 0 4 3",
+            "1584929190408 2 0 0 4 4",
+            "1584939647208 3 2 2 4 4",
+            "1585026845853 3 0 0 4 3",
+            "1585093113969 1 0 0 4 4",
+            "1585189213495 2 0 2 4 3",
+            "1585200974208 3 3 2 4 2",
+            "1585277438236 2 0 0 4 3",
+            "1585620402265 2 0 3 4 4",
+            "1585697950212 1 0 0 4 4",
+            "1585719999726 3 3 2 4 4",
+            "1585805734069 3 0 1 4 4",
+            "1585816916937 4 0 2 4 4",
+            "1585891613936 3 0 0 4 4",
+            "1585976709818 3 0 0 4 4",
+            "1585990485019 4 0 0 4 4",
+            "1586053300005 2 0 0 4 4",
+            "1586074103028 4 0 2 4 4",
+            "1586130384247 1 0 0 4 4",
+            "1586160231474 4 0 0 4 4",
+            "1586227493658 2 0 0 4 2",
+            "1586238534616 3 0 0 4 2",
+            "1586248228684 4 0 1 4 4",
+            "1587457986220 4 2 3 4 4"
+    );
     private static final String TAG = MainActivity.class.getSimpleName();
 
     //region UI variables
@@ -332,11 +383,13 @@ public class MainActivity extends Activity {
                                         if (!uniqueValues.contains(item))
                                             uniqueValues.add(item);
 
-
                                     int rewardPoints = uniqueValues.size() * 250;
                                     tvRewards.setText(getString(R.string.earned_points, rewardPoints));
-                                    tvBonus.setText(getString(R.string.earned_points, calculateBonusPoints(uniqueValues)));
+
+                                    //tvBonus.setText(getString(R.string.earned_points, calculateBonusPoints(uniqueValues)));
+
                                     int ema_answered_count = 0;
+
                                     for (String val : uniqueValues) {
                                         if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal.getTimeInMillis())) {
                                             ema_answered_count++;
@@ -373,15 +426,60 @@ public class MainActivity extends Activity {
         }).start();
     }
 
+    //TODO: finish bonus calculation
+    //bonus is calculated every Sunday
+
     public int calculateBonusPoints(List<String> emaValues) {
+
         int total_bonus = 0;
+        int ema_answered_counter = 1;
+        int conseq_counter = 0;
+        int prev_day = 0;
+
+        // survey_ema values
         for (String val : emaValues) {
 
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]));
+
+            int ema_order = Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1]);
+
             int day = cal.get(Calendar.DAY_OF_MONTH);
+
+            if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+                //bonus is calculated and displayed every Sunday
+                // tvBonus.setText(getString(R.string.bonus_points, total_bonus));
+                conseq_counter = 0;
+                // ema_answered_counter = 1;
+            }
+
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+            int yesterday = cal.get(Calendar.DAY_OF_MONTH);
+
+
+            if (day == prev_day) {
+                ema_answered_counter++;
+
+                if (ema_answered_counter == 4) {
+                    conseq_counter++;
+                    if (conseq_counter > 1) {
+                        total_bonus += 100;
+                    }
+                }
+            } else if ((day != prev_day && prev_day == yesterday) || (day != prev_day && prev_day == 0)) {
+                ema_answered_counter = 1; //day changed, count from the first again
+
+                if (ema_answered_counter < 4) {
+                    conseq_counter = 0;
+                }
+            } else {
+                ema_answered_counter = 1;
+                conseq_counter = 0; //if one day or more there were no EMAs replies
+            }
+
+            prev_day = day;
         }
-        return 0;
+        return total_bonus;
     }
 
     public void lateEMAClick(View view) {
@@ -508,7 +606,12 @@ public class MainActivity extends Activity {
     }
 
     public void logoutClick(MenuItem item) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        //TODO: remove following and uncomment log out code block
+        Log.e(TAG, "Calculated bonuses: " + calculateBonusPoints(myList));
+        tvBonus.setText("Bonus: " + calculateBonusPoints(myList));
+
+
+        /*AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setMessage(getString(R.string.log_out_confirmation));
         alertDialog.setPositiveButton(
                 getString(R.string.yes), new DialogInterface.OnClickListener() {
@@ -526,7 +629,7 @@ public class MainActivity extends Activity {
                         dialog.cancel();
                     }
                 });
-        alertDialog.show();
+        alertDialog.show();*/
     }
 
     private void loadCampaign() {

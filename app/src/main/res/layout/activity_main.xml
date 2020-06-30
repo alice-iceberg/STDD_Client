@@ -323,7 +323,7 @@
                     android:textAlignment="center"
                     android:text="@string/dummy"
                     android:textColor="#11B1CF"
-                    android:textSize="40sp"
+                    android:textSize="30sp"
                     android:textStyle="bold" />
             </LinearLayout>
 

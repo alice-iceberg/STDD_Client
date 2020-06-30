@@ -69,4 +69,5 @@
     <string name="earned_points">%1$d ₩</string>
     <string name="plus_earned_points">+%1$d ₩</string>
     <string name="currently_earned_points">Currently earned points</string>
+    <string name="bonus_points">Your bonus for this week %1$d ₩</string>
 </resources>
