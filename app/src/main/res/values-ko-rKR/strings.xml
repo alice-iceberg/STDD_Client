@@ -61,13 +61,14 @@
     <string name="_22_00">22:00</string>
     <string name="setting_locations">Setting locations</string>
     <string name="yessss">YESSSS</string>
-    <string name="earned_rewards">Earned rewards</string>
+    <string name="earned_rewards">Reward and Bonus</string>
     <string name="you_earned">You\'ve earned</string>
     <string name="reward_image">reward image</string>
     <string name="congratulations">Congratulations!!!</string>
     <string name="close_image">close image</string>
-    <string name="earned_points">%1$d ₩</string>
+    <string name="earned_points">Earned Reward %1$d ₩</string>
+    <string name="total_reward_with_bonus">Total %1$d ₩</string>
     <string name="plus_earned_points">+%1$d ₩</string>
     <string name="currently_earned_points">Currently earned points</string>
-    <string name="bonus_points">Your bonus for this week %1$d ₩</string>
+    <string name="bonus_points">Bonus %1$d ₩</string>
 </resources>
