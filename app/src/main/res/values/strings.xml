@@ -8,17 +8,17 @@
     <string name="status">Status for today:</string>
     <string name="authentication_txt">Authentication</string>
     <string name="authentication_btn">Authenticate</string>
-    <string name="ema_explanation"><b>지난 설문 시점으로부터 현재까지</b> 다음의 문제에 해당하는 정도를 1-5까지 나타내주세요.\n
-        * 1(전혀 해당하지 않음) ~ 5(매우 해당함)</string>
-    <string name="ema_question_1">1. 일 또는 여가 활동을 하는 데 흥미나 즐거움을 느끼지 못함</string>
-    <string name="ema_question_2">2. 기분이 가라앉거나, 우울하거나, 희망이 없음</string>
-    <string name="ema_question_3">3. 잠을 제대로 자지 못하거나 잠을 너무 많이 잠 </string>
-    <string name="ema_question_4">4. 피곤하거나 기운이 거의 없음</string>
-    <string name="ema_question_5">5. 입맛이 없거나 과식을 함</string>
-    <string name="ema_question_6">6. 자신을 부정적으로 보거나 실패자라고 생각함</string>
-    <string name="ema_question_7">7. 일에 집중하는 것이 어려움</string>
-    <string name="ema_question_8">8. 너무 느리게 혹은 너무 많이 움직이거나 말을 함</string>
-    <string name="ema_question_9">9. 죽고싶다고 생각하거나 어떤 식으로든 자신을 해칠 것이라고 생각함</string>
+    <string name="ema_explanation"><b>From the last survey to the present</b> Please indicate the degree corresponding to the following problem from 1-5.\n
+        * 1 (not applicable at all) to 5 (very applicable)</string>
+    <string name="ema_question_1">1. Little interest or pleasure in doing things</string>
+    <string name="ema_question_2">2. Feeling down, depressed, or hopeless</string>
+    <string name="ema_question_3">3. Trouble falling or staying asleep, or sleeping too much </string>
+    <string name="ema_question_4">4. Feeling tired or having little energy</string>
+    <string name="ema_question_5">5. Poor appetite or overeating</string>
+    <string name="ema_question_6">6. Seeing yourself negatively or thinking you are a loser</string>
+    <string name="ema_question_7">7. Difficulty focusing on work</string>
+    <string name="ema_question_8">8. Moving or talking too slowly or too much</string>
+    <string name="ema_question_9">9. Thoughts that you would be better off dead, or thoughts of hurting yourself in some way</string>
     <string name="submit">Submit</string>
     <string name="notif_channel_id">YouNoOne_notif_chanel</string>
     <string name="daily_notif_text">Hey there! Please, fill in the questionnaire :)</string>
