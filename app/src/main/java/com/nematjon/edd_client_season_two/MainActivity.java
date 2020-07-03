@@ -204,7 +204,7 @@ public class MainActivity extends Activity {
 
         tvRewards.setText(getString(R.string.earned_points, 0));
         tvBonus.setText(getString(R.string.bonus_points, 0));
-        tvTotalReward.setText(getString(R.string.total_reward_with_bonus,0));
+        tvTotalReward.setText(getString(R.string.total_reward_with_bonus, 0));
     }
 
     public void updateUI() {
@@ -383,9 +383,6 @@ public class MainActivity extends Activity {
         }).start();
     }
 
-    //TODO: finish bonus calculation
-    //bonus is calculated every Sunday
-
     public int calculateBonusPoints(List<String> emaValues) {
 
         int total_bonus = 0;
@@ -402,7 +399,7 @@ public class MainActivity extends Activity {
             int day = cal.get(Calendar.DAY_OF_MONTH);
 
             if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
-                //bonus is calculated and displayed every Sunday
+                //bonus calculation is restarted on Sundays
                 conseq_counter = 0;
             }
 
@@ -415,7 +412,7 @@ public class MainActivity extends Activity {
                 if (ema_answered_counter == 4) {
                     conseq_counter++;
                     if (conseq_counter > 1) {
-                        total_bonus += (conseq_counter-1)*100;
+                        total_bonus += (conseq_counter - 1) * 100;
                     }
                 }
             } else if ((day != prev_day && prev_day == yesterday) || (day != prev_day && prev_day == 0)) {

@@ -18,6 +18,8 @@ public class SmsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // Get the SMS message.
+
+        Log.e(TAG, "SMS on received ");
         SharedPreferences confPrefs = context.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         long nowTime = System.currentTimeMillis();
         Bundle bundle = intent.getExtras();
