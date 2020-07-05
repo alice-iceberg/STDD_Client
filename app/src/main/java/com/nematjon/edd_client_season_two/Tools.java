@@ -50,6 +50,7 @@ public class Tools {
     static int PERMISSION_ALL = 1;
     public static String[] PERMISSIONS = {
             Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CALL_LOG,
             Manifest.permission.PROCESS_OUTGOING_CALLS,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.ACCESS_FINE_LOCATION,

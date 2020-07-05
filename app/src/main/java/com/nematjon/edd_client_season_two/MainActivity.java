@@ -94,6 +94,7 @@ public class MainActivity extends Activity {
             Tools.PERMISSIONS = new String[]{
                     Manifest.permission.ACTIVITY_RECOGNITION,
                     Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_CALL_LOG,
                     Manifest.permission.PROCESS_OUTGOING_CALLS,
                     Manifest.permission.RECORD_AUDIO,
                     Manifest.permission.ACCESS_FINE_LOCATION,
