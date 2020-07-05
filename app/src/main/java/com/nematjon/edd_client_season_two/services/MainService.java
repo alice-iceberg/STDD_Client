@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.speech.RecognitionListener;
-import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 
@@ -531,9 +530,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
         @Override
         public void onResults(Bundle results) {
             Log.e(TAG, "onResults: " + results.toString());
-            for (String key: results.keySet())
-            {
-                Log.d ("myApplication", key + " is a key in the bundle");
+            for (String key : results.keySet()) {
+                Log.d("myApplication", key + " is a key in the bundle");
             }
         }
 

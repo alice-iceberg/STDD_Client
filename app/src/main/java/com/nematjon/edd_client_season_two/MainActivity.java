@@ -69,6 +69,7 @@ public class MainActivity extends Activity {
     private TextView ema_tv_4;
     private TextView tvRewards;
     private TextView tvBonus;
+    private TextView tvTotalReward;
     //endregion
 
     private Intent customSensorsService;
@@ -134,6 +135,7 @@ public class MainActivity extends Activity {
         ema_tv_4 = findViewById(R.id.ema_tv_4);
         tvRewards = findViewById(R.id.reward_points);
         tvBonus = findViewById(R.id.bonus_points);
+        tvTotalReward = findViewById(R.id.total_reward_with_bonus);
         //endregion
 
         DbMgr.init(getApplicationContext());
@@ -202,7 +204,8 @@ public class MainActivity extends Activity {
         ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
 
         tvRewards.setText(getString(R.string.earned_points, 0));
-        tvBonus.setText(getString(R.string.earned_points, 0));
+        tvBonus.setText(getString(R.string.bonus_points, 0));
+        tvTotalReward.setText(getString(R.string.total_reward_with_bonus, 0));
     }
 
     public void updateUI() {
@@ -314,6 +317,7 @@ public class MainActivity extends Activity {
                             public void run() {
                                 tvRewards.setText("");
                                 tvBonus.setText("");
+                                tvTotalReward.setText("");
                                 ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
                                 ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
                                 ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
@@ -336,8 +340,11 @@ public class MainActivity extends Activity {
                                             uniqueValues.add(item);
 
                                     int rewardPoints = uniqueValues.size() * 250;
+                                    int bonus = calculateBonusPoints(uniqueValues);
                                     tvRewards.setText(getString(R.string.earned_points, rewardPoints));
-                                    tvBonus.setText(getString(R.string.earned_points, calculateBonusPoints(uniqueValues)));
+                                    tvBonus.setText(getString(R.string.bonus_points, bonus));
+                                    int total_reward = rewardPoints + bonus;
+                                    tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
 
                                     int ema_answered_count = 0;
 
@@ -377,9 +384,6 @@ public class MainActivity extends Activity {
         }).start();
     }
 
-    //TODO: finish bonus calculation
-    //bonus is calculated every Sunday
-
     public int calculateBonusPoints(List<String> emaValues) {
 
         int total_bonus = 0;
@@ -396,13 +400,12 @@ public class MainActivity extends Activity {
             int day = cal.get(Calendar.DAY_OF_MONTH);
 
             if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
-                //bonus is calculated and displayed every Sunday
+                //bonus calculation is restarted on Sundays
                 conseq_counter = 0;
             }
 
             cal.add(Calendar.DAY_OF_YEAR, -1);
             int yesterday = cal.get(Calendar.DAY_OF_MONTH);
-
 
             if (day == prev_day) {
                 ema_answered_counter++;
@@ -410,7 +413,7 @@ public class MainActivity extends Activity {
                 if (ema_answered_counter == 4) {
                     conseq_counter++;
                     if (conseq_counter > 1) {
-                        total_bonus += (conseq_counter-1)*100;
+                        total_bonus += (conseq_counter - 1) * 100;
                     }
                 }
             } else if ((day != prev_day && prev_day == yesterday) || (day != prev_day && prev_day == 0)) {
@@ -418,7 +421,6 @@ public class MainActivity extends Activity {
                 if (ema_answered_counter < 4) {
                     conseq_counter = 0;
                 }
-
                 ema_answered_counter = 1; //day changed, count from the first again
             } else {
                 ema_answered_counter = 1;

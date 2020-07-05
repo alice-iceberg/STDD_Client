@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/status"
                     android:textAllCaps="true"
-                    android:textColor="@color/colorPrimaryDark"
+                    android:textColor="@color/black"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -288,17 +288,6 @@
                 android:layout_below="@id/ema_checkbox"
                 android:background="#c0c0c0" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center"
-                android:text="@string/earned_rewards"
-                android:textColor="@color/black"
-                android:textSize="@dimen/question_txt_title_size"
-                android:textStyle="bold"
-                android:layout_below="@id/ema_checkbox"/>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -312,8 +301,8 @@
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
                     android:text="@string/dummy"
-                    android:textColor="#11B1CF"
-                    android:textSize="40sp"
+                    android:textColor="@color/black"
+                    android:textSize="30sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -322,9 +311,21 @@
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
                     android:text="@string/dummy"
-                    android:textColor="#11B1CF"
+                    android:textColor="@color/black"
                     android:textSize="30sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:layout_marginTop="50dp"
+                    android:id="@+id/total_reward_with_bonus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="@string/dummy"
+                    android:textColor="#00DBC5"
+                    android:textSize="50sp"
+                    android:textStyle="bold" />
+
             </LinearLayout>
 
         </RelativeLayout>
