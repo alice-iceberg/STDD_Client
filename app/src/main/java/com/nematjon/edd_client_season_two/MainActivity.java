@@ -99,7 +99,8 @@ public class MainActivity extends Activity {
                     Manifest.permission.PROCESS_OUTGOING_CALLS,
                     Manifest.permission.RECORD_AUDIO,
                     Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
             };
         }
 

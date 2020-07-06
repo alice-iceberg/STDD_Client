@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.nematjon.edd_client_season_two.AppUseDb;
@@ -22,6 +24,7 @@ import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.EMAActivity;
 import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.R;
+import com.nematjon.edd_client_season_two.StoredMedia;
 import com.nematjon.edd_client_season_two.Tools;
 
 import java.util.Calendar;
@@ -41,12 +44,14 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         SharedPreferences networkPrefs = context.getSharedPreferences("NetworkVariables", MODE_PRIVATE);
         SharedPreferences configPrefs = context.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         SharedPreferences loginPrefs = context.getSharedPreferences("UserLogin", MODE_PRIVATE);
+        ContentResolver CR = context.getContentResolver();
+
         SharedPreferences.Editor editor = loginPrefs.edit();
         editor.putBoolean("ema_btn_make_visible", true);
         editor.apply();
 
         PendingResult pendingResult = goAsync();
-        Task task = new Task(pendingResult, configPrefs, networkPrefs);
+        Task task = new Task(pendingResult, configPrefs, networkPrefs, CR);
         task.execute();
         sendNotification(context, intent.getIntExtra("ema_order", -1));
         setAlarams(context, intent.getIntExtra("ema_order", -1));
@@ -56,12 +61,15 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         private final PendingResult pendingResult;
         SharedPreferences confPrefs;
         SharedPreferences networkPrefs;
+        ContentResolver cr;
 
-        private Task(PendingResult pendingResult, SharedPreferences confPrefs, SharedPreferences networkPrefs) {
+        private Task(PendingResult pendingResult, SharedPreferences confPrefs, SharedPreferences networkPrefs, ContentResolver cr) {
             this.pendingResult = pendingResult;
             this.confPrefs = confPrefs;
             this.networkPrefs = networkPrefs;
+            this.cr = cr;
         }
+
 
         @Override
         protected String doInBackground(String... strings) {
@@ -108,6 +116,23 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             editor.putLong("prev_rx_network_data", rxBytes);
             editor.putLong("prev_tx_network_data", txBytes);
             editor.apply();
+
+
+            // saving the total number of Images stored
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                StoredMedia storedMedia = new StoredMedia();
+                String image_media_type = "IMAGE";
+                String video_media_type = "VIDEO";
+                int totalNumOfImages = 0;
+                int totalNumOfVideoFiles = 0;
+                totalNumOfImages = storedMedia.totalNumberOfImages(cr);
+                totalNumOfVideoFiles = storedMedia.totalNumberOfVideoFiles(cr);
+                int storedMediaSourceId = confPrefs.getInt("STORED_MEDIA", -1);
+                assert storedMediaSourceId != -1;
+                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, totalNumOfImages, image_media_type);
+                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, totalNumOfVideoFiles, video_media_type);
+            }
+
             return "Success";
         }
 
@@ -170,9 +195,6 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         PendingIntent pendingIntent4 = PendingIntent.getBroadcast(context, 4, intent4, PendingIntent.FLAG_UPDATE_CURRENT);
         if (alarmManager == null)
             return;
-
-        Calendar currentCal = Calendar.getInstance();
-        long currentTime = currentCal.getTimeInMillis();
 
         Calendar firingCal1 = Calendar.getInstance();
         firingCal1.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[0]); // at 10am

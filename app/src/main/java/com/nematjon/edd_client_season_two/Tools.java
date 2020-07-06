@@ -55,7 +55,8 @@ public class Tools {
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.RECEIVE_SMS
+            Manifest.permission.RECEIVE_SMS,
+            Manifest.permission.READ_EXTERNAL_STORAGE
     };
 
     public static boolean hasPermissions(Context con, String... permissions) {
