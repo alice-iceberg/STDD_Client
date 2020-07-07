@@ -20,12 +20,12 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.speech.RecognitionListener;
-import android.speech.SpeechRecognizer;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -49,6 +49,7 @@ import com.nematjon.edd_client_season_two.receivers.ActivityTransRcvr;
 import com.nematjon.edd_client_season_two.receivers.CallRcvr;
 import com.nematjon.edd_client_season_two.receivers.ScreenAndUnlockRcvr;
 import com.nematjon.edd_client_season_two.receivers.SignificantMotionDetector;
+import com.nematjon.edd_client_season_two.receivers.WifiReceiver;
 
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -79,6 +80,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short LIGHT_SENSOR_PERIOD = 30;  //in sec
     private static final short AUDIO_RECORDING_DURATION = 5;  //in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; //in sec
+    private static final int WIFI_SCANNING_PERIOD = 31 * 60 * 60; //in sec
 
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
@@ -96,29 +98,29 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
     static SharedPreferences loginPrefs;
     static SharedPreferences confPrefs;
+
     static int stepDetectorDataSrcId;
     static int pressureDataSrcId;
     static int lightDataSrcId;
+    static int wifiScanDataSrcId;
 
     private static long prevLightStartTime = 0;
     private static long prevAudioRecordStartTime = 0;
+    private static long prevWifiScanStartTime = 0;
 
     static NotificationManager mNotificationManager;
     static Boolean permissionNotificationPosted;
 
     private ScreenAndUnlockRcvr mPhoneUnlockedReceiver;
     private CallRcvr mCallReceiver;
+    private WifiReceiver wifiReceiver = new WifiReceiver();
 
     private AudioFeatureRecorder audioFeatureRecorder;
-
 
     private LocationManager locationManager;
 
     private ActivityRecognitionClient activityTransitionClient;
     private PendingIntent activityTransPendingIntent;
-
-
-    //private static boolean canSendNotif = true;
 
     private Handler mainHandler = new Handler();
     private Runnable mainRunnable = new Runnable() {
@@ -131,9 +133,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 permissionNotificationPosted = false;
             }
 
-            long nowTime = System.currentTimeMillis();
-
             //region Registering Audio recorder periodically
+            long nowTime = System.currentTimeMillis();
             boolean canStartAudioRecord = (nowTime > prevAudioRecordStartTime + AUDIO_RECORDING_PERIOD * 1000) || CallRcvr.AudioRunningForCall;
             boolean stopAudioRecord = (nowTime > prevAudioRecordStartTime + AUDIO_RECORDING_DURATION * 1000);
             if (canStartAudioRecord) {
@@ -145,6 +146,27 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 if (audioFeatureRecorder != null) {
                     audioFeatureRecorder.stop();
                     audioFeatureRecorder = null;
+                }
+            }
+            //endregion
+
+            //region Scanning WiFi Fingerprints periodically
+            long currentTime = System.currentTimeMillis();
+            boolean canWifiScan = (currentTime > prevWifiScanStartTime + WIFI_SCANNING_PERIOD * 1000);
+            List<ScanResult> wifiList;
+            ArrayList<String> BSSIDs = new ArrayList<>();
+            WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+            registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            if (canWifiScan) {
+                assert wifiManager != null;
+                if (wifiManager.isWifiEnabled()) {
+                    wifiManager.startScan();
+                    wifiList = wifiManager.getScanResults();
+                    for (int i = 0; i < wifiList.size(); i++) {
+                        BSSIDs.add(wifiList.get(i).BSSID);
+                    }
+                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, BSSIDs);
+                    prevWifiScanStartTime = currentTime;
                 }
             }
             //endregion
@@ -235,6 +257,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         stepDetectorDataSrcId = confPrefs.getInt("ANDROID_STEP_DETECTOR", -1);
         pressureDataSrcId = confPrefs.getInt("ANDROID_PRESSURE", -1);
         lightDataSrcId = confPrefs.getInt("ANDROID_LIGHT", -1);
+        wifiScanDataSrcId = confPrefs.getInt("ANDROID_WIFI", -1);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
@@ -358,6 +381,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         //stopService(stationaryDetector);
         unregisterReceiver(mPhoneUnlockedReceiver);
         unregisterReceiver(mCallReceiver);
+        unregisterReceiver(wifiReceiver);
         mainHandler.removeCallbacks(mainRunnable);
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
@@ -463,7 +487,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         try {
             SharedPreferences prefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
             int dataSourceId = prefs.getInt("LOCATION_GPS", -1);
-            assert dataSourceId != -1;
+           // assert dataSourceId != -1;
             DbMgr.saveMixedData(dataSourceId, nowTime, location.getAccuracy(), nowTime, location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getAccuracy(), location.getAltitude());
             FileOutputStream fileOutputStream = openFileOutput(LOCATIONS_TXT, Context.MODE_APPEND);
             fileOutputStream.write(resultString.getBytes());
@@ -488,61 +512,4 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
     }
 
-    static SpeechRecognizer sr;
-
-    static class SpeechRec implements RecognitionListener {
-
-        @Override
-        public void onReadyForSpeech(Bundle params) {
-            Log.e(TAG, "onReadyForSpeech: " + params.toString());
-        }
-
-        @Override
-        public void onBeginningOfSpeech() {
-            Log.e(TAG, "onBeginningOfSpeech: ");
-            long nowTime = System.currentTimeMillis();
-            Log.e(TAG, "START TIME: " + nowTime);
-        }
-
-        @Override
-        public void onRmsChanged(float rmsdB) {
-            Log.e(TAG, "onRmsChanged: " + rmsdB);
-        }
-
-        @Override
-        public void onBufferReceived(byte[] buffer) {
-            Log.e(TAG, "onBufferReceived: " + Arrays.toString(buffer));
-        }
-
-        @Override
-        public void onEndOfSpeech() {
-            Log.e(TAG, "onEndOfSpeech: ");
-            long nowTime = System.currentTimeMillis();
-            Log.e(TAG, "END TIME: " + nowTime);
-        }
-
-        @Override
-        public void onError(int error) {
-            Log.e(TAG, "onError: " + error);
-
-        }
-
-        @Override
-        public void onResults(Bundle results) {
-            Log.e(TAG, "onResults: " + results.toString());
-            for (String key : results.keySet()) {
-                Log.d("myApplication", key + " is a key in the bundle");
-            }
-        }
-
-        @Override
-        public void onPartialResults(Bundle partialResults) {
-            Log.e(TAG, "onPartialResults: " + partialResults.toString());
-        }
-
-        @Override
-        public void onEvent(int eventType, Bundle params) {
-            Log.e(TAG, "onEvent: " + params.toString());
-        }
-    }
 }
