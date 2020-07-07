@@ -129,8 +129,8 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
                 totalNumOfVideoFiles = storedMedia.totalNumberOfVideoFiles(cr);
                 int storedMediaSourceId = confPrefs.getInt("STORED_MEDIA", -1);
                 assert storedMediaSourceId != -1;
-                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, totalNumOfImages, image_media_type);
-                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, totalNumOfVideoFiles, video_media_type);
+                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
+                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
             }
 
             return "Success";

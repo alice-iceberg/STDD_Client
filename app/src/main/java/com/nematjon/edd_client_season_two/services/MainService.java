@@ -80,7 +80,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short LIGHT_SENSOR_PERIOD = 30;  //in sec
     private static final short AUDIO_RECORDING_DURATION = 5;  //in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; //in sec
-    private static final int WIFI_SCANNING_PERIOD = 31 * 60 * 60; //in sec
+    private static final int WIFI_SCANNING_PERIOD = 31 * 60; //in sec
 
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
@@ -487,7 +487,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         try {
             SharedPreferences prefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
             int dataSourceId = prefs.getInt("LOCATION_GPS", -1);
-           // assert dataSourceId != -1;
+            // assert dataSourceId != -1;
             DbMgr.saveMixedData(dataSourceId, nowTime, location.getAccuracy(), nowTime, location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getAccuracy(), location.getAltitude());
             FileOutputStream fileOutputStream = openFileOutput(LOCATIONS_TXT, Context.MODE_APPEND);
             fileOutputStream.write(resultString.getBytes());
