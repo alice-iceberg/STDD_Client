@@ -49,7 +49,6 @@ import com.nematjon.edd_client_season_two.receivers.ActivityTransRcvr;
 import com.nematjon.edd_client_season_two.receivers.CallRcvr;
 import com.nematjon.edd_client_season_two.receivers.ScreenAndUnlockRcvr;
 import com.nematjon.edd_client_season_two.receivers.SignificantMotionDetector;
-import com.nematjon.edd_client_season_two.receivers.WifiReceiver;
 
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -113,7 +112,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
     private ScreenAndUnlockRcvr mPhoneUnlockedReceiver;
     private CallRcvr mCallReceiver;
-    private WifiReceiver wifiReceiver = new WifiReceiver();
 
     private AudioFeatureRecorder audioFeatureRecorder;
 
@@ -156,7 +154,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
             List<ScanResult> wifiList;
             ArrayList<String> BSSIDs = new ArrayList<>();
             WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-            registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             if (canWifiScan) {
                 assert wifiManager != null;
                 if (wifiManager.isWifiEnabled()) {
@@ -381,7 +378,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         //stopService(stationaryDetector);
         unregisterReceiver(mPhoneUnlockedReceiver);
         unregisterReceiver(mCallReceiver);
-        unregisterReceiver(wifiReceiver);
         mainHandler.removeCallbacks(mainRunnable);
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);

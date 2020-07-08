@@ -1,5 +1,7 @@
 package com.nematjon.edd_client_season_two.receivers;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -10,19 +12,20 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.TrafficStats;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.provider.CalendarContract;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.nematjon.edd_client_season_two.AppUseDb;
 import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.EMAActivity;
-import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.R;
 import com.nematjon.edd_client_season_two.StoredMedia;
 import com.nematjon.edd_client_season_two.Tools;
@@ -71,6 +74,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         }
 
 
+        @SuppressLint("MissingPermission")
         @Override
         protected String doInBackground(String... strings) {
             // saving app usage data
@@ -95,7 +99,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             cursor.close();
 
 
-            // saving transmitted & received network data
+            //region saving transmitted & received network data
             long nowTime = System.currentTimeMillis();
             String usage_tx_type = "TX";
             String usage_rx_type = "RX";
@@ -116,9 +120,10 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             editor.putLong("prev_rx_network_data", rxBytes);
             editor.putLong("prev_tx_network_data", txBytes);
             editor.apply();
+            //endregion
 
 
-            // saving the total number of Images stored
+            //region saving the total number of Images and Video Files stored
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                 StoredMedia storedMedia = new StoredMedia();
                 String image_media_type = "IMAGE";
@@ -132,6 +137,17 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
                 DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
                 DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
             }
+            //endregion
+
+            //region saving the total number of Calendar Events
+            Cursor calendarCursor;
+            String calendar_type = "EVENT";
+            calendarCursor = cr.query(CalendarContract.Events.CONTENT_URI, null, null, null, null);
+            int total_number_of_events = calendarCursor.getCount();
+            int calendarSourceId = confPrefs.getInt("CALENDAR", -1);
+            assert calendarSourceId != -1;
+            DbMgr.saveMixedData(calendarSourceId, nowTime, 1.0f, nowTime, total_number_of_events, calendar_type);
+            //endregion
 
             return "Success";
         }

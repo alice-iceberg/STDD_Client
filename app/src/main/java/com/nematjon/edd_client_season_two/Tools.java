@@ -57,7 +57,8 @@ public class Tools {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.RECEIVE_SMS,
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.CHANGE_WIFI_STATE
+            Manifest.permission.CHANGE_WIFI_STATE,
+            Manifest.permission.READ_CALENDAR
     };
 
     public static boolean hasPermissions(Context con, String... permissions) {

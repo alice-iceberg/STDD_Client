@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.database.Cursor;
 import android.os.Handler;
 import android.widget.Toolbar;
 
@@ -100,7 +101,9 @@ public class MainActivity extends Activity {
                     Manifest.permission.RECORD_AUDIO,
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.READ_CALENDAR
             };
         }
 
