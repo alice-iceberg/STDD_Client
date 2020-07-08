@@ -1,6 +1,5 @@
 package com.nematjon.edd_client_season_two.receivers;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -12,7 +11,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.TrafficStats;
 import android.os.AsyncTask;
@@ -20,7 +18,6 @@ import android.os.Build;
 import android.provider.CalendarContract;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.nematjon.edd_client_season_two.AppUseDb;
@@ -90,7 +87,6 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
                     long end_time = cursor.getLong(3);
                     if (Tools.inRange(start_time, app_usage_time_start, app_usage_time_end) && Tools.inRange(end_time, app_usage_time_start, app_usage_time_end))
                         if (start_time < end_time) {
-                            //Log.e(TAG, "Inserting -> package: " + package_name + "; start: " + start_time + "; end: " + end_time);
                             DbMgr.saveMixedData(appUseDataSourceId, start_time, 1.0f, start_time, end_time, package_name);
                         }
                 }
@@ -143,10 +139,12 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             Cursor calendarCursor;
             String calendar_type = "EVENT";
             calendarCursor = cr.query(CalendarContract.Events.CONTENT_URI, null, null, null, null);
+            assert calendarCursor != null;
             int total_number_of_events = calendarCursor.getCount();
             int calendarSourceId = confPrefs.getInt("CALENDAR", -1);
             assert calendarSourceId != -1;
             DbMgr.saveMixedData(calendarSourceId, nowTime, 1.0f, nowTime, total_number_of_events, calendar_type);
+            calendarCursor.close();
             //endregion
 
             return "Success";

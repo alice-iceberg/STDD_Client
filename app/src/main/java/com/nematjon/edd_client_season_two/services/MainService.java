@@ -77,6 +77,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final short DATA_SUBMIT_PERIOD = 5 * 60;  //in sec
     private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  //in sec
     private static final short LIGHT_SENSOR_PERIOD = 30;  //in sec
+    private static final short PRESSURE_SENSOR_PERIOD = 10 * 60; //in sec
+    private static final short PRESSURE_SENSOR_DURATION = 2; //in sec
     private static final short AUDIO_RECORDING_DURATION = 5;  //in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; //in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; //in sec
@@ -104,6 +106,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static int wifiScanDataSrcId;
 
     private static long prevLightStartTime = 0;
+    private static long prevPressureStartTime = 0;
     private static long prevAudioRecordStartTime = 0;
     private static long prevWifiScanStartTime = 0;
 
@@ -457,8 +460,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
             DbMgr.saveMixedData(stepDetectorDataSrcId, timestamp, event.accuracy, timestamp);
         } else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
-            //Sampling rate is 5~6 samples per second for SENSOR_DELAY_NORMAL
-            DbMgr.saveMixedData(pressureDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
+            long nowTime = System.currentTimeMillis();
+            boolean canPressureSense = (nowTime > prevPressureStartTime + PRESSURE_SENSOR_PERIOD * 1000);
+            boolean stopPressureSense = (nowTime > prevPressureStartTime + AUDIO_RECORDING_DURATION * 1000);
+            if (canPressureSense && (!stopPressureSense)) {
+                DbMgr.saveMixedData(pressureDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
+                prevPressureStartTime = nowTime;
+            }
         } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
             long nowTime = System.currentTimeMillis();
             boolean canLightSense = (nowTime > prevLightStartTime + LIGHT_SENSOR_PERIOD * 1000);
