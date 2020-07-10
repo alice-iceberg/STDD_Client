@@ -184,6 +184,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 public void run() {
                     if (Tools.isNetworkAvailable()) {
                         Cursor cursor = DbMgr.getSensorData();
+                        Log.e(TAG, "Count DB: " + cursor.getCount());
+                        int delete_count = 1;
                         if (cursor.moveToFirst()) {
                             ManagedChannel channel = ManagedChannelBuilder.forAddress(
                                     getString(R.string.grpc_host),
@@ -209,6 +211,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                     EtService.DefaultResponseMessage responseMessage = stub.submitDataRecord(submitDataRecordRequestMessage);
                                     if (responseMessage.getDoneSuccessfully()) {
                                         DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
+                                        Log.e(TAG, delete_count + " -> " + cursor.getInt(cursor.getColumnIndex("dataSourceId")) + " " + cursor.getLong(cursor.getColumnIndex("timestamp")) + " " + cursor.getString(cursor.getColumnIndex("data")));
+                                        delete_count++;
                                     }
 
                                 } while (cursor.moveToNext());
@@ -220,6 +224,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                             }
                         }
                         cursor.close();
+                        Log.e(TAG, "Count deleted: " + delete_count);
                     }
                 }
             }).start();

@@ -91,21 +91,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setActionBar((Toolbar) findViewById(R.id.my_toolbar));
-        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-            // only for gingerbread and newer versions
-            Tools.PERMISSIONS = new String[]{
-                    Manifest.permission.ACTIVITY_RECOGNITION,
-                    Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.READ_CALL_LOG,
-                    Manifest.permission.PROCESS_OUTGOING_CALLS,
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.CHANGE_WIFI_STATE,
-                    Manifest.permission.READ_CALENDAR
-            };
-        }
 
         init();
 
@@ -141,6 +126,22 @@ public class MainActivity extends Activity {
         tvBonus = findViewById(R.id.bonus_points);
         tvTotalReward = findViewById(R.id.total_reward_with_bonus);
         //endregion
+
+        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            // only for gingerbread and newer versions
+            Tools.PERMISSIONS = new String[]{
+                    Manifest.permission.ACTIVITY_RECOGNITION,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.PROCESS_OUTGOING_CALLS,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.READ_CALENDAR
+            };
+        }
 
         DbMgr.init(getApplicationContext());
         AppUseDb.init(getApplicationContext());
