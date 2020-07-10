@@ -74,7 +74,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final long EMA_RESPONSE_EXPIRE_TIME = 60 * 60;  //in sec
     public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; //min
     public static final short HEARTBEAT_PERIOD = 30;  //in sec
-    public static final short DATA_SUBMIT_PERIOD = 5 * 60;  //in sec
+    public static final short DATA_SUBMIT_PERIOD = 60;  //in sec
     private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  //in sec
     private static final short LIGHT_SENSOR_PERIOD = 30;  //in sec
     private static final short PRESSURE_SENSOR_PERIOD = 10 * 60; //in sec
@@ -179,13 +179,14 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable dataSubmitRunnable = new Runnable() {
         @Override
         public void run() {
+            Log.e(TAG, "Data submission Runnable run()");
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    Log.e(TAG, "Data submission Runnable run() -> Thread run()");
                     if (Tools.isNetworkAvailable()) {
+                        Log.e(TAG, "Data submission Runnable run() -> Thread run() -> Network available condition (True)");
                         Cursor cursor = DbMgr.getSensorData();
-                        Log.e(TAG, "Count DB: " + cursor.getCount());
-                        int delete_count = 1;
                         if (cursor.moveToFirst()) {
                             ManagedChannel channel = ManagedChannelBuilder.forAddress(
                                     getString(R.string.grpc_host),
@@ -211,8 +212,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                     EtService.DefaultResponseMessage responseMessage = stub.submitDataRecord(submitDataRecordRequestMessage);
                                     if (responseMessage.getDoneSuccessfully()) {
                                         DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
-                                        Log.e(TAG, delete_count + " -> " + cursor.getInt(cursor.getColumnIndex("dataSourceId")) + " " + cursor.getLong(cursor.getColumnIndex("timestamp")) + " " + cursor.getString(cursor.getColumnIndex("data")));
-                                        delete_count++;
                                     }
 
                                 } while (cursor.moveToNext());
@@ -224,7 +223,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                             }
                         }
                         cursor.close();
-                        Log.e(TAG, "Count deleted: " + delete_count);
                     }
                 }
             }).start();
@@ -321,6 +319,12 @@ public class MainService extends Service implements SensorEventListener, Locatio
         registerReceiver(mCallReceiver, intentFilter);
         //endregion
 
+        mainHandler.post(mainRunnable);
+        heartBeatHandler.post(heartBeatSendRunnable);
+        appUsageSaveHandler.post(appUsageSaveRunnable);
+        dataSubmissionHandler.post(dataSubmitRunnable);
+        permissionNotificationPosted = false;
+
         //region Posting Foreground notification when service is started
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         String channel_id = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel() : "";
@@ -333,21 +337,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         Notification notification = builder.build();
         startForeground(ID_SERVICE, notification);
         //endregion
-
-        mainHandler.post(mainRunnable);
-        heartBeatHandler.post(heartBeatSendRunnable);
-        appUsageSaveHandler.post(appUsageSaveRunnable);
-        dataSubmissionHandler.post(dataSubmitRunnable);
-        permissionNotificationPosted = false;
-
-        /*sr = SpeechRecognizer.createSpeechRecognizer(this);
-        sr.setRecognitionListener(new SpeechRec());
-
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"com.nematjon.edd_client_season_two");
-//        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
-        sr.startListening(intent);*/
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
