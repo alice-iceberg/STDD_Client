@@ -3,10 +3,7 @@ package com.nematjon.edd_client_season_two.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import java.util.Objects;
 

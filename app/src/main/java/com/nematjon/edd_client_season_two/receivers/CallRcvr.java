@@ -2,7 +2,6 @@ package com.nematjon.edd_client_season_two.receivers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.hardware.Sensor;
 import android.util.Log;
 
 import com.nematjon.edd_client_season_two.DbMgr;

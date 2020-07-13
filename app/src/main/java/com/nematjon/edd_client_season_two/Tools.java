@@ -164,6 +164,11 @@ public class Tools {
     }
 
     public static void checkAndSaveUsageAccessStats(Context con) {
+        // Init AppUseDb if it's null
+        if (AppUseDb.getDB() == null)
+            AppUseDb.init(con);
+
+
         SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
         long lastSavedTimestamp = loginPrefs.getLong("lastUsageSubmissionTime", -1);
 
@@ -183,12 +188,11 @@ public class Tools {
 
         UsageStatsManager usageStatsManager = (UsageStatsManager) con.getSystemService(Context.USAGE_STATS_SERVICE);
         List<UsageStats> stats = Objects.requireNonNull(usageStatsManager).queryUsageStats(UsageStatsManager.INTERVAL_BEST, fromCal.getTimeInMillis(), System.currentTimeMillis());
-        for (UsageStats usageStats : stats) {
+        for (UsageStats usageStats : stats)
             //do not include launcher's package name
-            if (usageStats.getTotalTimeInForeground() > 0 && !usageStats.getPackageName().contains(launcher_packageName)) {
+            if (usageStats.getTotalTimeInForeground() > 0 && !usageStats.getPackageName().contains(launcher_packageName))
                 AppUseDb.saveAppUsageStat(usageStats.getPackageName(), usageStats.getLastTimeUsed(), usageStats.getTotalTimeInForeground());
-            }
-        }
+
         SharedPreferences.Editor editor = loginPrefs.edit();
         editor.putLong("lastUsageSubmissionTime", tillCal.getTimeInMillis());
         editor.apply();

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.database.Cursor;
 import android.os.Handler;
 import android.widget.Toolbar;
 
@@ -27,7 +26,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nematjon.edd_client_season_two.receivers.CallRcvr;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 import com.nematjon.edd_client_season_two.services.MainService;
 
@@ -36,7 +34,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;

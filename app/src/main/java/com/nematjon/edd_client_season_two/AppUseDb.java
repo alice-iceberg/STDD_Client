@@ -3,7 +3,6 @@ package com.nematjon.edd_client_season_two;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -161,5 +160,9 @@ public class AppUseDb {
 
     public static Cursor getAppUsage() {
         return db.rawQuery("select * from AppUse order by end_timestamp desc;", new String[0]);
+    }
+
+    public static SQLiteDatabase getDB(){
+        return db;
     }
 }
