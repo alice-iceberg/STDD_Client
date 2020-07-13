@@ -103,6 +103,10 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
             }
         });
 
+        //init DbMgr if it's null
+        if (DbMgr.getDB() == null)
+            DbMgr.init(getApplicationContext());
+
 
         loadingLayout = findViewById(R.id.loading_frame);
         loadingLayout.setVisibility(View.VISIBLE);

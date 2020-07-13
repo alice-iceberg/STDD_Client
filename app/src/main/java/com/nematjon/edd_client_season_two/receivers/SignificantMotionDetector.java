@@ -21,6 +21,9 @@ public class SignificantMotionDetector extends TriggerEventListener {
 
     @Override
     public void onTrigger(TriggerEvent event) {
+        //init DbMgr if it's null
+        if (DbMgr.getDB() == null)
+            DbMgr.init(context);
         long nowTime = System.currentTimeMillis();
         if (event.values[0] == 1) {
             final SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);

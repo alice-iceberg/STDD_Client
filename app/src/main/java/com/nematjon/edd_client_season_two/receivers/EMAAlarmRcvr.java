@@ -45,6 +45,9 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         SharedPreferences configPrefs = context.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         SharedPreferences loginPrefs = context.getSharedPreferences("UserLogin", MODE_PRIVATE);
         ContentResolver CR = context.getContentResolver();
+        //init DbMgr if it's null
+        if (DbMgr.getDB() == null)
+            DbMgr.init(context);
 
         SharedPreferences.Editor editor = loginPrefs.edit();
         editor.putBoolean("ema_btn_make_visible", true);

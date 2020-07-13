@@ -18,6 +18,10 @@ public class ScreenAndUnlockRcvr extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         SharedPreferences confPrefs = context.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         SharedPreferences screenPrefs = context.getSharedPreferences("SecreenVariables", Context.MODE_PRIVATE);
+        //init DbMgr if it's null
+        if (DbMgr.getDB() == null)
+            DbMgr.init(context);
+
         PendingResult pendingResult = goAsync();
         Task task = new Task(pendingResult, intent, confPrefs, screenPrefs);
         task.execute();

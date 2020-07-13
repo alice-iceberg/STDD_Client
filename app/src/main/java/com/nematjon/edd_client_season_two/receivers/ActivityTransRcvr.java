@@ -22,6 +22,10 @@ public class ActivityTransRcvr extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         PendingResult pendingResult = goAsync();
         SharedPreferences confPrefs = context.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
+        //init DbMgr if it's null
+        if (DbMgr.getDB() == null)
+            DbMgr.init(context);
+
         Task task = new Task(pendingResult, intent, confPrefs);
         task.execute();
     }

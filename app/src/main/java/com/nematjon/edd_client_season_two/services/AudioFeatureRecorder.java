@@ -36,6 +36,10 @@ class AudioFeatureRecorder {
 
     AudioFeatureRecorder(final Context con) {
         final SharedPreferences prefs = con.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
+        //init DbMgr if it's null
+        if (DbMgr.getDB() == null)
+            DbMgr.init(con);
+
         dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(SAMPLING_RATE, AUDIO_BUFFER_SIZE, 512);
 
         final SilenceDetector silenceDetector = new SilenceDetector(SILENCE_THRESHOLD, false);

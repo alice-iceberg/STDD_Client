@@ -30,8 +30,10 @@ public class NotificationService extends NotificationListenerService {
         int dataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
         assert dataSourceId != -1;
 
+        //init DbMgr if it's null
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());
+
         DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, packageName, NOTIF_TYPE_ARRIVED);
 
         String nTicker = "";
