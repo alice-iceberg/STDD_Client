@@ -14,6 +14,7 @@ import java.util.HashMap;
 public class StoredMedia {
     int total_num_of_images = 0;
     int total_num_of_video_files = 0;
+    int total_num_of_music = 0;
 
     public int totalNumberOfImages(ContentResolver CR) {
 
@@ -83,6 +84,18 @@ public class StoredMedia {
             folders.clear(); //clear the hashmap becuase it's no more useful
         }
         return total_num_of_video_files;
+    }
+
+    public int totalNumOfMusic (ContentResolver CR){
+        Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+
+        Cursor songCursor = CR.query(songUri, null, selection, null, null);
+
+        assert songCursor != null;
+        total_num_of_music = songCursor.getCount();
+
+        return total_num_of_music;
     }
 
 }
