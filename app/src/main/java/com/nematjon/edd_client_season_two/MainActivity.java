@@ -74,6 +74,7 @@ public class MainActivity extends Activity {
 
     private SharedPreferences loginPrefs;
     SharedPreferences configPrefs;
+    private SharedPreferences rewardPrefs;
 
     private AlertDialog dialog;
 
@@ -144,6 +145,7 @@ public class MainActivity extends Activity {
         AppUseDb.init(getApplicationContext());
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         configPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
+        rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
         setAlarams();
     }
 
@@ -205,9 +207,13 @@ public class MainActivity extends Activity {
         ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
         ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
 
-        tvRewards.setText(getString(R.string.earned_points, 0));
-        tvBonus.setText(getString(R.string.bonus_points, 0));
-        tvTotalReward.setText(getString(R.string.total_reward_with_bonus, 0));
+        int rewardPoints = rewardPrefs.getInt("rewardPoints", 0);
+        int bonus = rewardPrefs.getInt("bonus", 0);
+        int total_reward = rewardPoints + bonus;
+
+        tvRewards.setText(getString(R.string.earned_points, rewardPoints));
+        tvBonus.setText(getString(R.string.bonus_points, bonus));
+        tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
     }
 
     public void updateUI() {
@@ -230,6 +236,14 @@ public class MainActivity extends Activity {
             setMainStats();
             setEMAAndRewardsStats();
         }
+
+        int rewardPoints = rewardPrefs.getInt("rewardPoints", 0);
+        int bonus = rewardPrefs.getInt("bonus", 0);
+        int total_reward = rewardPoints + bonus;
+
+        tvRewards.setText(getString(R.string.earned_points, rewardPoints));
+        tvBonus.setText(getString(R.string.bonus_points, bonus));
+        tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
 
         (new Handler()).postDelayed(new Runnable() {
             @Override
@@ -317,9 +331,6 @@ public class MainActivity extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                tvRewards.setText("");
-                                tvBonus.setText("");
-                                tvTotalReward.setText("");
                                 ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
                                 ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
                                 ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
@@ -343,10 +354,12 @@ public class MainActivity extends Activity {
 
                                     int rewardPoints = uniqueValues.size() * 250;
                                     int bonus = calculateBonusPoints(uniqueValues);
-                                    tvRewards.setText(getString(R.string.earned_points, rewardPoints));
-                                    tvBonus.setText(getString(R.string.bonus_points, bonus));
-                                    int total_reward = rewardPoints + bonus;
-                                    tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
+
+                                    // saving results to Shared Preferences
+                                    SharedPreferences.Editor editor = rewardPrefs.edit();
+                                    editor.putInt("rewardPoints", rewardPoints);
+                                    editor.putInt("bonus", bonus);
+                                    editor.apply();
 
                                     int ema_answered_count = 0;
 

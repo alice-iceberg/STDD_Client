@@ -99,6 +99,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
     static SharedPreferences loginPrefs;
     static SharedPreferences confPrefs;
+    static SharedPreferences rewardPrefs;
 
     static int stepDetectorDataSrcId;
     static int pressureDataSrcId;
@@ -262,6 +263,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
+        rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
+
         stepDetectorDataSrcId = confPrefs.getInt("ANDROID_STEP_DETECTOR", -1);
         pressureDataSrcId = confPrefs.getInt("ANDROID_PRESSURE", -1);
         lightDataSrcId = confPrefs.getInt("ANDROID_LIGHT", -1);
