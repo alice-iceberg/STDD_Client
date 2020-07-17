@@ -155,7 +155,10 @@ public class MainService extends Service implements SensorEventListener, Locatio
             long currentTime = System.currentTimeMillis();
             boolean canWifiScan = (currentTime > prevWifiScanStartTime + WIFI_SCANNING_PERIOD * 1000);
             List<ScanResult> wifiList;
+            String data_type_bssid = "BSSID";
+            String data_type_ssid = "SSID";
             ArrayList<String> BSSIDs = new ArrayList<>();
+            ArrayList<String> SSIDs = new ArrayList<>();
             WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
             if (canWifiScan) {
                 assert wifiManager != null;
@@ -164,8 +167,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     wifiList = wifiManager.getScanResults();
                     for (int i = 0; i < wifiList.size(); i++) {
                         BSSIDs.add(wifiList.get(i).BSSID);
+                        SSIDs.add(wifiList.get(i).SSID);
+
                     }
-                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, BSSIDs);
+                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, BSSIDs, data_type_bssid);
+                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, SSIDs, data_type_ssid);
                     prevWifiScanStartTime = currentTime;
                 }
             }
