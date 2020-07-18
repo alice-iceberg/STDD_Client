@@ -170,9 +170,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         SSIDs.add(wifiList.get(i).SSID);
 
                     }
+                    prevWifiScanStartTime = currentTime;
                     DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, BSSIDs, data_type_bssid);
                     DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, SSIDs, data_type_ssid);
-                    prevWifiScanStartTime = currentTime;
                 }
             }
             //endregion
