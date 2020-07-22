@@ -29,8 +29,15 @@ public class StoredMedia {
         Uri root = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
 
         Cursor c = CR.query(root, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
+        if(c!=null) {
+            total_num_of_images = c.getCount();
+            c.close();
+        }else{
+            total_num_of_images = 0;
+        }
 
-        if (c != null && c.moveToFirst()) {
+
+        /*if (c != null && c.moveToFirst()) {
             int folderIdIndex = c.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID);
             int folderNameIndex = c.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
 
@@ -47,25 +54,31 @@ public class StoredMedia {
 
             c.close(); //close cursor
             folders.clear(); //clear the hashmap becuase it's no more useful
-        }
+        }*/
         return total_num_of_images;
     }
 
     public int totalNumberOfVideoFiles(ContentResolver CR) {
 
-        HashMap<Long, String> folders = new HashMap<>();  //hashmap to track(no duplicates) folders by using their ids
+        //HashMap<Long, String> folders = new HashMap<>();  //hashmap to track(no duplicates) folders by using their ids
 
         String[] projection = {MediaStore.Video.Media._ID,
                 MediaStore.Video.Media.BUCKET_ID,
                 MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
                 MediaStore.Video.Media.DATE_ADDED};
 
-
         Uri root = MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
 
         Cursor c = CR.query(root, projection, null, null, MediaStore.Video.Media.DATE_ADDED + " desc");
+        if(c!=null) {
+            total_num_of_video_files = c.getCount();
+            c.close();
+        }else{
+            total_num_of_video_files = 0;
+        }
 
-        if (c != null && c.moveToFirst()) {
+
+        /*if (c != null && c.moveToFirst()) {
             int folderIdIndex = c.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_ID);
             int folderNameIndex = c.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
 
@@ -81,8 +94,8 @@ public class StoredMedia {
             } while (c.moveToNext());
 
             c.close(); //close cursor
-            folders.clear(); //clear the hashmap becuase it's no more useful
-        }
+            folders.clear(); //clear the hashmap because it's no more useful
+        }*/
         return total_num_of_video_files;
     }
 
@@ -92,9 +105,12 @@ public class StoredMedia {
 
         Cursor songCursor = CR.query(songUri, null, selection, null, null);
 
-        assert songCursor != null;
-        total_num_of_music = songCursor.getCount();
-
+        if(songCursor!=null) {
+            total_num_of_music = songCursor.getCount();
+            songCursor.close();
+        }else{
+            total_num_of_music = 0;
+        }
         return total_num_of_music;
     }
 
