@@ -137,7 +137,8 @@ public class MainActivity extends Activity {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.CHANGE_WIFI_STATE,
-                    Manifest.permission.READ_CALENDAR
+                    Manifest.permission.READ_CALENDAR,
+                    Manifest.permission.READ_SMS
             };
         }
 
