@@ -38,7 +38,6 @@ class AudioFeatureRecorder {
     int numberOfSpeakingTurns = 0;
     int speakingTurnDuration = 0; // the speech is started and this is the first speaking turn
     float currentPitch = 0;
-    float previousPitch = 0;
     // endregion
 
     AudioFeatureRecorder(final Context con) {
@@ -96,6 +95,7 @@ class AudioFeatureRecorder {
 
                 if (CallRcvr.AudioRunningForCall) {
                     Log.e(TAG, "ENTERED AUDIORUNNINGFORCALL ");
+                    Log.e(TAG, "handlePitch: " + pitchDetectionResult.getPitch() );
 
                     if (currentPitch > -1.0f && currentPitch != 918.75f) {
                         Log.e(TAG, "CURRENT PITCH " + currentPitch );
@@ -114,6 +114,8 @@ class AudioFeatureRecorder {
                     DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, speakingTurnDuration, sound_feature_type_speaking_turn_duration);
                     numberOfSpeakingTurns = 0;
                     speakingTurnDuration = 0;
+                    currentTimeDuringCall = 0;
+                    prevTimeDuringCall = 0;
                 }
 
 
@@ -144,15 +146,4 @@ class AudioFeatureRecorder {
         }
     }
 
-    void calculateAndSubmitSpeechDuration() {
-
-
-    }
-
-    ;
-
-    void calculateAndSubmitNumberOfTurns() {
-    }
-
-    ;
 }
