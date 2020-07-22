@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.nematjon.edd_client_season_two.DbMgr;
+import com.nematjon.edd_client_season_two.receivers.CallRcvr;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +33,12 @@ class AudioFeatureRecorder {
     private boolean started;
     private ExecutorService executor = Executors.newCachedThreadPool();
     private AudioDispatcher dispatcher;
+    long currentTimeDuringCall = 0;
+    long prevTimeDuringCall = 0;
+    int numberOfSpeakingTurns = 0;
+    int speakingTurnDuration = 0; // the speech is started and this is the first speaking turn
+    float currentPitch = 0;
+    float previousPitch = 0;
     // endregion
 
     AudioFeatureRecorder(final Context con) {
@@ -47,7 +54,10 @@ class AudioFeatureRecorder {
         final String sound_feature_type_energy = "ENERGY";
         final String sound_feature_type_pitch = "PITCH";
         final String sound_feature_type_mfcc = "MFCC";
+        final String sound_feature_type_speaking_turns = "SPEAKING TURNS";
+        final String sound_feature_type_speaking_turn_duration = "SPEAKING TURN DURATION";
         final int dataSourceId = prefs.getInt("SOUND_DATA", -1);
+
         assert dataSourceId != -1;
 
         AudioProcessor mainProcessor = new AudioProcessor() {
@@ -73,10 +83,40 @@ class AudioFeatureRecorder {
         PitchDetectionHandler pitchHandler = new PitchDetectionHandler() {
             @Override
             public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
-                if (pitchDetectionResult.getPitch() > -1.0f && pitchDetectionResult.getPitch() != 918.75f) {
-                    long nowTime = System.currentTimeMillis();
-                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, pitchDetectionResult.getPitch(), sound_feature_type_pitch);
+
+
+                currentPitch = pitchDetectionResult.getPitch();
+                long nowTime = System.currentTimeMillis();
+                prevTimeDuringCall = currentTimeDuringCall;
+
+                //TODO: TEST WITH REAL CALL
+                if (currentPitch > -1.0f && currentPitch != 918.75f) {
+                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, currentPitch, sound_feature_type_pitch);
                 }
+
+                if (CallRcvr.AudioRunningForCall) {
+                    Log.e(TAG, "ENTERED AUDIORUNNINGFORCALL ");
+
+                    if (currentPitch > -1.0f && currentPitch != 918.75f) {
+                        Log.e(TAG, "CURRENT PITCH " + currentPitch );
+                        currentTimeDuringCall = nowTime;
+                        if ((currentTimeDuringCall - prevTimeDuringCall) > 2000) { // if the time difference between two consecutive pitches is more than 2 seconds, the speaker is changed
+                            Log.e(TAG, "Number of speaker turns: " + numberOfSpeakingTurns);
+                            numberOfSpeakingTurns += 1;
+
+                        } else { // the speaker is same
+                            speakingTurnDuration += (currentTimeDuringCall - prevTimeDuringCall);
+                            Log.e(TAG, "Speaking turn duration in millis" + speakingTurnDuration );
+                        }
+                    }
+                } else if (numberOfSpeakingTurns > 0 && speakingTurnDuration > 0) { //the call is ended
+                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, numberOfSpeakingTurns, sound_feature_type_speaking_turns);
+                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, speakingTurnDuration, sound_feature_type_speaking_turn_duration);
+                    numberOfSpeakingTurns = 0;
+                    speakingTurnDuration = 0;
+                }
+
+
             }
         };
         PitchProcessor pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.AMDF, SAMPLING_RATE, AUDIO_BUFFER_SIZE, pitchHandler);
@@ -103,4 +143,16 @@ class AudioFeatureRecorder {
             started = false;
         }
     }
+
+    void calculateAndSubmitSpeechDuration() {
+
+
+    }
+
+    ;
+
+    void calculateAndSubmitNumberOfTurns() {
+    }
+
+    ;
 }

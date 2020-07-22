@@ -470,9 +470,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
             boolean stopPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_DURATION * 1000 + PRESSURE_SENSOR_PERIOD * 1000);
             if (canPressureSense && (!stopPressureSense)) {
                 DbMgr.saveMixedData(pressureDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
+            } else if (stopPressureSense) {
+                prevPressureStopTime = nowTime;
             }
-            else if (stopPressureSense){
-                prevPressureStopTime = nowTime;}
         } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
             long nowTime = System.currentTimeMillis();
             boolean canLightSense = (nowTime > prevLightStartTime + LIGHT_SENSOR_PERIOD * 1000);
