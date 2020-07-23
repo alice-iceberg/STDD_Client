@@ -253,7 +253,6 @@ public class Tools {
 
     public static synchronized void sendHeartbeat(final Context con) {
         final SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
-
         if (Tools.isNetworkAvailable()) {
             new Thread() {
                 @Override
@@ -267,6 +266,7 @@ public class Tools {
                     EtService.SubmitHeartbeatRequestMessage submitHeartbeatRequestMessage = EtService.SubmitHeartbeatRequestMessage.newBuilder()
                             .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
                             .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
+                            .setCampaignId(Integer.parseInt(con.getString(R.string.campaign_id)))
                             .build();
                     try {
                         //@SuppressWarnings("unused")

@@ -51,6 +51,7 @@ import com.nematjon.edd_client_season_two.receivers.ScreenAndUnlockRcvr;
 import com.nematjon.edd_client_season_two.receivers.SignificantMotionDetector;
 
 import java.io.FileOutputStream;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -171,8 +172,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
                     }
                     prevWifiScanStartTime = currentTime;
-                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, BSSIDs, data_type_bssid);
-                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, SSIDs, data_type_ssid);
+                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(BSSIDs.toArray()).replace(" ", ""), data_type_bssid);
+                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(SSIDs.toArray()).replace(" ", ""), data_type_ssid);
                 }
             }
             //endregion
@@ -204,12 +205,12 @@ public class MainService extends Service implements SensorEventListener, Locatio
                             loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
                             int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
                             String email = loginPrefs.getString(AuthActivity.usrEmail, null);
-
                             try {
                                 do {
                                     EtService.SubmitDataRecordRequestMessage submitDataRecordRequestMessage = EtService.SubmitDataRecordRequestMessage.newBuilder()
                                             .setUserId(userId)
                                             .setEmail(email)
+                                            .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
                                             .setDataSource(cursor.getInt(cursor.getColumnIndex("dataSourceId")))
                                             .setTimestamp(cursor.getLong(cursor.getColumnIndex("timestamp")))
                                             .setValues(cursor.getString(cursor.getColumnIndex("data")))
