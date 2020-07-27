@@ -78,7 +78,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final short DATA_SUBMIT_PERIOD = 60;  //in sec
     private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  //in sec
     private static final short LIGHT_SENSOR_PERIOD = 30;  //in sec
-    private static final short PRESSURE_SENSOR_PERIOD = 10 * 60; //in sec
+    private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; //in sec
     private static final short PRESSURE_SENSOR_DURATION = 2; //in sec
     private static final short AUDIO_RECORDING_DURATION = 5;  //in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; //in sec
@@ -96,6 +96,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Sensor sensorLight;
     private Sensor sensorSM;
     private SignificantMotionDetector SMListener;
+    boolean stopPressureSense = true;
+    boolean canPressureSense = false;
 
 
     static SharedPreferences loginPrefs;
@@ -467,12 +469,18 @@ public class MainService extends Service implements SensorEventListener, Locatio
             DbMgr.saveMixedData(stepDetectorDataSrcId, timestamp, event.accuracy, timestamp);
         } else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
             long nowTime = System.currentTimeMillis();
-            boolean canPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_PERIOD * 1000);
-            boolean stopPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_DURATION * 1000 + PRESSURE_SENSOR_PERIOD * 1000);
-            if (canPressureSense && (!stopPressureSense)) {
-                DbMgr.saveMixedData(pressureDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
-            } else if (stopPressureSense) {
+
+            if (prevPressureStopTime == 0) {
                 prevPressureStopTime = nowTime;
+            } else {
+                canPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_PERIOD * 1000);
+                stopPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_DURATION * 1000 + PRESSURE_SENSOR_PERIOD * 1000);
+                if (canPressureSense) {
+                    DbMgr.saveMixedData(pressureDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
+                }
+                if (stopPressureSense) {
+                    prevPressureStopTime = nowTime;
+                }
             }
         } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
             long nowTime = System.currentTimeMillis();
