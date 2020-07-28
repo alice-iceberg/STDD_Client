@@ -122,24 +122,24 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             //endregion
 
 
-            //region saving the total number of Images and Video Files stored
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                StoredMedia storedMedia = new StoredMedia();
-                String image_media_type = "IMAGE";
-                String video_media_type = "VIDEO";
-                String music_media_type = "MUSIC";
-                int totalNumOfImages = 0;
-                int totalNumOfVideoFiles = 0;
-                int totalNumOfMusic = 0;
-                totalNumOfImages = storedMedia.totalNumberOfImages(cr);
-                totalNumOfVideoFiles = storedMedia.totalNumberOfVideoFiles(cr);
-                totalNumOfMusic = storedMedia.totalNumOfMusic(cr);
-                int storedMediaSourceId = confPrefs.getInt("STORED_MEDIA", -1);
-                assert storedMediaSourceId != -1;
-                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
-                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
-                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfMusic, music_media_type);
-            }
+            //region saving the total number of Images, Music and Video Files stored
+
+            StoredMedia storedMedia = new StoredMedia();
+            String image_media_type = "IMAGE";
+            String video_media_type = "VIDEO";
+            String music_media_type = "MUSIC";
+            int totalNumOfImages = 0;
+            int totalNumOfVideoFiles = 0;
+            int totalNumOfMusic = 0;
+            totalNumOfImages = storedMedia.totalNumberOfImages(cr);
+            totalNumOfVideoFiles = storedMedia.totalNumberOfVideoFiles(cr);
+            totalNumOfMusic = storedMedia.totalNumOfMusic(cr);
+            int storedMediaSourceId = confPrefs.getInt("STORED_MEDIA", -1);
+            assert storedMediaSourceId != -1;
+            DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
+            DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
+            DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfMusic, music_media_type);
+
             //endregion
 
             //region saving the total number of Calendar Events
