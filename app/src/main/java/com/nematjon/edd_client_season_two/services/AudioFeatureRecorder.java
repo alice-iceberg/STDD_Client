@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.nematjon.edd_client_season_two.DbMgr;
-import com.nematjon.edd_client_season_two.receivers.CallRcvr;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -33,10 +32,6 @@ class AudioFeatureRecorder {
     private boolean started;
     private ExecutorService executor = Executors.newCachedThreadPool();
     private AudioDispatcher dispatcher;
-    long currentTimeDuringCall = 0;
-    long prevTimeDuringCall = 0;
-    int numberOfSpeakingTurns = 0;
-    int speakingTurnDuration = 0; // the speech is started and this is the first speaking turn
     float currentPitch = 0;
     // endregion
 
@@ -53,8 +48,6 @@ class AudioFeatureRecorder {
         final String sound_feature_type_energy = "ENERGY";
         final String sound_feature_type_pitch = "PITCH";
         final String sound_feature_type_mfcc = "MFCC";
-        final String sound_feature_type_speaking_turns = "SPEAKING TURNS";
-        final String sound_feature_type_speaking_turn_duration = "SPEAKING TURN DURATION";
         final int dataSourceId = prefs.getInt("SOUND_DATA", -1);
 
         assert dataSourceId != -1;
@@ -86,13 +79,14 @@ class AudioFeatureRecorder {
 
                 currentPitch = pitchDetectionResult.getPitch();
                 long nowTime = System.currentTimeMillis();
-                prevTimeDuringCall = currentTimeDuringCall;
 
-                //TODO: TEST WITH REAL CALL
+
                 if (currentPitch > -1.0f && currentPitch != 918.75f) {
                     DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, currentPitch, sound_feature_type_pitch);
                 }
 
+                //speaking duration
+                /*prevTimeDuringCall = currentTimeDuringCall;
                 if (CallRcvr.AudioRunningForCall) {
                     Log.e(TAG, "ENTERED AUDIORUNNINGFORCALL ");
                     Log.e(TAG, "handlePitch: " + pitchDetectionResult.getPitch() );
@@ -109,14 +103,15 @@ class AudioFeatureRecorder {
                             Log.e(TAG, "Speaking turn duration in millis" + speakingTurnDuration );
                         }
                     }
-                } else if (numberOfSpeakingTurns > 0 && speakingTurnDuration > 0) { //the call is ended
+                }*/
+                /*else if (numberOfSpeakingTurns > 0 && speakingTurnDuration > 0) { //the call is ended
                     DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, numberOfSpeakingTurns, sound_feature_type_speaking_turns);
                     DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, speakingTurnDuration, sound_feature_type_speaking_turn_duration);
                     numberOfSpeakingTurns = 0;
                     speakingTurnDuration = 0;
                     currentTimeDuringCall = 0;
                     prevTimeDuringCall = 0;
-                }
+                }*/
 
 
             }
