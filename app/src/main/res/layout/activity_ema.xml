@@ -44,7 +44,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -74,7 +76,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -105,7 +109,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -136,7 +142,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -167,7 +175,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -198,7 +208,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -228,7 +240,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -258,7 +272,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -288,7 +304,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:max="4" />
+            android:max="4"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"/>
 
         <ImageView
             android:layout_width="wrap_content"

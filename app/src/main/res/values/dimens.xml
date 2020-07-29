@@ -3,5 +3,7 @@
     <dimen name="question_txt_title_size">18sp</dimen>
     <dimen name="question_txt_size">16sp</dimen>
     <dimen name="question_txt_big_size">20sp</dimen>
+    <dimen name="seek_bar_thickness">4dp</dimen>
+    <dimen name="seek_bar_thumb_size">20dp</dimen>
 
 </resources>
