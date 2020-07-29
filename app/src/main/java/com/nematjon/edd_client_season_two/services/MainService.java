@@ -139,8 +139,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
             //region Registering Audio recorder periodically
             long nowTime = System.currentTimeMillis();
-            boolean canStartAudioRecord = (nowTime > prevAudioRecordStartTime + AUDIO_RECORDING_PERIOD * 1000) || CallRcvr.AudioRunningForCall;
-            boolean stopAudioRecord = (nowTime > prevAudioRecordStartTime + AUDIO_RECORDING_DURATION * 1000);
+            boolean canStartAudioRecord = (nowTime > prevAudioRecordStartTime + AUDIO_RECORDING_PERIOD * 1000) && (!CallRcvr.AudioRunningForCall); // we get garbage when accessing mic during calls
+            boolean stopAudioRecord = (nowTime > prevAudioRecordStartTime + AUDIO_RECORDING_DURATION * 1000) || CallRcvr.AudioRunningForCall;
             if (canStartAudioRecord) {
                 if (audioFeatureRecorder == null)
                     audioFeatureRecorder = new AudioFeatureRecorder(MainService.this);
