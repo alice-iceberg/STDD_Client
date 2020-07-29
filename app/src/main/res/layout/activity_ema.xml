@@ -46,7 +46,14 @@
             android:layout_marginTop="10dp"
             android:max="4"
             android:progressDrawable="@drawable/seek_bar"
-            android:thumb="@drawable/seek_thumb"/>
+            android:shape="oval"
+            android:splitTrack="false"
+            android:secondaryProgress="0"
+            android:thumbOffset="10dp"
+            android:progress="0"
+            android:background="@null"
+            android:thumb="@drawable/seek_thumb"
+            />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -77,6 +84,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="4"
+            android:shape="oval"
+            android:splitTrack="false"
+            android:secondaryProgress="0"
+            android:thumbOffset="10dp"
+            android:progress="0"
+            android:background="@null"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"/>
 
@@ -110,6 +123,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="4"
+            android:shape="oval"
+            android:splitTrack="false"
+            android:secondaryProgress="0"
+            android:thumbOffset="10dp"
+            android:progress="0"
+            android:background="@null"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"/>
 
@@ -143,6 +162,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="4"
+            android:shape="oval"
+            android:splitTrack="false"
+            android:secondaryProgress="0"
+            android:thumbOffset="10dp"
+            android:progress="0"
+            android:background="@null"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"/>
 
@@ -176,6 +201,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="4"
+            android:shape="oval"
+            android:secondaryProgress="0"
+            android:thumbOffset="10dp"
+            android:progress="0"
+            android:background="@null"
+            android:splitTrack="false"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"/>
 
@@ -209,6 +240,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="4"
+            android:shape="oval"
+            android:splitTrack="false"
+            android:secondaryProgress="0"
+            android:thumbOffset="10dp"
+            android:progress="0"
+            android:background="@null"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"/>
 
@@ -241,6 +278,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="4"
+            android:shape="oval"
+            android:splitTrack="false"
+            android:secondaryProgress="0"
+            android:thumbOffset="10dp"
+            android:progress="0"
+            android:background="@null"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"/>
 
@@ -273,6 +316,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="4"
+            android:shape="oval"
+            android:splitTrack="false"
+            android:secondaryProgress="0"
+            android:thumbOffset="10dp"
+            android:progress="0"
+            android:background="@null"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"/>
 
@@ -305,6 +354,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="4"
+            android:shape="oval"
+            android:splitTrack="false"
+            android:secondaryProgress="0"
+            android:progress="0"
+            android:background="@null"
+            android:thumbOffset="10dp"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"/>
 

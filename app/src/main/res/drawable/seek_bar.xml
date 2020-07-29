@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
-        <shape
-            android:shape="line">
-            <stroke
-                android:color="@color/seek_bar_background"
-                android:width="@dimen/seek_bar_thickness"/>
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp" />
+            <gradient
+                android:angle="270"
+                android:endColor="@color/seek_bar_background"
+                android:startColor="@color/seek_bar_background" />
         </shape>
     </item>
 
     <item android:id="@android:id/progress">
         <clip>
             <shape
-                android:shape="line">
-                <stroke
-                    android:color="@color/colorAccent"
-                    android:width="@dimen/seek_bar_thickness"/>
+                android:shape="rectangle">
+                <corners android:radius="90dp" />
+                <gradient
+                    android:angle="90"
+                    android:endColor="@color/colorAccent"
+                    android:startColor="@color/colorAccent" />
             </shape>
         </clip>
     </item>
@@ -23,10 +26,12 @@
     <item android:id="@android:id/secondaryProgress">
         <clip>
             <shape
-                android:shape="line">
-                <stroke
-                    android:color="@color/seek_bar_secondary_progress"
-                    android:width="@dimen/seek_bar_thickness"/>
+                android:shape="oval">
+                <corners android:radius="5dp" />
+                <gradient
+                    android:angle="270"
+                    android:endColor="@color/colorAccent"
+                    android:startColor="@color/colorAccent" />
             </shape>
         </clip>
     </item>
