@@ -316,15 +316,25 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:layout_marginTop="50dp"
-                    android:id="@+id/total_reward_with_bonus"
+                android:layout_marginTop="50dp"
+                android:id="@+id/total_reward_with_bonus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="@string/dummy"
+                android:textColor="#00DBC5"
+                android:textSize="50sp"
+                android:textStyle="bold" />
+
+                <TextView
+                    android:layout_marginTop="20dp"
+                    android:id="@+id/version"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
-                    android:text="@string/dummy"
-                    android:textColor="#00DBC5"
-                    android:textSize="50sp"
-                    android:textStyle="bold" />
+                    android:text="@string/version"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
 
             </LinearLayout>
 

@@ -5,6 +5,7 @@
     <string name="campaign_id">12</string>
     <string name="app_name">YouNoOne</string>
     <string name="dummy">Dummy</string>
+    <string name="version">version 1.0.0</string>
     <string name="status">Status for today:</string>
     <string name="authentication_txt">Authentication</string>
     <string name="authentication_btn">Authenticate</string>
