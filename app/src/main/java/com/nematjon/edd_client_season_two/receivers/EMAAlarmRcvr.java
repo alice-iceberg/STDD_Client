@@ -54,7 +54,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         editor.apply();
 
         PendingResult pendingResult = goAsync();
-        Task task = new Task(pendingResult, configPrefs, networkPrefs, CR);
+        Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
         task.execute();
         sendNotification(context, intent.getIntExtra("ema_order", -1));
         setAlarams(context, intent.getIntExtra("ema_order", -1));
@@ -64,12 +64,14 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         private final PendingResult pendingResult;
         SharedPreferences confPrefs;
         SharedPreferences networkPrefs;
+        SharedPreferences loginPrefs;
         ContentResolver cr;
 
-        private Task(PendingResult pendingResult, SharedPreferences confPrefs, SharedPreferences networkPrefs, ContentResolver cr) {
+        private Task(PendingResult pendingResult, SharedPreferences confPrefs, SharedPreferences networkPrefs, SharedPreferences loginPrefs, ContentResolver cr) {
             this.pendingResult = pendingResult;
             this.confPrefs = confPrefs;
             this.networkPrefs = networkPrefs;
+            this.loginPrefs = loginPrefs;
             this.cr = cr;
         }
 
@@ -154,6 +156,32 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             calendarCursor.close();
             //endregion
 
+            // region checking and updating device information
+            String current_device_model = Build.MODEL;
+            int current_api_level = Build.VERSION.SDK_INT;
+            boolean deviceInfoChanged = false;
+
+            int deviceInfoSourceId = confPrefs.getInt("ANDROID_DEVICE_INFO", -1);
+            String deviceModelType = "DEVICE MODEL";
+            String apiLevelType = "API";
+
+            String stored_device_model = loginPrefs.getString("deviceModel", null);
+            int stored_api_level = loginPrefs.getInt("apiLevel", 0);
+
+            if (!current_device_model.equals(stored_device_model) || (current_api_level != stored_api_level)) {
+                editor = loginPrefs.edit();
+                editor.putString("deviceModel", current_device_model);
+                editor.putInt("apiLevel", current_api_level);
+                editor.apply();
+            }
+
+            String updated_device_model = loginPrefs.getString("deviceModel", null);
+            int updated_api_level = loginPrefs.getInt("apiLevel", 0);
+
+            nowTime = System.currentTimeMillis();
+            DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_device_model, deviceModelType);
+            DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_api_level, apiLevelType);
+            // endregion
             return "Success";
         }
 
