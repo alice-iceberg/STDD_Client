@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,7 +31,7 @@ public class AuthActivity extends Activity {
     // region Variables
     private static final String TAG = AuthActivity.class.getSimpleName();
     private SharedPreferences loginPrefs;
-    public static final String user_id = "userId", usrEmail = "email", name = "fullname";
+    public static final String user_id = "userId", usrEmail = "email", name = "fullname", device_model = "deviceModel", api_level = "apiLevel";
     // endregion
 
     @Override
@@ -78,6 +79,8 @@ public class AuthActivity extends Activity {
                     final String fullName = data.getStringExtra("fullName");
                     final String email = data.getStringExtra("email");
                     final int userId = data.getIntExtra("userId", -1);
+                    final String deviceModel = Build.MODEL;
+                    final int apiLevel = Build.VERSION.SDK_INT;
 
                     new Thread(new Runnable() {
                         @Override
@@ -107,7 +110,8 @@ public class AuthActivity extends Activity {
                                             editor.putString(name, fullName);
                                             editor.putString(usrEmail, email);
                                             editor.putInt(user_id, userId);
-
+                                            editor.putString(device_model, deviceModel);
+                                            editor.putInt(api_level, apiLevel);
                                             editor.putBoolean("logged_in", true);
                                             editor.apply();
                                             startMainActivity();

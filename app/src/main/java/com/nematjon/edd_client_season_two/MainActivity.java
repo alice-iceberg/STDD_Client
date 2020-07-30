@@ -103,6 +103,9 @@ public class MainActivity extends Activity {
                 pullToRefresh.setRefreshing(false);
             }
         });
+
+
+        checkAndUpdateDeviceInfo();
     }
 
     public void init() {
@@ -665,6 +668,21 @@ public class MainActivity extends Activity {
             sb.replace(sb.length() - 1, sb.length(), "");
         editor.putString("dataSourceNames", sb.toString());
         editor.apply();
+    }
+
+    private void checkAndUpdateDeviceInfo(){
+        String current_device_model = Build.MODEL;
+        int current_api_level = Build.VERSION.SDK_INT;
+
+        String stored_device_model = loginPrefs.getString("deviceModel", null);
+        int stored_api_level = loginPrefs.getInt("apiLevel", 0);
+
+        if(!current_device_model.equals(stored_device_model) || (current_api_level != stored_api_level)){
+            SharedPreferences.Editor editor = loginPrefs.edit();
+            editor.putString("deviceModel", current_device_model);
+            editor.putInt("apiLevel", current_api_level);
+            editor.apply();
+        }
     }
 
     @Override
