@@ -254,6 +254,32 @@ public class MainActivity extends Activity {
             public void run() {
                 tvServiceStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
                 tvServiceStatus.setText(getString(R.string.service_runnig));
+
+                // region get EMA ticks when offline
+                if (!Tools.isNetworkAvailable()) {
+                    boolean ema1_answered = rewardPrefs.getBoolean("ema1_answered", false);
+                    boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
+                    boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+                    boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
+                    int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
+
+                    if (ema1_answered) {
+                        ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                    }
+                    if (ema2_answered) {
+                        ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                    }
+                    if (ema3_answered) {
+                        ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                    }
+
+                    if (ema4_answered) {
+                        ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                    }
+                    tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+                }
+
+                // endregion
             }
         }, 500);
     }
@@ -363,6 +389,10 @@ public class MainActivity extends Activity {
                                     SharedPreferences.Editor editor = rewardPrefs.edit();
                                     editor.putInt("rewardPoints", rewardPoints);
                                     editor.putInt("bonus", bonus);
+                                    editor.putBoolean("ema1_answered", false);
+                                    editor.putBoolean("ema2_answered", false);
+                                    editor.putBoolean("ema3_answered", false);
+                                    editor.putBoolean("ema4_answered", false);
                                     editor.apply();
 
                                     int ema_answered_count = 0;
@@ -373,22 +403,41 @@ public class MainActivity extends Activity {
                                             switch (Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1])) {
                                                 case 1:
                                                     ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                                                    editor.putBoolean("ema1_answered", true);
+                                                    editor.apply();
                                                     break;
                                                 case 2:
                                                     ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                                                    editor.putBoolean("ema2_answered", true);
+                                                    editor.apply();
                                                     break;
                                                 case 3:
                                                     ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                                                    editor.putBoolean("ema3_answered", true);
+                                                    editor.apply();
                                                     break;
                                                 case 4:
                                                     ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                                                    editor.putBoolean("ema4_answered", true);
+                                                    editor.apply();
                                                     break;
                                                 default:
                                                     break;
                                             }
                                         }
                                     }
+
+                                    editor.putInt("ema_answered_count", ema_answered_count);
+                                    editor.apply();
                                     tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_count));
+
+                                    if (ema_answered_count == 0) {
+                                        editor.putBoolean("ema1_answered", false);
+                                        editor.putBoolean("ema2_answered", false);
+                                        editor.putBoolean("ema3_answered", false);
+                                        editor.putBoolean("ema4_answered", false);
+                                        editor.apply();
+                                    }
                                 }
                             }
                         });
@@ -670,14 +719,14 @@ public class MainActivity extends Activity {
         editor.apply();
     }
 
-    private void checkAndUpdateDeviceInfo(){
+    private void checkAndUpdateDeviceInfo() {
         String current_device_model = Build.MODEL;
         int current_api_level = Build.VERSION.SDK_INT;
 
         String stored_device_model = loginPrefs.getString("deviceModel", null);
         int stored_api_level = loginPrefs.getInt("apiLevel", 0);
 
-        if(!current_device_model.equals(stored_device_model) || (current_api_level != stored_api_level)){
+        if (!current_device_model.equals(stored_device_model) || (current_api_level != stored_api_level)) {
             SharedPreferences.Editor editor = loginPrefs.edit();
             editor.putString("deviceModel", current_device_model);
             editor.putInt("apiLevel", current_api_level);
