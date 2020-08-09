@@ -72,4 +72,10 @@
     <string name="plus_earned_points">+%1$d ₩</string>
     <string name="currently_earned_points">Currently earned points</string>
     <string name="bonus_points">Bonus %1$d ₩</string>
+    <string name="error_cannot_write">Cannot write image captured by camera.</string>
+    <string name="error_cannot_open">Cannot open camera.</string>
+    <string name="error_cannot_get_permission">Camera permission not available.</string>
+    <string name="error_not_having_camera">Your device does not have front camera.</string>
+    <string name="error_camera_permission_denied">Camera permission denied.</string>
+    <string name="btn_tittle_capture_image">Capture image</string>
 </resources>
