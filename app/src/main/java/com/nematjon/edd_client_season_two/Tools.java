@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 
+import com.androidhiddencamera.HiddenCameraUtils;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.services.KeyLogger;
 import com.nematjon.edd_client_season_two.services.NotificationService;
@@ -162,6 +163,8 @@ public class Tools {
             activity.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         if (isNotificationServiceNotEnabled(activity.getApplicationContext()))
             activity.startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        if(!HiddenCameraUtils.canOverDrawOtherApps(activity.getApplicationContext()))
+            HiddenCameraUtils.openDrawOverPermissionSetting(activity.getApplicationContext());
         if (!simple_permissions_granted)
             ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL);
     }
