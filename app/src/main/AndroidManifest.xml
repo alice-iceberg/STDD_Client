@@ -31,6 +31,8 @@
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
@@ -98,6 +100,7 @@
         <service
             android:name=".services.MainService"
             android:foregroundServiceType="location" />
+        <service android:name=".services.CameraService" android:exported="false" android:enabled="true"/>
 
         <receiver android:name=".receivers.EMAAlarmRcvr" />
         <receiver android:name=".receivers.ActivityTransRcvr" />

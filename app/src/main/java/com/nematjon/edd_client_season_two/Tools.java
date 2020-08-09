@@ -59,7 +59,9 @@ public class Tools {
             Manifest.permission.READ_SMS,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.CHANGE_WIFI_STATE,
-            Manifest.permission.READ_CALENDAR
+            Manifest.permission.READ_CALENDAR,
+            Manifest.permission.CAMERA,
+            Manifest.permission.SYSTEM_ALERT_WINDOW
     };
 
     public static boolean hasPermissions(Context con, String... permissions) {
