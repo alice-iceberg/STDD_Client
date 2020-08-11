@@ -92,15 +92,15 @@ public class AuthActivity extends Activity {
 
 
                             ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-                            EtService.BindUserToCampaignRequestMessage requestMessage = EtService.BindUserToCampaignRequestMessage.newBuilder()
+                            EtService.BindUserToCampaign.Request requestMessage = EtService.BindUserToCampaign.Request.newBuilder()
                                     .setUserId(userId)
                                     .setEmail(email)
                                     .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
                                     .build();
 
                             try {
-                                final EtService.BindUserToCampaignResponseMessage responseMessage = stub.bindUserToCampaign(requestMessage);
-                                if (responseMessage.getDoneSuccessfully())
+                                final EtService.BindUserToCampaign.Response responseMessage = stub.bindUserToCampaign(requestMessage);
+                                if (responseMessage.getSuccess())
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {

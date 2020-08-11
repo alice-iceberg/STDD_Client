@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -68,7 +69,7 @@ public class EMAActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-            dialog = Tools.requestPermissions(EMAActivity.this);
+            // dialog = Tools.requestPermissions(EMAActivity.this); // todo come back
         }
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         if (!loginPrefs.getBoolean("logged_in", false)) {

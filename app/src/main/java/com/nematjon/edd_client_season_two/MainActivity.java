@@ -156,7 +156,7 @@ public class MainActivity extends Activity {
         super.onResume();
 
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-            dialog = Tools.requestPermissions(MainActivity.this);
+            //dialog = Tools.requestPermissions(MainActivity.this); // todo come back
         }
 
         Tools.sendHeartbeat(getApplicationContext());
@@ -289,15 +289,15 @@ public class MainActivity extends Activity {
                 ManagedChannel channel = ManagedChannelBuilder.forAddress(getString(R.string.grpc_host), Integer.parseInt(getString(R.string.grpc_port))).usePlaintext().build();
                 ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
                 // region Retrieve main stats
-                EtService.RetrieveParticipantStatisticsRequestMessage retrieveParticipantStatisticsRequestMessage = EtService.RetrieveParticipantStatisticsRequestMessage.newBuilder()
+                EtService.RetrieveParticipantStats.Request retrieveParticipantStatsRequestMessage = EtService.RetrieveParticipantStats.Request.newBuilder()
                         .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
                         .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
                         .setTargetEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
                         .setTargetCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
                         .build();
                 try {
-                    EtService.RetrieveParticipantStatisticsResponseMessage responseMessage = stub.retrieveParticipantStatistics(retrieveParticipantStatisticsRequestMessage);
-                    if (responseMessage.getDoneSuccessfully()) {
+                    EtService.RetrieveParticipantStats.Response responseMessage = stub.retrieveParticipantStats(retrieveParticipantStatsRequestMessage);
+                    if (responseMessage.getSuccess()) {
                         final long join_timestamp = responseMessage.getCampaignJoinTimestamp();
                         final long hb_phone = responseMessage.getLastHeartbeatTimestamp();
                         final int samples_amount = responseMessage.getAmountOfSubmittedDataSamples();
@@ -344,7 +344,7 @@ public class MainActivity extends Activity {
                 tillCal.set(Calendar.HOUR_OF_DAY, 23);
                 tillCal.set(Calendar.MINUTE, 59);
                 tillCal.set(Calendar.SECOND, 59);
-                EtService.RetrieveFilteredDataRecordsRequestMessage retrieveFilteredEMARecordsRequestMessage = EtService.RetrieveFilteredDataRecordsRequestMessage.newBuilder()
+                EtService.RetrieveFilteredDataRecords.Request retrieveFilteredEMARecordsRequest = EtService.RetrieveFilteredDataRecords.Request.newBuilder()
                         .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
                         .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
                         .setTargetEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
@@ -354,8 +354,8 @@ public class MainActivity extends Activity {
                         .setTillTimestamp(tillCal.getTimeInMillis())
                         .build();
                 try {
-                    final EtService.RetrieveFilteredDataRecordsResponseMessage responseMessage = stub.retrieveFilteredDataRecords(retrieveFilteredEMARecordsRequestMessage);
-                    if (responseMessage.getDoneSuccessfully()) {
+                    final EtService.RetrieveFilteredDataRecords.Response responseMessage = stub.retrieveFilteredDataRecords(retrieveFilteredEMARecordsRequest);
+                    if (responseMessage.getSuccess()) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -517,7 +517,7 @@ public class MainActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        dialog = Tools.requestPermissions(MainActivity.this);
+                        // dialog = Tools.requestPermissions(MainActivity.this); // todo come back
                     }
                 });
             } else {
@@ -540,7 +540,7 @@ public class MainActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog = Tools.requestPermissions(MainActivity.this);
+                            // dialog = Tools.requestPermissions(MainActivity.this); // todo come back
                         }
                     });
                 } else {
@@ -654,31 +654,31 @@ public class MainActivity extends Activity {
                 ManagedChannel channel = ManagedChannelBuilder.forAddress(getString(R.string.grpc_host), Integer.parseInt(getString(R.string.grpc_port))).usePlaintext().build();
                 try {
                     ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-                    EtService.RetrieveCampaignRequestMessage retrieveCampaignRequestMessage = EtService.RetrieveCampaignRequestMessage.newBuilder()
+                    EtService.RetrieveCampaign.Request retrieveCampaignRequest = EtService.RetrieveCampaign.Request.newBuilder()
                             .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
                             .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
                             .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
                             .build();
 
-                    EtService.RetrieveCampaignResponseMessage retrieveCampaignResponseMessage = stub.retrieveCampaign(retrieveCampaignRequestMessage);
-                    if (retrieveCampaignResponseMessage.getDoneSuccessfully()) {
+                    EtService.RetrieveCampaign.Response retrieveCampaignResponse = stub.retrieveCampaign(retrieveCampaignRequest);
+                    if (retrieveCampaignResponse.getSuccess()) {
                         setUpCampaignConfigurations(
-                                retrieveCampaignResponseMessage.getName(),
-                                retrieveCampaignResponseMessage.getNotes(),
-                                retrieveCampaignResponseMessage.getCreatorEmail(),
-                                retrieveCampaignResponseMessage.getConfigJson(),
-                                retrieveCampaignResponseMessage.getStartTimestamp(),
-                                retrieveCampaignResponseMessage.getEndTimestamp(),
-                                retrieveCampaignResponseMessage.getParticipantCount()
+                                retrieveCampaignResponse.getName(),
+                                retrieveCampaignResponse.getNotes(),
+                                retrieveCampaignResponse.getCreatorEmail(),
+                                retrieveCampaignResponse.getConfigJson(),
+                                retrieveCampaignResponse.getStartTimestamp(),
+                                retrieveCampaignResponse.getEndTimestamp(),
+                                retrieveCampaignResponse.getParticipantCount()
                         );
                         SharedPreferences.Editor editor = configPrefs.edit();
-                        editor.putString("name", retrieveCampaignResponseMessage.getName());
-                        editor.putString("notes", retrieveCampaignResponseMessage.getNotes());
-                        editor.putString("creatorEmail", retrieveCampaignResponseMessage.getCreatorEmail());
-                        editor.putString("configJson", retrieveCampaignResponseMessage.getConfigJson());
-                        editor.putLong("startTimestamp", retrieveCampaignResponseMessage.getStartTimestamp());
-                        editor.putLong("endTimestamp", retrieveCampaignResponseMessage.getEndTimestamp());
-                        editor.putInt("participantCount", retrieveCampaignResponseMessage.getParticipantCount());
+                        editor.putString("name", retrieveCampaignResponse.getName());
+                        editor.putString("notes", retrieveCampaignResponse.getNotes());
+                        editor.putString("creatorEmail", retrieveCampaignResponse.getCreatorEmail());
+                        editor.putString("configJson", retrieveCampaignResponse.getConfigJson());
+                        editor.putLong("startTimestamp", retrieveCampaignResponse.getStartTimestamp());
+                        editor.putLong("endTimestamp", retrieveCampaignResponse.getEndTimestamp());
+                        editor.putInt("participantCount", retrieveCampaignResponse.getParticipantCount());
                         editor.putBoolean("campaignLoaded", true);
                         editor.apply();
                         restartService(null);
