@@ -2,13 +2,22 @@ package com.nematjon.edd_client_season_two.services;
 
 import android.Manifest;
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.RectF;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,10 +32,16 @@ import com.androidhiddencamera.config.CameraFacing;
 import com.androidhiddencamera.config.CameraImageFormat;
 import com.androidhiddencamera.config.CameraResolution;
 import com.androidhiddencamera.config.CameraRotation;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
 import com.nematjon.edd_client_season_two.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.BitSet;
 
 public class CameraService extends HiddenCameraService {
 
@@ -43,6 +58,7 @@ public class CameraService extends HiddenCameraService {
                 == PackageManager.PERMISSION_GRANTED) {
 
             if (HiddenCameraUtils.canOverDrawOtherApps(this)) {
+                Log.e("TAG", "onStartCommand: HERE1");
 
 
                 CameraConfig cameraConfig = new CameraConfig()
@@ -59,9 +75,10 @@ public class CameraService extends HiddenCameraService {
                     @Override
                     public void run() {
                         Log.e("TAG", "CAMERAHIDDEN: taking picture of you");
-                        takePicture();
+                        takePicture(); //taking picture is a long process that is why it needs a separate thread
                     }
                 }, 2000L);
+
             } else {
 
                 //Open settings to grant permission for "Draw other apps".
@@ -78,11 +95,63 @@ public class CameraService extends HiddenCameraService {
 
 
         // Do something with the image...
+//        try { // saving taken image to local storage
+//            MediaStore.Images.Media.insertImage(getContentResolver(), imageFile.getAbsolutePath(), imageFile.getName(), imageFile.getName());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+
         try {
-            MediaStore.Images.Media.insertImage(getContentResolver(), imageFile.getAbsolutePath(), imageFile.getName(), imageFile.getName());
-        } catch (FileNotFoundException e) {
+            saveImageToStorage(imageFile);
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+        //detect face
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inMutable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
+
+        FaceDetector detector = new FaceDetector.Builder(getApplicationContext())
+                .setTrackingEnabled(false).setClassificationType(1).
+                        build();
+
+        if (!detector.isOperational()) {
+            Log.e("TAG", "onImageCapture: COULD NOT SET UP FACE DETECTOR" );
+            return;
+        }
+
+        Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+        SparseArray<Face> faces = detector.detect(frame);
+        Bitmap croppedBitmap = null;
+
+        for (int i = 0; i < faces.size(); i++) {
+
+            Face thisFace = faces.valueAt(i);
+            float x1 = thisFace.getPosition().x;
+            float y1 = thisFace.getPosition().y;
+            //detect smile
+            float smile = thisFace.getIsSmilingProbability();
+            Log.e("TAG", "onClick: SMILE: " + smile);
+
+            //crop face
+            croppedBitmap = Bitmap.createBitmap(bitmap, Math.round(x1), Math.round(y1), Math.round(thisFace.getWidth()),Math.round(thisFace.getHeight()));
+            Log.e("TAG", "onImageCapture: CROPPED IMAGE SUCCESS");
+            long nowTime = System.currentTimeMillis();
+            String filename = nowTime + ".png";
+            MediaStore.Images.Media.insertImage(getContentResolver(), croppedBitmap, filename, "This is description");
+
+        }
+
+
+
+
+
+
+
 
 
         stopSelf();
@@ -116,6 +185,49 @@ public class CameraService extends HiddenCameraService {
         }
 
         stopSelf();
+    }
+
+    private void saveImageToStorage(File imageFile) throws IOException {
+
+
+        Uri contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        OutputStream stream = null;
+        final ContentResolver resolver = getApplicationContext().getContentResolver();
+        final String relativeLocation = Environment.DIRECTORY_PICTURES;
+
+        final ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, imageFile.getName());
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeLocation);
+            contentValues.put(MediaStore.Images.ImageColumns.RELATIVE_PATH, relativeLocation);
+        }
+
+        try {
+            contentUri = resolver.insert(contentUri, contentValues);
+            if (contentUri == null) {
+                throw new IOException("Failed to create new MediaStore record.");
+            }
+
+            stream = resolver.openOutputStream(contentUri);
+
+            if (stream == null) {
+                throw new IOException("Failed to get output stream.");
+            }
+
+        } catch (IOException e) {
+            if (contentUri != null) {
+                resolver.delete(contentUri, null, null);
+            }
+
+            throw new IOException(e);
+
+        } finally {
+            if(stream!=null)
+                stream.close();
+        }
     }
 
 }

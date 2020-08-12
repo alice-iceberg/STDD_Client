@@ -17,6 +17,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.camera2.CameraManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -33,6 +34,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import com.androidhiddencamera.HiddenCameraService;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityTransition;
@@ -79,10 +81,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  //in sec
     private static final short LIGHT_SENSOR_PERIOD = 30;  //in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; //in sec
+    private static final short GRAVITY_SENSOR_PERIOD = 3; // in sec
     private static final short PRESSURE_SENSOR_DURATION = 2; //in sec
     private static final short AUDIO_RECORDING_DURATION = 5;  //in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; //in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; //in sec
+    private static final int TAKE_PHOTO_PERIOD = 5 * 60; // in sec
+    private static final int CAMERA_AVAILABLE_CHECK_PERIOD =  3  * 60; //in sec
 
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
@@ -95,6 +100,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Sensor sensorPressure;
     private Sensor sensorLight;
     private Sensor sensorSM;
+    private Sensor sensorGravity;
     private SignificantMotionDetector SMListener;
     boolean stopPressureSense = true;
     boolean canPressureSense = false;
@@ -102,6 +108,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
     static SharedPreferences loginPrefs;
     static SharedPreferences confPrefs;
+    static SharedPreferences unlockPrefs;
 
     static int stepDetectorDataSrcId;
     static int pressureDataSrcId;
@@ -122,9 +129,15 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private AudioFeatureRecorder audioFeatureRecorder;
 
     private LocationManager locationManager;
+    private CameraManager manager;
+    private Object cameraCallback;
 
     private ActivityRecognitionClient activityTransitionClient;
     private PendingIntent activityTransPendingIntent;
+
+    private boolean phoneUnlocked = false;
+    private boolean isCameraAvailable = false;
+    private static float y_value_gravity = 0f;
 
     private Handler mainHandler = new Handler();
     private Runnable mainRunnable = new Runnable() {
@@ -260,6 +273,77 @@ public class MainService extends Service implements SensorEventListener, Locatio
         }
     };
 
+    private Handler cameraAvailabilityHandler = new Handler();
+    private Runnable cameraAvailabilityRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+            //region Checking Camera Availability if phone is unlocked
+            if (phoneUnlocked) {
+                manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+                Handler cameraHandler = new Handler();
+
+                assert manager != null;
+                cameraCallback = new CameraManager.AvailabilityCallback(){
+                    @Override
+                    public void onCameraAvailable(String cameraId) {
+                        super.onCameraAvailable(cameraId);
+                        Log.e("TAG", "onCameraAvailable: Camera off");
+                        isCameraAvailable = true;
+                        SharedPreferences.Editor editor = unlockPrefs.edit();
+                        editor.putBoolean("isCameraAvailable", isCameraAvailable);
+                        editor.apply();
+                    }
+
+                    @Override
+                    public void onCameraUnavailable(String cameraId) {
+                        super.onCameraUnavailable(cameraId);
+                        Log.e("TAG", "onCameraUnavailable: Camera on");
+                        //Do your work
+                        isCameraAvailable = false;
+                        SharedPreferences.Editor editor = unlockPrefs.edit();
+                        editor.putBoolean("isCameraAvailable", isCameraAvailable);
+                        editor.apply();
+                    }
+                };
+                manager.registerAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback, cameraHandler);
+
+            }
+            //endregion
+
+            cameraAvailabilityHandler.postDelayed(cameraAvailabilityRunnable, CAMERA_AVAILABLE_CHECK_PERIOD * 1000);
+        }
+    };
+
+    private Handler takePhotoHandler = new Handler();
+    private Runnable takePhotoRunnable = new Runnable() {
+        @Override
+        public void run() {
+            phoneUnlocked = unlockPrefs.getBoolean("unlocked", false);
+            if (phoneUnlocked) {
+                // check position of the phone
+                Log.e("CAMERA", "run: PHONE IS UNLOCKED");
+                if (y_value_gravity > 8.0f && y_value_gravity < 9.8f) {
+                    //check whether camera is in use
+                    Log.e("CAMERA", "run: VERTICAL POSITION" );
+                    boolean cameraAvailable = unlockPrefs.getBoolean("isCameraAvailable", false);
+                    if(cameraAvailable){
+                        //take a photo
+                        Log.e("CAMERA", "run: CAMERA AVAILABLE");
+                        startService(new Intent( getApplicationContext(), CameraService.class));
+                        Log.e("CAMERA", "run: CHECK GALLERY" );
+                    }
+                }
+
+
+
+            }
+
+            takePhotoHandler.postDelayed(takePhotoRunnable, TAKE_PHOTO_PERIOD * 1000);
+        }
+    };
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -270,6 +354,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
+        unlockPrefs = getSharedPreferences("SecreenVariables", Context.MODE_PRIVATE);
 
         stepDetectorDataSrcId = confPrefs.getInt("ANDROID_STEP_DETECTOR", -1);
         pressureDataSrcId = confPrefs.getInt("ANDROID_PRESSURE", -1);
@@ -281,9 +366,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
             sensorPressure = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
             sensorLight = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
             sensorStepDetect = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+            sensorGravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
             sensorManager.registerListener(this, sensorStepDetect, SensorManager.SENSOR_DELAY_NORMAL);
             sensorManager.registerListener(this, sensorPressure, SensorManager.SENSOR_DELAY_NORMAL);
             sensorManager.registerListener(this, sensorLight, SensorManager.SENSOR_DELAY_NORMAL);
+            if (sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null) {
+                sensorManager.registerListener(this, sensorGravity, SensorManager.SENSOR_DELAY_NORMAL);
+            }
             SMListener = new SignificantMotionDetector(this);
             sensorSM = sensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
             if (sensorSM != null) {
@@ -337,6 +426,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
         heartBeatHandler.post(heartBeatSendRunnable);
         appUsageSaveHandler.post(appUsageSaveRunnable);
         dataSubmissionHandler.post(dataSubmitRunnable);
+        takePhotoHandler.post(takePhotoRunnable);
+        cameraAvailabilityHandler.post(cameraAvailabilityRunnable);
         permissionNotificationPosted = false;
 
         //region Posting Foreground notification when service is started
@@ -351,6 +442,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
         Notification notification = builder.build();
         startForeground(ID_SERVICE, notification);
         //endregion
+
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -381,6 +474,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
         sensorManager.unregisterListener(this, sensorPressure);
         sensorManager.unregisterListener(this, sensorLight);
         sensorManager.unregisterListener(this, sensorStepDetect);
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null) {
+            sensorManager.unregisterListener(this, sensorGravity);
+        }
         sensorManager.cancelTriggerSensor(SMListener, sensorSM);
         // activityRecognitionClient.removeActivityUpdates(activityRecPendingIntent);
         activityTransitionClient.removeActivityTransitionUpdates(activityTransPendingIntent);
@@ -393,6 +489,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
         dataSubmissionHandler.removeCallbacks(dataSubmitRunnable);
+        takePhotoHandler.removeCallbacks(takePhotoRunnable);
+        cameraAvailabilityHandler.removeCallbacks(cameraAvailabilityRunnable);
+        manager.unregisterAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback);
         locationManager.removeUpdates(this);  //remove location listener
         //endregion
 
@@ -488,6 +587,12 @@ public class MainService extends Service implements SensorEventListener, Locatio
             if (canLightSense) {
                 DbMgr.saveMixedData(lightDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
                 prevLightStartTime = nowTime;
+            }
+        } else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+            phoneUnlocked = unlockPrefs.getBoolean("unlocked", false);
+            if (phoneUnlocked) {
+                long nowTime = System.currentTimeMillis();
+                y_value_gravity = event.values[1];
             }
         }
     }
