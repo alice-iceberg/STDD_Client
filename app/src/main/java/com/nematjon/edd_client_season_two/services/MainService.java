@@ -222,7 +222,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                             String email = loginPrefs.getString(AuthActivity.usrEmail, null);
                             try {
                                 do {
-                                    EtService.SubmitDataRecordRequestMessage submitDataRecordRequestMessage = EtService.SubmitDataRecordRequestMessage.newBuilder()
+                                    EtService.SubmitDataRecord.Request submitDataRecordRequest = EtService.SubmitDataRecord.Request.newBuilder()
                                             .setUserId(userId)
                                             .setEmail(email)
                                             .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
@@ -231,8 +231,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                             .setValues(cursor.getString(cursor.getColumnIndex("data")))
                                             .build();
 
-                                    EtService.DefaultResponseMessage responseMessage = stub.submitDataRecord(submitDataRecordRequestMessage);
-                                    if (responseMessage.getDoneSuccessfully()) {
+                                    EtService.SubmitDataRecord.Response responseMessage = stub.submitDataRecord(submitDataRecordRequest);
+                                    if (responseMessage.getSuccess()) {
                                         DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
                                     }
 
@@ -263,6 +263,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Handler heartBeatHandler = new Handler();
     private Runnable heartBeatSendRunnable = new Runnable() {
         public void run() {
+            Log.e(TAG, "heartbeat");
             //before sending heart-beat check permissions granted or not. If not grant first
             if (!Tools.hasPermissions(getApplicationContext(), Tools.PERMISSIONS) && !permissionNotificationPosted) {
                 permissionNotificationPosted = true;

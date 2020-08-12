@@ -163,7 +163,7 @@ public class Tools {
             activity.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         if (isNotificationServiceNotEnabled(activity.getApplicationContext()))
             activity.startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        if(!HiddenCameraUtils.canOverDrawOtherApps(activity.getApplicationContext()))
+        if (!HiddenCameraUtils.canOverDrawOtherApps(activity.getApplicationContext()))
             HiddenCameraUtils.openDrawOverPermissionSetting(activity.getApplicationContext());
         if (!simple_permissions_granted)
             ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL);
@@ -268,15 +268,15 @@ public class Tools {
                             Integer.parseInt(con.getString(R.string.grpc_port))
                     ).usePlaintext().build();
                     ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-                    EtService.SubmitHeartbeatRequestMessage submitHeartbeatRequestMessage = EtService.SubmitHeartbeatRequestMessage.newBuilder()
+                    EtService.SubmitHeartbeat.Request submitHeartbeatRequest = EtService.SubmitHeartbeat.Request.newBuilder()
                             .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
                             .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
                             .setCampaignId(Integer.parseInt(con.getString(R.string.campaign_id)))
                             .build();
                     try {
                         //@SuppressWarnings("unused")
-                        EtService.DefaultResponseMessage responseMessage = stub.submitHeartbeat(submitHeartbeatRequestMessage);
-                        if (responseMessage.getDoneSuccessfully()) {
+                        EtService.SubmitHeartbeat.Response responseMessage = stub.submitHeartbeat(submitHeartbeatRequest);
+                        if (responseMessage.getSuccess()) {
                             Log.d("Tools", "Heartbeat sent successfully");
                         }
                     } catch (StatusRuntimeException e) {
