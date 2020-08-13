@@ -34,7 +34,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-import com.androidhiddencamera.HiddenCameraService;
+//import com.androidhiddencamera.HiddenCameraService;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityTransition;
@@ -86,8 +86,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short AUDIO_RECORDING_DURATION = 5;  //in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; //in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; //in sec
-    private static final int TAKE_PHOTO_PERIOD = 5 * 60; // in sec
-    private static final int CAMERA_AVAILABLE_CHECK_PERIOD =  3  * 60; //in sec
+    private static final int TAKE_PHOTO_PERIOD = 10; // in sec
 
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
@@ -116,6 +115,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static int wifiScanDataSrcId;
 
     private static long prevLightStartTime = 0;
+    private static long prevGravityStartTime = 0;
     private static long prevPressureStopTime = 0;
     private static long prevAudioRecordStartTime = 0;
     private static long prevWifiScanStartTime = 0;
@@ -274,75 +274,32 @@ public class MainService extends Service implements SensorEventListener, Locatio
         }
     };
 
-    private Handler cameraAvailabilityHandler = new Handler();
-    private Runnable cameraAvailabilityRunnable = new Runnable() {
-        @Override
-        public void run() {
 
-            //region Checking Camera Availability if phone is unlocked
-            if (phoneUnlocked) {
-                manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-                Handler cameraHandler = new Handler();
-
-                assert manager != null;
-                cameraCallback = new CameraManager.AvailabilityCallback(){
-                    @Override
-                    public void onCameraAvailable(String cameraId) {
-                        super.onCameraAvailable(cameraId);
-                        Log.e("TAG", "onCameraAvailable: Camera off");
-                        isCameraAvailable = true;
-                        SharedPreferences.Editor editor = unlockPrefs.edit();
-                        editor.putBoolean("isCameraAvailable", isCameraAvailable);
-                        editor.apply();
-                    }
-
-                    @Override
-                    public void onCameraUnavailable(String cameraId) {
-                        super.onCameraUnavailable(cameraId);
-                        Log.e("TAG", "onCameraUnavailable: Camera on");
-                        //Do your work
-                        isCameraAvailable = false;
-                        SharedPreferences.Editor editor = unlockPrefs.edit();
-                        editor.putBoolean("isCameraAvailable", isCameraAvailable);
-                        editor.apply();
-                    }
-                };
-                manager.registerAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback, cameraHandler);
-
-            }
-            //endregion
-
-            cameraAvailabilityHandler.postDelayed(cameraAvailabilityRunnable, CAMERA_AVAILABLE_CHECK_PERIOD * 1000);
-        }
-    };
-
-    private Handler takePhotoHandler = new Handler();
-    private Runnable takePhotoRunnable = new Runnable() {
-        @Override
-        public void run() {
-            phoneUnlocked = unlockPrefs.getBoolean("unlocked", false);
-            if (phoneUnlocked) {
-                // check position of the phone
-                Log.e("CAMERA", "run: PHONE IS UNLOCKED");
-                if (y_value_gravity > 8.0f && y_value_gravity < 9.8f) {
-                    //check whether camera is in use
-                    Log.e("CAMERA", "run: VERTICAL POSITION" );
-                    boolean cameraAvailable = unlockPrefs.getBoolean("isCameraAvailable", false);
-                    if(cameraAvailable){
-                        //take a photo
-                        Log.e("CAMERA", "run: CAMERA AVAILABLE");
-                        startService(new Intent( getApplicationContext(), CameraService.class));
-                        Log.e("CAMERA", "run: CHECK GALLERY" );
-                    }
-                }
-
-
-
-            }
-
-            takePhotoHandler.postDelayed(takePhotoRunnable, TAKE_PHOTO_PERIOD * 1000);
-        }
-    };
+//    private Handler takePhotoHandler = new Handler();
+//    Intent cameraIntent;
+//    private Runnable takePhotoRunnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            phoneUnlocked = unlockPrefs.getBoolean("unlocked", false);
+//            if (!phoneUnlocked) {
+//                // check position of the phone
+//                Log.e("CAMERA", "run: PHONE IS UNLOCKED");
+//                if (y_value_gravity > 8.0f && y_value_gravity < 9.8f) {
+//                    //check whether camera is in use
+//                    Log.e("CAMERA", "run: VERTICAL POSITION" );
+//                    boolean cameraAvailable = unlockPrefs.getBoolean("isCameraAvailable", false);
+//                    if(cameraAvailable){
+//                        //take a photo
+//                        Log.e("CAMERA", "run: CAMERA AVAILABLE");
+//                        startService(cameraIntent);
+//                        Log.e("CAMERA", "run: CHECK GALLERY" );
+//                    }
+//                }
+//            }
+//
+//            takePhotoHandler.postDelayed(takePhotoRunnable, TAKE_PHOTO_PERIOD * 1000);
+//        }
+//    };
 
 
     @Override
@@ -353,6 +310,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());
 
+       // cameraIntent = new Intent(getApplicationContext(), CameraService.class);
+
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         unlockPrefs = getSharedPreferences("SecreenVariables", Context.MODE_PRIVATE);
@@ -361,6 +320,10 @@ public class MainService extends Service implements SensorEventListener, Locatio
         pressureDataSrcId = confPrefs.getInt("ANDROID_PRESSURE", -1);
         lightDataSrcId = confPrefs.getInt("ANDROID_LIGHT", -1);
         wifiScanDataSrcId = confPrefs.getInt("ANDROID_WIFI", -1);
+
+        //Handler cameraHandler = new Handler();
+        //manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE); // camera manager
+        //manager.registerAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback, cameraHandler);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
@@ -423,12 +386,43 @@ public class MainService extends Service implements SensorEventListener, Locatio
         registerReceiver(mCallReceiver, intentFilter);
         //endregion
 
+        //region Checking Camera Availability if phone is unlocked
+        //if(phoneUnlocked) {
+        manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        Handler cameraHandler = new Handler();
+
+        assert manager != null;
+        cameraCallback = new CameraManager.AvailabilityCallback() {
+            @Override
+            public void onCameraAvailable(String cameraId) {
+                super.onCameraAvailable(cameraId);
+                Log.e("TAG", "onCameraAvailable: Camera off");
+                isCameraAvailable = true;
+                SharedPreferences.Editor editor = unlockPrefs.edit();
+                editor.putBoolean("isCameraAvailable", isCameraAvailable);
+                editor.apply();
+            }
+
+            @Override
+            public void onCameraUnavailable(String cameraId) {
+                super.onCameraUnavailable(cameraId);
+                Log.e("TAG", "onCameraUnavailable: Camera on");
+                //Do your work
+                isCameraAvailable = false;
+                SharedPreferences.Editor editor = unlockPrefs.edit();
+                editor.putBoolean("isCameraAvailable", isCameraAvailable);
+                editor.apply();
+            }
+        };
+        manager.registerAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback, cameraHandler);
+        //    }
+        //endregion
+
         mainHandler.post(mainRunnable);
         heartBeatHandler.post(heartBeatSendRunnable);
         appUsageSaveHandler.post(appUsageSaveRunnable);
         dataSubmissionHandler.post(dataSubmitRunnable);
-        takePhotoHandler.post(takePhotoRunnable);
-        cameraAvailabilityHandler.post(cameraAvailabilityRunnable);
+        //takePhotoHandler.post(takePhotoRunnable);
         permissionNotificationPosted = false;
 
         //region Posting Foreground notification when service is started
@@ -484,14 +478,14 @@ public class MainService extends Service implements SensorEventListener, Locatio
         if (audioFeatureRecorder != null)
             audioFeatureRecorder.stop();
         //stopService(stationaryDetector);
+       // stopService(cameraIntent);
         unregisterReceiver(mPhoneUnlockedReceiver);
         unregisterReceiver(mCallReceiver);
         mainHandler.removeCallbacks(mainRunnable);
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
         dataSubmissionHandler.removeCallbacks(dataSubmitRunnable);
-        takePhotoHandler.removeCallbacks(takePhotoRunnable);
-        cameraAvailabilityHandler.removeCallbacks(cameraAvailabilityRunnable);
+       // takePhotoHandler.removeCallbacks(takePhotoRunnable);
         manager.unregisterAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback);
         locationManager.removeUpdates(this);  //remove location listener
         //endregion
@@ -589,11 +583,18 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 DbMgr.saveMixedData(lightDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
                 prevLightStartTime = nowTime;
             }
-        } else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
-            phoneUnlocked = unlockPrefs.getBoolean("unlocked", false);
-            if (phoneUnlocked) {
+        }
+        else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+           // phoneUnlocked = unlockPrefs.getBoolean("unlocked", false);
+
                 long nowTime = System.currentTimeMillis();
-                y_value_gravity = event.values[1];
+                boolean canGravitySense = (nowTime > prevGravityStartTime + GRAVITY_SENSOR_PERIOD * 1000);
+                if(canGravitySense) {
+                    y_value_gravity = event.values[1];
+                    SharedPreferences.Editor editor = unlockPrefs.edit();
+                    editor.putFloat("y_value_gravity", y_value_gravity);
+                    editor.apply();
+
             }
         }
     }

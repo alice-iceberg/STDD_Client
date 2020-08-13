@@ -139,7 +139,8 @@ public class MainActivity extends Activity {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.CHANGE_WIFI_STATE,
                     Manifest.permission.READ_CALENDAR,
-                    Manifest.permission.READ_SMS
+                    Manifest.permission.READ_SMS,
+                    Manifest.permission.CAMERA
             };
         }
 
@@ -156,7 +157,7 @@ public class MainActivity extends Activity {
         super.onResume();
 
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-            //dialog = Tools.requestPermissions(MainActivity.this); // todo come back
+            dialog = Tools.requestPermissions(MainActivity.this);
         }
 
         Tools.sendHeartbeat(getApplicationContext());

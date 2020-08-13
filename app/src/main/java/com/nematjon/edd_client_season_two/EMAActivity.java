@@ -69,7 +69,7 @@ public class EMAActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-            // dialog = Tools.requestPermissions(EMAActivity.this); // todo come back
+           dialog = Tools.requestPermissions(EMAActivity.this);
         }
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         if (!loginPrefs.getBoolean("logged_in", false)) {

@@ -103,7 +103,7 @@
         <service
             android:name=".services.MainService"
             android:foregroundServiceType="location" />
-        <service android:name=".services.CameraService" android:exported="false" android:enabled="true"/>
+    <!--   <service android:name=".services.CameraService" android:exported="false" android:enabled="true"/> -->
 
         <receiver android:name=".receivers.EMAAlarmRcvr" />
         <receiver android:name=".receivers.ActivityTransRcvr" />
