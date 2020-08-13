@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Camera2Service extends Service {
-    protected static final int CAMERA_CALIBRATION_DELAY = 500;
+    protected static final int CAMERA_CALIBRATION_DELAY = 5000; //5 seconds
     protected static final String TAG = "myLog";
     protected static final int CAMERACHOICE = CameraCharacteristics.LENS_FACING_FRONT;
     protected static long cameraCaptureStartTime;
@@ -69,6 +69,7 @@ public class Camera2Service extends Service {
         @Override
         public void onReady(CameraCaptureSession session) {
             Camera2Service.this.session = session;
+
             try {
                 session.setRepeatingRequest(createCaptureRequest(), null, null);
                 cameraCaptureStartTime = System.currentTimeMillis();
@@ -96,6 +97,7 @@ public class Camera2Service extends Service {
             if (img != null) {
                 if (System.currentTimeMillis() > cameraCaptureStartTime + CAMERA_CALIBRATION_DELAY) {
                     processImage(img);
+
                 }
                 img.close();
             }
@@ -173,7 +175,7 @@ public class Camera2Service extends Service {
         ByteBuffer buffer;
         byte[] bytes;
         boolean success = false;
-        File file = new File( getApplicationContext().getExternalFilesDir("") + "new.jpg");
+        File file = new File( getApplicationContext().getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg");
         FileOutputStream output = null;
 
         if (image.getFormat() == ImageFormat.JPEG) {
@@ -187,6 +189,7 @@ public class Camera2Service extends Service {
                 output.write(bytes);    // write the byte array to file
                 success = true;
                 Log.e(TAG, "processImage: DOLJEN BIT SUCcESS" );
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -194,6 +197,7 @@ public class Camera2Service extends Service {
             } finally {
                 image.close(); // close this to free up buffer for other images
                 Log.e(TAG, "processImage: DONE SAVING" );
+
                 if (null != output) {
                     try {
                         output.close();

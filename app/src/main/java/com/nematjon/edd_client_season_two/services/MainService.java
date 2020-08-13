@@ -291,8 +291,10 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     if(cameraAvailable){
                         //take a photo
                         Log.e("CAMERA", "run: CAMERA AVAILABLE");
-                        startService(new Intent(getApplicationContext(), Camera2Service.class));
+                        startService(cameraIntent);
                         Log.e("CAMERA", "run: CHECK GALLERY" );
+                    } else {
+                        stopService(cameraIntent);
                     }
                 }
             }
