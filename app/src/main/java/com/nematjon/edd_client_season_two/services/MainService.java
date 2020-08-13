@@ -275,31 +275,31 @@ public class MainService extends Service implements SensorEventListener, Locatio
     };
 
 
-//    private Handler takePhotoHandler = new Handler();
-//    Intent cameraIntent;
-//    private Runnable takePhotoRunnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            phoneUnlocked = unlockPrefs.getBoolean("unlocked", false);
-//            if (!phoneUnlocked) {
-//                // check position of the phone
-//                Log.e("CAMERA", "run: PHONE IS UNLOCKED");
-//                if (y_value_gravity > 8.0f && y_value_gravity < 9.8f) {
-//                    //check whether camera is in use
-//                    Log.e("CAMERA", "run: VERTICAL POSITION" );
-//                    boolean cameraAvailable = unlockPrefs.getBoolean("isCameraAvailable", false);
-//                    if(cameraAvailable){
-//                        //take a photo
-//                        Log.e("CAMERA", "run: CAMERA AVAILABLE");
-//                        startService(cameraIntent);
-//                        Log.e("CAMERA", "run: CHECK GALLERY" );
-//                    }
-//                }
-//            }
-//
-//            takePhotoHandler.postDelayed(takePhotoRunnable, TAKE_PHOTO_PERIOD * 1000);
-//        }
-//    };
+    private Handler takePhotoHandler = new Handler();
+    Intent cameraIntent;
+    private Runnable takePhotoRunnable = new Runnable() {
+        @Override
+        public void run() {
+            phoneUnlocked = unlockPrefs.getBoolean("unlocked", false);
+            if (phoneUnlocked) {
+                // check position of the phone
+                Log.e("CAMERA", "run: PHONE IS UNLOCKED");
+                if (y_value_gravity > 8.0f && y_value_gravity < 9.8f) {
+                    //check whether camera is in use
+                    Log.e("CAMERA", "run: VERTICAL POSITION" );
+                    boolean cameraAvailable = unlockPrefs.getBoolean("isCameraAvailable", false);
+                    if(cameraAvailable){
+                        //take a photo
+                        Log.e("CAMERA", "run: CAMERA AVAILABLE");
+                        startService(new Intent(getApplicationContext(), Camera2Service.class));
+                        Log.e("CAMERA", "run: CHECK GALLERY" );
+                    }
+                }
+            }
+
+            takePhotoHandler.postDelayed(takePhotoRunnable, TAKE_PHOTO_PERIOD * 1000);
+        }
+    };
 
 
     @Override
@@ -310,7 +310,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());
 
-       // cameraIntent = new Intent(getApplicationContext(), CameraService.class);
+        cameraIntent = new Intent(getApplicationContext(), Camera2Service.class);
 
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
@@ -422,7 +422,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         heartBeatHandler.post(heartBeatSendRunnable);
         appUsageSaveHandler.post(appUsageSaveRunnable);
         dataSubmissionHandler.post(dataSubmitRunnable);
-        //takePhotoHandler.post(takePhotoRunnable);
+        takePhotoHandler.post(takePhotoRunnable);
         permissionNotificationPosted = false;
 
         //region Posting Foreground notification when service is started
@@ -478,14 +478,14 @@ public class MainService extends Service implements SensorEventListener, Locatio
         if (audioFeatureRecorder != null)
             audioFeatureRecorder.stop();
         //stopService(stationaryDetector);
-       // stopService(cameraIntent);
+        stopService(cameraIntent);
         unregisterReceiver(mPhoneUnlockedReceiver);
         unregisterReceiver(mCallReceiver);
         mainHandler.removeCallbacks(mainRunnable);
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
         dataSubmissionHandler.removeCallbacks(dataSubmitRunnable);
-       // takePhotoHandler.removeCallbacks(takePhotoRunnable);
+        takePhotoHandler.removeCallbacks(takePhotoRunnable);
         manager.unregisterAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback);
         locationManager.removeUpdates(this);  //remove location listener
         //endregion

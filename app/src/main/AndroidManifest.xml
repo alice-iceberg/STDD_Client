@@ -53,6 +53,7 @@
 
     <application
         android:allowBackup="true"
+        android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -103,7 +104,8 @@
         <service
             android:name=".services.MainService"
             android:foregroundServiceType="location" />
-    <!--   <service android:name=".services.CameraService" android:exported="false" android:enabled="true"/> -->
+
+      <service android:name=".services.Camera2Service" android:exported="false" android:enabled="true"/>
 
         <receiver android:name=".receivers.EMAAlarmRcvr" />
         <receiver android:name=".receivers.ActivityTransRcvr" />
