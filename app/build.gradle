@@ -46,10 +46,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.koushikdutta.ion:ion:2.1.6'
-  //  implementation files('libs/hiddencamera-1.3.5-sources.jar')
-//    implementation project(':hiddencamera')
-    //implementation files('libs/hiddencamera.jar')
-   // implementation files('libs/hiddencamera-1.3.5-sources.jar')
+
 
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.nematjon.edd_client_season_two">
 
-    <uses-feature android:name="android.hardware.camera"
+    <uses-feature android:name="android.hardware.camera2"
         android:required="true" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

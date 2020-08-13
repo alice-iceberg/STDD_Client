@@ -26,16 +26,16 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 
 public class Camera2Service extends Service {
-    protected static final int CAMERA_CALIBRATION_DELAY = 5000; //5 seconds
+    protected static final int CAMERA_CALIBRATION_DELAY = 2000; //
     protected static final String TAG = "myLog";
     protected static final int CAMERACHOICE = CameraCharacteristics.LENS_FACING_FRONT;
     protected static long cameraCaptureStartTime;
@@ -71,7 +71,7 @@ public class Camera2Service extends Service {
             Camera2Service.this.session = session;
 
             try {
-                session.setRepeatingRequest(createCaptureRequest(), null, null);
+                session.capture(createCaptureRequest(), null, null);
                 cameraCaptureStartTime = System.currentTimeMillis();
             } catch (CameraAccessException e) {
                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));
@@ -152,7 +152,7 @@ public class Camera2Service extends Service {
 
     public void actOnReadyCameraDevice() {
         try {
-            cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);
+            cameraDevice.createCaptureSession(Collections.singletonList(imageReader.getSurface()), sessionStateCallback, null);
         } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -160,12 +160,12 @@ public class Camera2Service extends Service {
 
     @Override
     public void onDestroy() {
-        try {
-            session.abortCaptures();
-        } catch (CameraAccessException e) {
-            Log.e(TAG, e.getMessage());
-        }
-        session.close();
+//        try {
+//            session.abortCaptures();
+//        } catch (CameraAccessException e) {
+//            Log.e(TAG, e.getMessage());
+//        }
+      //  session.close();
     }
 
 
@@ -190,8 +190,6 @@ public class Camera2Service extends Service {
                 success = true;
                 Log.e(TAG, "processImage: DOLJEN BIT SUCcESS" );
 
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -218,7 +216,7 @@ public class Camera2Service extends Service {
             builder.addTarget(imageReader.getSurface());
             return builder.build();
         } catch (CameraAccessException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, Objects.requireNonNull(e.getMessage()));
             return null;
         }
     }

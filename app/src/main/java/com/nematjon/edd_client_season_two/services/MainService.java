@@ -293,8 +293,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         Log.e("CAMERA", "run: CAMERA AVAILABLE");
                         startService(cameraIntent);
                         Log.e("CAMERA", "run: CHECK GALLERY" );
-                    } else {
-                        stopService(cameraIntent);
                     }
                 }
             }
@@ -323,9 +321,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         lightDataSrcId = confPrefs.getInt("ANDROID_LIGHT", -1);
         wifiScanDataSrcId = confPrefs.getInt("ANDROID_WIFI", -1);
 
-        //Handler cameraHandler = new Handler();
-        //manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE); // camera manager
-        //manager.registerAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback, cameraHandler);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
