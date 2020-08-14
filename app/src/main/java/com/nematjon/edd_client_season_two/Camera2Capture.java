@@ -14,10 +14,9 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Surface;
-import android.view.WindowManager;
+
 
 import androidx.core.app.ActivityCompat;
 
@@ -79,8 +78,7 @@ public class Camera2Capture {
         try {
 
             if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
+                //todo request permissions
 
                 return;
             }
@@ -120,10 +118,7 @@ public class Camera2Capture {
 
             // Focus
             requestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-
             // Orientation
-            //WindowManager windowManager = null;
-            //WindowManager.getDefaultDisplay().getRotation();
             requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, 270); //get proper rotation
 
             cameraCaptureSession.capture(requestBuilder.build(), null, null);
@@ -165,7 +160,6 @@ public class Camera2Capture {
             Log.e("TAG", "processImage: IS BEING PROCESSED");
             ByteBuffer buffer;
             byte[] bytes;
-            boolean success = false;
             File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg");
             FileOutputStream output = null;
 
@@ -176,7 +170,6 @@ public class Camera2Capture {
             try {
                 output = new FileOutputStream(file);
                 output.write(bytes);    // write the byte array to file
-                success = true;
                 Log.e("TAG", "processImage: DOLJEN BIT SUCcESS");
 
             } catch (IOException e) {
@@ -196,3 +189,6 @@ public class Camera2Capture {
     };
 }
 
+//todo: release and close problem
+//todo: what if a device does not have gravity sensor
+//todo: problem with permissions

@@ -319,7 +319,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());
 
-       // cameraIntent = new Intent(getApplicationContext(), Camera2Service.class);
 
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
