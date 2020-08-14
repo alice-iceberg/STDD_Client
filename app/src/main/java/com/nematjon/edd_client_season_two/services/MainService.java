@@ -43,6 +43,7 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.nematjon.edd_client_season_two.AuthActivity;
+import com.nematjon.edd_client_season_two.Camera2Capture;
 import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.R;
@@ -86,7 +87,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short AUDIO_RECORDING_DURATION = 5;  //in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; //in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; //in sec
-    private static final int TAKE_PHOTO_PERIOD = 10; // in sec
+    private static final int TAKE_PHOTO_PERIOD = 60; // in sec
 
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
@@ -285,15 +286,23 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 // check position of the phone
                 Log.e("CAMERA", "run: PHONE IS UNLOCKED");
                 if (y_value_gravity > 8.0f && y_value_gravity < 9.8f) {
-                    //check whether camera is in use
+
                     Log.e("CAMERA", "run: VERTICAL POSITION" );
+
+                    //check whether camera is in use
                     boolean cameraAvailable = unlockPrefs.getBoolean("isCameraAvailable", false);
-                    if(cameraAvailable){
+                   if(cameraAvailable){
                         //take a photo
                         Log.e("CAMERA", "run: CAMERA AVAILABLE");
-                        startService(cameraIntent);
+                      //  startService(cameraIntent);
+                        Camera2Capture camera2Capture = new Camera2Capture(getApplicationContext());
+                        camera2Capture.setupCamera2();
+
+
                         Log.e("CAMERA", "run: CHECK GALLERY" );
-                    }
+                    } else{
+                        Log.e(TAG, "run: CAMERA NOT AVAILABLE" );
+                   }
                 }
             }
 
@@ -310,7 +319,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());
 
-        cameraIntent = new Intent(getApplicationContext(), Camera2Service.class);
+       // cameraIntent = new Intent(getApplicationContext(), Camera2Service.class);
 
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
@@ -475,7 +484,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         if (audioFeatureRecorder != null)
             audioFeatureRecorder.stop();
         //stopService(stationaryDetector);
-        stopService(cameraIntent);
+        //stopService(cameraIntent);
         unregisterReceiver(mPhoneUnlockedReceiver);
         unregisterReceiver(mCallReceiver);
         mainHandler.removeCallbacks(mainRunnable);
