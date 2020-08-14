@@ -17,13 +17,13 @@ public class ScreenAndUnlockRcvr extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences confPrefs = context.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
-        SharedPreferences screenPrefs = context.getSharedPreferences("SecreenVariables", Context.MODE_PRIVATE);
+        SharedPreferences phoneUsageVariablesPrefs = context.getSharedPreferences("PhoneUsageVariablesPrefs", Context.MODE_PRIVATE);
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
             DbMgr.init(context);
 
         PendingResult pendingResult = goAsync();
-        Task task = new Task(pendingResult, intent, confPrefs, screenPrefs);
+        Task task = new Task(pendingResult, intent, confPrefs, phoneUsageVariablesPrefs);
         task.execute();
     }
 
@@ -32,13 +32,13 @@ public class ScreenAndUnlockRcvr extends BroadcastReceiver {
         private final PendingResult pendingResult;
         private final Intent intent;
         SharedPreferences confPrefs;
-        SharedPreferences screenPrefs;
+        SharedPreferences phoneUsageVariablesPrefs;
 
-        private Task(PendingResult pendingResult, Intent intent, SharedPreferences confPrefs, SharedPreferences screenPrefs) {
+        private Task(PendingResult pendingResult, Intent intent, SharedPreferences confPrefs, SharedPreferences phoneUsageVariablesPrefs) {
             this.pendingResult = pendingResult;
             this.intent = intent;
             this.confPrefs = confPrefs;
-            this.screenPrefs = screenPrefs;
+            this.phoneUsageVariablesPrefs = phoneUsageVariablesPrefs;
         }
 
         @Override
@@ -52,14 +52,14 @@ public class ScreenAndUnlockRcvr extends BroadcastReceiver {
             if (Objects.equals(intent.getAction(), Intent.ACTION_USER_PRESENT)) {
                 Log.e(TAG, "Phone unlocked");
                 DbMgr.saveMixedData(dataSourceLockUnlock, nowTime, 1.0f, nowTime, "UNLOCK");
-                SharedPreferences.Editor editor = screenPrefs.edit();
+                SharedPreferences.Editor editor = phoneUsageVariablesPrefs.edit();
                 editor.putBoolean("unlocked", true);
                 editor.apply();
             } else if (Objects.equals(intent.getAction(), Intent.ACTION_SCREEN_OFF)) {
                 Log.e(TAG, "Phone locked / Screen OFF");
                 //region Handling phone locked state
-                if (screenPrefs.getBoolean("unlocked", false)) {
-                    SharedPreferences.Editor editor = screenPrefs.edit();
+                if (phoneUsageVariablesPrefs.getBoolean("unlocked", false)) {
+                    SharedPreferences.Editor editor = phoneUsageVariablesPrefs.edit();
                     editor.putBoolean("unlocked", false);
                     editor.apply();
                     DbMgr.saveMixedData(dataSourceLockUnlock, nowTime, 1.0f, nowTime, "LOCK");
