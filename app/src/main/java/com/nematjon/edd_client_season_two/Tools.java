@@ -15,6 +15,8 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.location.LocationManager;
 
 import androidx.core.app.ActivityCompat;
@@ -335,5 +337,14 @@ public class Tools {
 
     public static boolean inRange(long value, long start, long end) {
         return start < value && value < end;
+    }
+
+    public static Bitmap rotateBitmap (Bitmap inputBitmap, float degrees){
+        Bitmap outputBitmap;
+        Matrix matrix = new Matrix();
+        matrix.setRotate(degrees);
+        outputBitmap = Bitmap.createBitmap(inputBitmap, 0, 0, inputBitmap.getWidth(), inputBitmap.getHeight(), matrix, true);
+
+        return outputBitmap;
     }
 }

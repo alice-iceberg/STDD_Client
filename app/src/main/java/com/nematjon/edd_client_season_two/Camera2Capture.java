@@ -2,8 +2,12 @@ package com.nematjon.edd_client_season_two;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.RectF;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -15,14 +19,22 @@ import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Surface;
 
 
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,17 +68,10 @@ public class Camera2Capture {
                 }
 
                 this.cameraId = cameraId;
-
-                // int[] picSize = getPictureSize();
-                //int picWidth = picSize[0];
-                // int picHeight = picSize[1];
-
-                imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 2);
+                imageReader = ImageReader.newInstance(1080, 1440, ImageFormat.JPEG, 2); // 3 x 4 aspect ratio
                 imageReader.setOnImageAvailableListener(onImageAvailableListener, backgroundHandler);
             }
-
             openCamera2();
-
         } catch (CameraAccessException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -79,7 +84,6 @@ public class Camera2Capture {
 
             if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 //todo request permissions
-
                 return;
             }
             manager.openCamera(cameraId, cameraStateCallback, backgroundHandler);
@@ -121,6 +125,7 @@ public class Camera2Capture {
             // Orientation
             requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, 270); //get proper rotation
 
+
             cameraCaptureSession.capture(requestBuilder.build(), null, null);
 
         } catch (CameraAccessException e) {
@@ -157,10 +162,10 @@ public class Camera2Capture {
         @Override
         public void onImageAvailable(ImageReader mImageReader) {
 
-            Log.e("TAG", "processImage: IS BEING PROCESSED");
+            Log.e("TAG", "processImage: ONIMAGEAVAILABLE");
             ByteBuffer buffer;
             byte[] bytes;
-            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg");
+            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // saves images to the app folder
             FileOutputStream output = null;
 
             Image image = mImageReader.acquireNextImage();
@@ -170,8 +175,6 @@ public class Camera2Capture {
             try {
                 output = new FileOutputStream(file);
                 output.write(bytes);    // write the byte array to file
-                Log.e("TAG", "processImage: DOLJEN BIT SUCcESS");
-
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -182,13 +185,82 @@ public class Camera2Capture {
                     cameraDevice = null;
                 }
             }
+
+            cropFace(bytes, mContext);
         }
 
 
-
     };
+
+
+    public void cropFace(byte[] byteArrayImage, Context mContext) {
+
+        File file;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        OutputStream ous;
+
+        Bitmap tempBitmap = BitmapFactory.decodeByteArray(byteArrayImage, 0, byteArrayImage.length);
+        Bitmap rotatedBitmap = Tools.rotateBitmap(tempBitmap, 270);
+
+
+        FaceDetector detector = new FaceDetector.Builder(mContext)
+                .setTrackingEnabled(false).setClassificationType(1).
+                        build();
+
+        if (!detector.isOperational()) {
+            Log.e("TAG", "cropFace: Could not set up face detector");
+        } else {
+            Frame frame = new Frame.Builder().setBitmap(rotatedBitmap).build();
+            SparseArray<Face> faces = detector.detect(frame);
+            Bitmap faceBitmap = null;
+
+
+            Log.e("TAG", "cropFace: Number of faces detected: " + faces.size());
+
+
+            for (int i = 0; i < faces.size(); i++) {
+
+                Face thisFace = faces.valueAt(i);
+                float x1 = thisFace.getPosition().x;
+                float y1 = thisFace.getPosition().y;
+
+                // detection of smiling probability
+                detectAndSubmitSmilingResult(thisFace);
+
+                // cropping the face
+                faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(thisFace.getWidth() - 2), Math.round(thisFace.getHeight() - 2)); // 2 is some margin for cases when face is big
+
+                // saving the cropped face
+                file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // saves images to the app folder
+
+                faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] faceByteArray = stream.toByteArray();
+                faceBitmap.recycle();
+
+                try {
+                    ous = new FileOutputStream(file);
+                    ous.write(faceByteArray);
+                    Log.e("TAG", "cropFace: Cropped face saved");
+                    ous.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }
+
+
+    }
+
+    public void detectAndSubmitSmilingResult (Face face){
+
+        float smile;
+        smile = face.getIsSmilingProbability();
+        Log.e("SMILE", "onClick: SMILE: " + smile);
+
+    }
 }
 
 //todo: release and close problem
-//todo: what if a device does not have gravity sensor
 //todo: problem with permissions
