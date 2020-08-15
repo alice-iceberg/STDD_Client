@@ -140,7 +140,8 @@ public class MainActivity extends Activity {
                     Manifest.permission.CHANGE_WIFI_STATE,
                     Manifest.permission.READ_CALENDAR,
                     Manifest.permission.READ_SMS,
-                    Manifest.permission.CAMERA
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.SYSTEM_ALERT_WINDOW
             };
         }
 
@@ -560,6 +561,10 @@ public class MainActivity extends Activity {
 
     public void setLocationsClick(MenuItem item) {
         startActivity(new Intent(MainActivity.this, LocationSetActivity.class));
+    }
+
+    public void setSocialMediaClick(MenuItem item){
+        startActivity(new Intent(MainActivity.this, MediaSetActivity.class ));
     }
 
     public void setAlarams() {

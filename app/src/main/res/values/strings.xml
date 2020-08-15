@@ -78,4 +78,5 @@
     <string name="error_not_having_camera">Your device does not have front camera.</string>
     <string name="error_camera_permission_denied">Camera permission denied.</string>
     <string name="btn_tittle_capture_image">Capture image</string>
+    <string name="set_social_media">SNS</string>
 </resources>

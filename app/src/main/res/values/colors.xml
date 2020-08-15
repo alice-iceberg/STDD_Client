@@ -14,4 +14,11 @@
     <color name="seek_bar_background">#ababab</color>
     <color name="seek_bar_progress">#ffb600</color>
     <color name="seek_bar_secondary_progress">#3399CC</color>
+
+    <color name="colorJuicyBlue">#00C9FF</color>
+    <color name="colorJuicyGreen">#92FE9D</color>
+
+    <color name="login_form_details">#ccffff</color>
+    <color name="login_form_details_light">#0D262626</color>
+    <color name="login_form_details_medium">#c3ffff</color>
 </resources>

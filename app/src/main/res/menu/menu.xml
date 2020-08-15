@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
     <item
-        android:id="@+id/action_logout"
-        android:onClick="logoutClick"
-        android:title="@string/log_out"
+        android:id="@+id/btn_set_locations"
+        android:onClick="setLocationsClick"
+        android:title="@string/set_locations"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/btn_set_social_media"
+        android:onClick="setSocialMediaClick"
+        android:title="@string/set_social_media"
+        app:showAsAction="never" />
+
 
     <item
         android:id="@+id/btn_restart_service"
@@ -14,8 +23,8 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/btn_set_locations"
-        android:onClick="setLocationsClick"
-        android:title="@string/set_locations"
+        android:id="@+id/action_logout"
+        android:onClick="logoutClick"
+        android:title="@string/log_out"
         app:showAsAction="never" />
 </menu>
