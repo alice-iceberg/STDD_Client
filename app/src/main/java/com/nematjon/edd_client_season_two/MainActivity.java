@@ -141,7 +141,6 @@ public class MainActivity extends Activity {
                     Manifest.permission.READ_CALENDAR,
                     Manifest.permission.READ_SMS,
                     Manifest.permission.CAMERA,
-                    Manifest.permission.SYSTEM_ALERT_WINDOW
             };
         }
 

@@ -79,4 +79,6 @@
     <string name="error_camera_permission_denied">Camera permission denied.</string>
     <string name="btn_tittle_capture_image">Capture image</string>
     <string name="set_social_media">설정</string>
+    <string name="submitSNS">Submit</string>
+    <string name="username">Username</string>
 </resources>

@@ -3,6 +3,7 @@ package com.nematjon.edd_client_season_two;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -41,7 +42,6 @@ import java.util.List;
 
 public class Camera2Capture {
 
-
     private ImageReader imageReader;
     private Handler backgroundHandler;
     private HandlerThread backgroundThread;
@@ -49,6 +49,12 @@ public class Camera2Capture {
     private CameraDevice cameraDevice;
     private CameraCaptureSession cameraCaptureSession;
     private Context mContext;
+
+    static int capturedPhotoDataSrcId;
+    float smile;
+    static SharedPreferences confPrefs;
+
+
 
     public Camera2Capture(Context context) {
         this.mContext = context;
@@ -84,6 +90,7 @@ public class Camera2Capture {
 
             if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 //todo request permissions
+                Log.e("TAG", "openCamera2: Camera permission not granted" );
                 return;
             }
             manager.openCamera(cameraId, cameraStateCallback, backgroundHandler);
@@ -225,7 +232,8 @@ public class Camera2Capture {
                 float y1 = thisFace.getPosition().y;
 
                 // detection of smiling probability
-                detectAndSubmitSmilingResult(thisFace);
+                smile = thisFace.getIsSmilingProbability();
+                Log.e("SMILE", "onClick: SMILE: " + smile);
 
                 // cropping the face
                 faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(thisFace.getWidth() - 2), Math.round(thisFace.getHeight() - 2)); // 2 is some margin for cases when face is big
@@ -246,21 +254,31 @@ public class Camera2Capture {
                     e.printStackTrace();
                 }
 
-
+                //submitting data to server
+                submitPhotoData(smile);
             }
         }
 
 
     }
 
-    public void detectAndSubmitSmilingResult (Face face){
 
-        float smile;
-        smile = face.getIsSmilingProbability();
-        Log.e("SMILE", "onClick: SMILE: " + smile);
+    public void submitPhotoData (float smile){
+
+        confPrefs = mContext.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
+        capturedPhotoDataSrcId = confPrefs.getInt("CAPTURED_PHOTOS", -1);
+
+        long timestamp = System.currentTimeMillis();
+        String smile_type = "SMILE";
+
+        assert capturedPhotoDataSrcId != -1;
+        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
 
     }
 }
 
+
+
+//todo: check permission
 //todo: release and close problem
 //todo: problem with permissions

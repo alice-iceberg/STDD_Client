@@ -51,6 +51,8 @@ import static com.nematjon.edd_client_season_two.services.MainService.EMA_RESPON
 
 public class Tools {
 
+    private static final String TAG = Tools.class.getSimpleName();
+
     static final String DATA_SOURCE_SEPARATOR = " ";
     static int PERMISSION_ALL = 1;
     public static String[] PERMISSIONS = {
@@ -65,10 +67,13 @@ public class Tools {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.CHANGE_WIFI_STATE,
             Manifest.permission.READ_CALENDAR,
-            Manifest.permission.CAMERA,
-            Manifest.permission.SYSTEM_ALERT_WINDOW
+            Manifest.permission.CAMERA
     };
 
+    public static boolean canOverDrawOtherApps(Context context) {
+        Log.e(TAG, "canOverDrawOtherApps: " + Settings.canDrawOverlays(context) );
+        return Settings.canDrawOverlays(context);
+    }
     public static boolean hasPermissions(Context con, String... permissions) {
         Context context = con.getApplicationContext();
         if (context != null && permissions != null)
@@ -84,6 +89,9 @@ public class Tools {
             return false;
 
         if (isNotificationServiceNotEnabled(context))
+            return false;
+
+        if (!canOverDrawOtherApps(context))
             return false;
 
         return isGPSLocationOn(context);
@@ -159,18 +167,31 @@ public class Tools {
                 break;
             }
 
-        if (isAppUsageAccessNotGranted(activity.getApplicationContext()))
+        if (isAppUsageAccessNotGranted(activity.getApplicationContext())) {
             activity.startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        if (!isGPSLocationOn(activity.getApplicationContext()))
+            Log.e(TAG, "grantPermissions: APP usage");
+        }
+        if (!isGPSLocationOn(activity.getApplicationContext())) {
             activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        if (isAccessibilityServiceNotEnabled(activity.getApplicationContext()))
+            Log.e(TAG, "grantPermissions: GPS");
+        }
+        if (!Settings.canDrawOverlays(activity.getApplicationContext())) {
+            Log.e(TAG, "grantPermissions: OVERLAY");
+            activity.startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
+        if (isAccessibilityServiceNotEnabled(activity.getApplicationContext())) {
+            Log.e(TAG, "grantPermissions: ACCESSABILITY");
             activity.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        if (isNotificationServiceNotEnabled(activity.getApplicationContext()))
+        }
+        if (isNotificationServiceNotEnabled(activity.getApplicationContext())) {
+            Log.e(TAG, "grantPermissions: APP NOTIF");
             activity.startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        if (canOverDrawOtherApps(activity.getApplicationContext()))
-            openDrawOverPermissionSetting(activity.getApplicationContext());
-        if (!simple_permissions_granted)
+        }
+
+        if (!simple_permissions_granted) {
+            Log.e(TAG, "grantPermissions: SIMPLE");
             ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL);
+        }
     }
 
     public static void checkAndSaveUsageAccessStats(Context con) {
@@ -340,7 +361,7 @@ public class Tools {
         return start < value && value < end;
     }
 
-    public static Bitmap rotateBitmap (Bitmap inputBitmap, float degrees){
+    public static Bitmap rotateBitmap(Bitmap inputBitmap, float degrees) {
         Bitmap outputBitmap;
         Matrix matrix = new Matrix();
         matrix.setRotate(degrees);
@@ -349,15 +370,6 @@ public class Tools {
         return outputBitmap;
     }
 
-    public static boolean canOverDrawOtherApps(Context context) {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(context);
-    }
 
-    public static void openDrawOverPermissionSetting(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
 
-        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-    }
 }

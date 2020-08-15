@@ -9,7 +9,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toolbar;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -84,22 +84,32 @@ public class MediaSetActivity extends AppCompatActivity {
         passwordString = password.getText().toString();
 
         SharedPreferences.Editor editor = instagramPrefs.edit();
-        editor.putString("username", usernameString);
-        editor.putString("password", passwordString);
+        editor.putString("instagram_username", usernameString);
+        editor.putString("instagram_password", passwordString);
         editor.apply();
 
-        //todo: add name and password check
-        isSuccessfullyLoggedIn = true;
+        if(usernameString.equals("") && passwordString.equals("")){
+            Toast.makeText(this, "Username and password cannot be empty!", Toast.LENGTH_LONG).show();
+            isSuccessfullyLoggedIn = false;
+        }else if(usernameString.equals("")){
+            Toast.makeText(this, "Username cannot be empty!", Toast.LENGTH_LONG).show();
+            isSuccessfullyLoggedIn = false;
+        }else if(passwordString.equals("")){
+            Toast.makeText(this, "Password cannot be empty!", Toast.LENGTH_LONG).show();
+            isSuccessfullyLoggedIn = false;
+        }else {
+            //todo: add name and password check
+            isSuccessfullyLoggedIn = true;
+        }
 
-        if(isSuccessfullyLoggedIn){
+        if (isSuccessfullyLoggedIn) {
             finish();
         }
     }
 
-    public void homeBtnClick(View view){
+    public void homeBtnClick(View view) {
         finish();
     }
-
     //endregion
 
 
