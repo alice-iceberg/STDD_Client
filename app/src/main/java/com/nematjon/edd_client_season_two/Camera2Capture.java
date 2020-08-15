@@ -236,7 +236,7 @@ public class Camera2Capture {
                 Log.e("SMILE", "onClick: SMILE: " + smile);
 
                 // cropping the face
-                faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(thisFace.getWidth() - 2), Math.round(thisFace.getHeight() - 2)); // 2 is some margin for cases when face is big
+                faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(thisFace.getWidth() - 5), Math.round(thisFace.getHeight() - 5)); // 2 is some margin for cases when face is big
 
                 // saving the cropped face
                 file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // saves images to the app folder

@@ -34,6 +34,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import com.github.instagram4j.instagram4j.IGClient;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityTransition;
@@ -53,6 +54,7 @@ import com.nematjon.edd_client_season_two.receivers.ScreenAndUnlockRcvr;
 import com.nematjon.edd_client_season_two.receivers.SignificantMotionDetector;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -300,7 +302,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
             takePhotoHandler.postDelayed(takePhotoRunnable, TAKE_PHOTO_PERIOD * 1000);
         }
     };
-
 
     @Override
     public void onCreate() {

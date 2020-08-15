@@ -71,7 +71,6 @@ public class Tools {
     };
 
     public static boolean canOverDrawOtherApps(Context context) {
-        Log.e(TAG, "canOverDrawOtherApps: " + Settings.canDrawOverlays(context) );
         return Settings.canDrawOverlays(context);
     }
     public static boolean hasPermissions(Context con, String... permissions) {
