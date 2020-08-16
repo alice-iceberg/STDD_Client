@@ -35,6 +35,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.github.instagram4j.instagram4j.IGClient;
+import com.github.instagram4j.instagram4j.models.media.reel.ReelMedia;
+import com.github.instagram4j.instagram4j.models.media.timeline.TimelineMedia;
+import com.github.instagram4j.instagram4j.requests.direct.DirectInboxRequest;
+import com.github.instagram4j.instagram4j.requests.feed.FeedUserRequest;
+import com.github.instagram4j.instagram4j.requests.feed.FeedUserStoryRequest;
+import com.github.instagram4j.instagram4j.requests.users.UsersInfoRequest;
+import com.github.instagram4j.instagram4j.responses.direct.DirectInboxResponse;
+import com.github.instagram4j.instagram4j.responses.feed.FeedUserResponse;
+import com.github.instagram4j.instagram4j.responses.feed.FeedUserStoryResponse;
+import com.github.instagram4j.instagram4j.responses.users.UserResponse;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityTransition;
@@ -61,6 +71,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import inha.nsl.easytrack.ETServiceGrpc;
 import inha.nsl.easytrack.EtService;
@@ -76,18 +88,20 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final int EMA_NOTIFICATION_ID = 1234; //in sec
     public static final int PERMISSION_REQUEST_NOTIFICATION_ID = 1111; //in sec
     public static final long EMA_RESPONSE_EXPIRE_TIME = 60 * 60;  //in sec
-    public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; //min
-    public static final short HEARTBEAT_PERIOD = 30;  //in sec
-    public static final short DATA_SUBMIT_PERIOD = 60;  //in sec
-    private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  //in sec
-    private static final short LIGHT_SENSOR_PERIOD = 30;  //in sec
-    private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; //in sec
+    public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; // min
+    public static final short HEARTBEAT_PERIOD = 30;  // in sec
+    public static final short DATA_SUBMIT_PERIOD = 60;  // in sec
+    private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  // in sec
+    private static final short LIGHT_SENSOR_PERIOD = 30;  // in sec
+    private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
     private static final short GRAVITY_SENSOR_PERIOD = 3; // in sec
-    private static final short PRESSURE_SENSOR_DURATION = 2; //in sec
-    private static final short AUDIO_RECORDING_DURATION = 5;  //in sec
-    private static final int APP_USAGE_SEND_PERIOD = 3; //in sec
-    private static final int WIFI_SCANNING_PERIOD = 31 * 60; //in sec
+    private static final short PRESSURE_SENSOR_DURATION = 2; // in sec
+    private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
+    private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
+    private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
     private static final int TAKE_PHOTO_PERIOD = 2 * 60; // in sec
+    private static final int INSTAGRAM_PERIOD = 10; // in sec
+    private static final int HOURS24 = 24 * 60 * 60; //in sec
 
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
@@ -109,6 +123,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static SharedPreferences loginPrefs;
     static SharedPreferences confPrefs;
     static SharedPreferences phoneUsageVariablesPrefs;
+    static SharedPreferences instagramPrefs;
 
     static int stepDetectorDataSrcId;
     static int pressureDataSrcId;
@@ -139,6 +154,34 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private boolean phoneUnlocked = false;
     private boolean isCameraAvailable = false;
     private static float y_value_gravity = 0f;
+    private String instagramUsername = "";
+    private String instagramPassword = "";
+
+    int direct_unseen_dialogs_count = 0;
+    int direct_pending_requests_dialogs_count = 0;
+    int story_viewers_count = 0;
+    int story_total_count = 0;
+    long story_taken_at_timestamp = 0;
+    long story_expires_timestamp = 0;
+    long userfeed_taken_at_timestamp = 0;
+    int userfeed_like_count = 0;
+    int userfeed_comment_count = 0;
+    int userfeed_items_count = 0;
+    boolean userfeed_likes_photo_himself = false;
+    int userinfo_followers_count = 0;
+    int userinfo_following_count = 0;
+    int userinfo_total_media_count = 0;
+    String userinfo_total_igtv_videos = "0";
+    String userinfo_besties_count = "0";
+    String userinfo_usertags_count = "0";
+    String userinfo_following_tag_count = "0";
+    String userinfo_recently_bestied_by_count = "0";
+    String userinfo_has_highlight_reels = "false";
+    String userinfo_total_clips_count = "0";
+    Object userinfo_extra_properties = null;
+
+
+
 
     private Handler mainHandler = new Handler();
     private Runnable mainRunnable = new Runnable() {
@@ -303,6 +346,97 @@ public class MainService extends Service implements SensorEventListener, Locatio
         }
     };
 
+    private Handler instagramHandler = new Handler();
+    private Runnable instagramRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (Tools.isNetworkAvailable()) {
+                instagramUsername = instagramPrefs.getString("instagram_username", "");
+                instagramPassword = instagramPrefs.getString("instagram_password", "");
+
+                assert instagramPassword != null;
+                if (!instagramUsername.equals("") && !instagramPassword.equals("")) {
+                    try {
+                        //creating instagram client
+                        IGClient client = IGClient.builder()
+                                .username(instagramUsername)
+                                .password(instagramPassword)
+                                .login();
+                        //todo: track login errors
+
+                        //region user info
+                        UsersInfoRequest usersInfoRequest = new UsersInfoRequest((client.getSelfProfile().getPk()));
+                        CompletableFuture<UserResponse> userResponse = client.sendRequest(usersInfoRequest);
+
+                        userinfo_total_media_count = userResponse.get().getUser().getMedia_count();
+                        userinfo_followers_count = userResponse.get().getUser().getFollower_count();
+                        userinfo_following_count = userResponse.get().getUser().getFollowing_count();
+
+                        userinfo_usertags_count =  userResponse.get().getUser().get("usertags_count").toString();
+                        userinfo_total_igtv_videos = userResponse.get().getUser().get("total_igtv_videos").toString();
+                        userinfo_besties_count = userResponse.get().getUser().get("besties_count").toString();
+                        userinfo_usertags_count =  userResponse.get().getUser().get("usertags_count").toString();
+                        userinfo_following_tag_count =  userResponse.get().getUser().get("following_tag_count").toString();
+                        userinfo_recently_bestied_by_count =  userResponse.get().getUser().get("recently_bestied_by_count").toString();
+                        userinfo_has_highlight_reels =  userResponse.get().getUser().get("has_highlight_reels").toString();
+                        userinfo_total_clips_count =  userResponse.get().getUser().get("total_clips_count").toString();
+
+                        Thread.sleep(500);
+                        //endregion
+
+                        //region direct
+                        CompletableFuture<DirectInboxResponse> directInboxResponse = new DirectInboxRequest().execute(client);
+                        direct_unseen_dialogs_count = directInboxResponse.get().getInbox().getUnseen_count();
+                        direct_pending_requests_dialogs_count = directInboxResponse.get().getPending_requests_total();
+
+                        Thread.sleep(500);
+                        //endregion
+
+                        //region story
+                        FeedUserStoryRequest storyRequest = new FeedUserStoryRequest(client.getSelfProfile().getPk());
+                        CompletableFuture<FeedUserStoryResponse> feedUserStoryResponse = client.sendRequest(storyRequest);
+                        story_total_count = feedUserStoryResponse.get().getReel().getMedia_count();
+                        Log.e(TAG, "run: STORY total count" + story_total_count);
+                        for (ReelMedia reelMedia : feedUserStoryResponse.get().getReel().getItems()) {
+                            story_viewers_count = reelMedia.getViewer_count();
+                            Log.e(TAG, "run: Story viewers count" + story_viewers_count);
+                            story_taken_at_timestamp = reelMedia.getTaken_at();
+                            story_expires_timestamp = (HOURS24 * 1000) + story_taken_at_timestamp;
+                        }
+                        Thread.sleep(500);
+                        //endregion
+
+                        //region user's feed
+                        FeedUserRequest feedUserRequest = new FeedUserRequest(client.getSelfProfile().getPk());
+                        CompletableFuture<FeedUserResponse> feedUserResponse = client.sendRequest(feedUserRequest);
+
+                        for (TimelineMedia timelineMedia : feedUserResponse.get().getItems()) {
+                            userfeed_taken_at_timestamp = timelineMedia.getTaken_at();
+                            userfeed_comment_count = timelineMedia.getComment_count();
+                            userfeed_like_count = timelineMedia.getLike_count();
+                            userfeed_likes_photo_himself = timelineMedia.isHas_liked();
+                            userfeed_items_count++;
+                        }
+                        //todo: submit userfeed count with timestamp to ET
+                        userfeed_items_count = 0;
+
+                        //endregion
+
+
+                        if (client.isLoggedIn()) {
+                            Log.e(TAG, "run: is logged in to Instagram");
+                        } else {
+                            Log.e(TAG, "run: Insta error");
+                        }
+                    } catch (IOException | InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            instagramHandler.postDelayed(instagramRunnable, INSTAGRAM_PERIOD * 1000);
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -315,6 +449,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         phoneUsageVariablesPrefs = getSharedPreferences("PhoneUsageVariablesPrefs", Context.MODE_PRIVATE);
+        instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
 
         stepDetectorDataSrcId = confPrefs.getInt("ANDROID_STEP_DETECTOR", -1);
         pressureDataSrcId = confPrefs.getInt("ANDROID_PRESSURE", -1);
@@ -418,6 +553,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         appUsageSaveHandler.post(appUsageSaveRunnable);
         dataSubmissionHandler.post(dataSubmitRunnable);
         takePhotoHandler.post(takePhotoRunnable);
+        instagramHandler.post(instagramRunnable);
         permissionNotificationPosted = false;
 
         //region Posting Foreground notification when service is started
@@ -480,6 +616,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
         dataSubmissionHandler.removeCallbacks(dataSubmitRunnable);
         takePhotoHandler.removeCallbacks(takePhotoRunnable);
+        instagramHandler.removeCallbacks(instagramRunnable);
         manager.unregisterAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback);
         locationManager.removeUpdates(this);  //remove location listener
         //endregion

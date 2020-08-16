@@ -81,27 +81,6 @@ public class MediaSetActivity extends AppCompatActivity {
         });
         //endregion
 
-                Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    IGClient client = IGClient.builder()
-                            .username("alice_iceberg")
-                            .password("9041121insta")
-                            .login();
-
-                    String check_username = client.getSelfProfile().getUsername();
-                    Log.e("TAG", "run: USERNAME" + check_username );
-
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        thread.start();
-
         instagramPrefs = getApplicationContext().getSharedPreferences("InstagramPrefs", MODE_PRIVATE);
     }
 
@@ -132,14 +111,15 @@ public class MediaSetActivity extends AppCompatActivity {
             } else {
                 //todo: add name and password check
                 isSuccessfullyLoggedIn = loginToInstagram();
-                Log.e("TAG", "submitClick: HERE" );
+                if (isSuccessfullyLoggedIn) {
+                    Toast.makeText(this, "Successfully logged in", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(this, "Check your username, password and try again.", Toast.LENGTH_SHORT).show();
+                }
             }
 
-            if (isSuccessfullyLoggedIn) {
-                finish();
-            } else {
-                Toast.makeText(this, "Check your username, password and try again.", Toast.LENGTH_LONG).show();
-            }
+
         } else{
             Toast.makeText(this, "Check Internet connection", Toast.LENGTH_LONG).show();
         }
@@ -166,12 +146,9 @@ public class MediaSetActivity extends AppCompatActivity {
 //            public void run() {
 //                try {
 //                    IGClient client = IGClient.builder()
-//                            .username("alice_iceberg")
-//                            .password("9041121insta")
+//                            .username(username)
+//                            .password(password)
 //                            .login();
-//
-//                    String check_username = client.getSelfProfile().getUsername();
-//                    Log.e("TAG", "run: USERNAME" + check_username );
 //
 //                    if(client.isLoggedIn()){
 //                        isSuccessfullyLoggedIn = true;
