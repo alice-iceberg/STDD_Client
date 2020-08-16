@@ -55,7 +55,6 @@ public class Camera2Capture {
     static SharedPreferences confPrefs;
 
 
-
     public Camera2Capture(Context context) {
         this.mContext = context;
     }
@@ -90,7 +89,7 @@ public class Camera2Capture {
 
             if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 //todo request permissions
-                Log.e("TAG", "openCamera2: Camera permission not granted" );
+                Log.e("TAG", "openCamera2: Camera permission not granted");
                 return;
             }
             manager.openCamera(cameraId, cameraStateCallback, backgroundHandler);
@@ -230,13 +229,15 @@ public class Camera2Capture {
                 Face thisFace = faces.valueAt(i);
                 float x1 = thisFace.getPosition().x;
                 float y1 = thisFace.getPosition().y;
+                float x2 = x1 / 4 + thisFace.getWidth();
+                float y2 = y1 / 4 + thisFace.getHeight();
 
                 // detection of smiling probability
                 smile = thisFace.getIsSmilingProbability();
                 Log.e("SMILE", "onClick: SMILE: " + smile);
 
                 // cropping the face
-                faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(thisFace.getWidth() - 5), Math.round(thisFace.getHeight() - 5)); // 2 is some margin for cases when face is big
+                faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(x2), Math.round(y2)); // todo: check the performance
 
                 // saving the cropped face
                 file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // saves images to the app folder
@@ -263,7 +264,7 @@ public class Camera2Capture {
     }
 
 
-    public void submitPhotoData (float smile){
+    public void submitPhotoData(float smile) {
 
         confPrefs = mContext.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         capturedPhotoDataSrcId = confPrefs.getInt("CAPTURED_PHOTOS", -1);
@@ -276,7 +277,6 @@ public class Camera2Capture {
 
     }
 }
-
 
 
 //todo: check permission
