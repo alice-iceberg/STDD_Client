@@ -109,6 +109,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     //endregion
 
 
+    //region Variables
     private SensorManager sensorManager;
     private Sensor sensorStepDetect;
     private Sensor sensorPressure;
@@ -129,6 +130,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static int pressureDataSrcId;
     static int lightDataSrcId;
     static int wifiScanDataSrcId;
+    static int instagramDataSrcId;
 
     private static long prevLightStartTime = 0;
     private static long prevGravityStartTime = 0;
@@ -179,6 +181,33 @@ public class MainService extends Service implements SensorEventListener, Locatio
     String userinfo_has_highlight_reels = "false";
     String userinfo_total_clips_count = "0";
     Object userinfo_extra_properties = null;
+
+    String direct_unseen_dialogs_count_type = "UNSEEN DIALOGS";
+    String direct_pending_requests_dialogs_count_type = "PENDING DIALOGS";
+    String story_viewers_count_type = "STORY VIEWERS";
+    String story_total_count_type = "STORIES";
+    String story_taken_at_timestamp_type = "STORY UPLOADED TIME";
+    String story_expires_timestamp_type = "STORY EXPIRED TIME";
+    String userfeed_taken_at_timestamp_type = "USERFEED UPLOADED TIME";
+    String userfeed_like_count_type = "USERFEED LIKES";
+    String userfeed_comment_count_type = "USERFEED COMMENTS";
+    String userfeed_items_count_type = "USERFEED ITEMS";
+    String userfeed_likes_photo_himself_type = "LIKES HIMSELF";
+    String userinfo_followers_count_type = "FOLLOWERS";
+    String userinfo_following_count_type = "FOLLOWING";
+    String userinfo_total_media_count_type = "TOTAL MEDIA";
+    String userinfo_total_igtv_videos_type = "IGTV VIDEOS";
+    String userinfo_besties_count_type = "BESTIES";
+    String userinfo_usertags_count_type = "USERTAGS";
+    String userinfo_following_tag_count_type = "FOLLOWING TAGS";
+    String userinfo_recently_bestied_by_count_type = "BESTIED BY";
+    String userinfo_has_highlight_reels_type = "HAS HIGHLIGHT REELS";
+    String userinfo_total_clips_count_type = "CLIPS";
+
+
+
+    //endregion
+
 
 
 
