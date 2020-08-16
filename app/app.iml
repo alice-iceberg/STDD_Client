@@ -25,7 +25,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/build/intermediates/javac/debug/classes" />
     <output-test url="file://$MODULE_DIR$/build/intermediates/javac/debugUnitTest/classes" />
     <exclude-output />
@@ -106,6 +106,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.test:monitor:1.2.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.test.espresso:espresso-idling-resource:3.2.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.13@jar" level="project" />
+    <orderEntry type="library" name="Gradle: ./app/libs/instagram4j-develop-32d42c0-dirty.jar" level="project" />
     <orderEntry type="library" name="Gradle: ./app/libs/TarsosDSP-Android-2.0.jar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.collection:collection:1.1.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-common:2.1.0@jar" level="project" />
@@ -127,11 +128,12 @@
     <orderEntry type="library" name="Gradle: commons-collections:commons-collections:3.2.2@jar" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient-android:4.3.5.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpmime:4.5.12@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.7.1@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.7.1@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.7.1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.11.2@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.11.2@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.11.2@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-jdk14:1.7.30@jar" level="project" />
     <orderEntry type="library" name="Gradle: org.yamj:api-common:2.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.16@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.30@jar" level="project" />
     <orderEntry type="library" name="Gradle: io.grpc:grpc-context:1.18.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.errorprone:error_prone_annotations:2.2.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:25.1-android@jar" level="project" />
@@ -142,11 +144,18 @@
     <orderEntry type="library" name="Gradle: io.opencensus:opencensus-contrib-grpc-metrics:0.18.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: io.opencensus:opencensus-api:0.18.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okhttp:okhttp:2.5.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.squareup.okio:okio:1.13.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.okhttp3:logging-interceptor:4.8.1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp-urlconnection:4.8.1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp:4.8.1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.okio:okio:2.7.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.3.72@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.protobuf:protobuf-lite:3.0.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: javax.annotation:javax.annotation-api:1.2@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.dagger:dagger:2.27@jar" level="project" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.14@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.material:material:1.2.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.appcompat:appcompat:1.2.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.cardview:cardview:1.0.0@aar" level="project" />
