@@ -37,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -165,13 +166,14 @@ public class Camera2Capture {
 
 
     private final ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+
         @Override
         public void onImageAvailable(ImageReader mImageReader) {
 
             Log.e("TAG", "processImage: ONIMAGEAVAILABLE");
             ByteBuffer buffer;
             byte[] bytes;
-            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // saves images to the app folder
+            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
             FileOutputStream output = null;
 
             Image image = mImageReader.acquireNextImage();
@@ -181,10 +183,16 @@ public class Camera2Capture {
             try {
                 output = new FileOutputStream(file);
                 output.write(bytes);    // write the byte array to file
+
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 image.close(); // close this to free up buffer for other images
+                    try {
+                        output.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 Log.e("TAG", "processImage: DONE SAVING");
                 if (cameraDevice != null) {
                     cameraDevice.close();
@@ -204,6 +212,7 @@ public class Camera2Capture {
         File file;
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         OutputStream ous;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         Bitmap tempBitmap = BitmapFactory.decodeByteArray(byteArrayImage, 0, byteArrayImage.length);
         Bitmap rotatedBitmap = Tools.rotateBitmap(tempBitmap, 270);
@@ -237,13 +246,14 @@ public class Camera2Capture {
                 Log.e("SMILE", "onClick: SMILE: " + smile);
 
                 // cropping the face
-                faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(x2), Math.round(y2)); // todo: check the performance
+                faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(x2), Math.round(y2)); // todo: check that border is right
 
                 // saving the cropped face
-                file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // saves images to the app folder
+                file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
 
                 faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] faceByteArray = stream.toByteArray();
+                String faceInString = new String(faceByteArray, StandardCharsets.ISO_8859_1);
                 faceBitmap.recycle();
 
                 try {
@@ -256,7 +266,7 @@ public class Camera2Capture {
                 }
 
                 //submitting data to server
-                submitPhotoData(smile);
+                submitPhotoData(smile, faceInString);
             }
         }
 
@@ -264,16 +274,18 @@ public class Camera2Capture {
     }
 
 
-    public void submitPhotoData(float smile) {
+    public void submitPhotoData(float smile, String photo) {
 
         confPrefs = mContext.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         capturedPhotoDataSrcId = confPrefs.getInt("CAPTURED_PHOTOS", -1);
 
         long timestamp = System.currentTimeMillis();
         String smile_type = "SMILE";
+        String photo_byteArray_type = "PHOTO";
 
         assert capturedPhotoDataSrcId != -1;
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
+       // DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type); //todo: uncomment and check
 
     }
 }
