@@ -35,6 +35,7 @@ public class MediaSetActivity extends AppCompatActivity {
 
     String usernameString = null;
     String passwordString = null;
+    String usernameCheck = "";
 
     boolean isSuccessfullyLoggedIn = false;
 
@@ -89,13 +90,6 @@ public class MediaSetActivity extends AppCompatActivity {
 
     public void submitClick(View view) {
 
-        usernameString = username.getText().toString();
-        passwordString = password.getText().toString();
-
-        SharedPreferences.Editor editor = instagramPrefs.edit();
-        editor.putString("instagram_username", usernameString);
-        editor.putString("instagram_password", passwordString);
-        editor.apply();
 
         if(Tools.isNetworkAvailable()) {
 
@@ -134,35 +128,39 @@ public class MediaSetActivity extends AppCompatActivity {
 
     public boolean loginToInstagram(){
 
-        final String username;
-        final String password;
+        usernameString = username.getText().toString();
+        passwordString = password.getText().toString();
 
-        username = instagramPrefs.getString("instagram_username", "");
-        password = instagramPrefs.getString("instagram_password", "");
+
+        SharedPreferences.Editor editor = instagramPrefs.edit();
+        editor.putString("instagram_username", usernameString);
+        editor.putString("instagram_password", passwordString);
+        editor.apply();
+
         isSuccessfullyLoggedIn = true;
 
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    IGClient client = IGClient.builder()
-//                            .username(username)
-//                            .password(password)
-//                            .login();
-//
-//                    if(client.isLoggedIn()){
-//                        isSuccessfullyLoggedIn = true;
-//                    }else{
-//                        isSuccessfullyLoggedIn = false;
-//
-//                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//
-//        thread.start();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    IGClient client = IGClient.builder()
+                            .username(usernameString)
+                            .password(passwordString)
+                            .login();
+                    usernameCheck = client.getSelfProfile().getFull_name();
+
+                    if(!usernameCheck.equals("")){
+                        isSuccessfullyLoggedIn = true;
+                    }else{
+                        isSuccessfullyLoggedIn = false;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
         return isSuccessfullyLoggedIn;
     }
 
@@ -172,5 +170,3 @@ public class MediaSetActivity extends AppCompatActivity {
     }
 
 }
-
-//todo: before any request check Internet connection
