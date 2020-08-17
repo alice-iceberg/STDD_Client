@@ -2,13 +2,11 @@ package com.nematjon.edd_client_season_two;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.graphics.RectF;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -200,19 +198,22 @@ public class Camera2Capture {
                 }
             }
 
-            cropFace(bytes, mContext);
+            try {
+                cropFace(bytes, mContext);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 
     };
 
 
-    public void cropFace(byte[] byteArrayImage, Context mContext) {
+    public void cropFace(byte[] byteArrayImage, Context mContext) throws IOException {
 
         File file;
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         OutputStream ous;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         Bitmap tempBitmap = BitmapFactory.decodeByteArray(byteArrayImage, 0, byteArrayImage.length);
         Bitmap rotatedBitmap = Tools.rotateBitmap(tempBitmap, 270);
@@ -245,28 +246,35 @@ public class Camera2Capture {
                 smile = thisFace.getIsSmilingProbability();
                 Log.e("SMILE", "onClick: SMILE: " + smile);
 
-                // cropping the face
-                faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(x2), Math.round(y2)); // todo: check that border is right
+                try { //try to crop the face
+                    // cropping the face
+                    faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(thisFace.getWidth() - 2), Math.round(thisFace.getHeight() - 2)); // todo: solve the problem with borders
 
-                // saving the cropped face
-                file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+                    // saving the cropped face
+                    file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+                    faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] faceByteArray = stream.toByteArray();
+                    //String faceInString = new String(faceByteArray, StandardCharsets.ISO_8859_1);
+                    // File textFile = new File (mContext.getExternalFilesDirs("Photo in string") + File.separator + System.currentTimeMillis() + ".txt");
+                    // Log.e("TAG", "cropFace: STRING" + faceInString );
 
-                faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] faceByteArray = stream.toByteArray();
-                String faceInString = new String(faceByteArray, StandardCharsets.ISO_8859_1);
-                faceBitmap.recycle();
+                    faceBitmap.recycle();
+                    try {
+                        ous = new FileOutputStream(file);
+                        ous.write(faceByteArray);
+                        Log.e("TAG", "cropFace: Cropped face saved");
+                        ous.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-                try {
-                    ous = new FileOutputStream(file);
-                    ous.write(faceByteArray);
-                    Log.e("TAG", "cropFace: Cropped face saved");
-                    ous.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    //submitting data to server
+                    submitPhotoData(smile, "PhotoInString");
+                }catch(Exception ignored){
                 }
 
-                //submitting data to server
-                submitPhotoData(smile, faceInString);
+
+                detector.release();
             }
         }
 
@@ -285,12 +293,8 @@ public class Camera2Capture {
 
         assert capturedPhotoDataSrcId != -1;
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
-       // DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type); //todo: uncomment and check
+       //DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type);
 
+        Log.e("TAG", "submitPhotoData: photo string submitted" );
     }
 }
-
-
-//todo: check permission
-//todo: release and close problem
-//todo: problem with permissions

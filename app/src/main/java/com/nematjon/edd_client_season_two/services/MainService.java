@@ -99,7 +99,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
-    private static final int TAKE_PHOTO_PERIOD = 2 * 60; // in sec
+    private static final int TAKE_PHOTO_PERIOD = 30; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int HOURS24 = 24 * 60 * 60; //in sec
 
@@ -180,7 +180,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     String userinfo_recently_bestied_by_count = "0";
     String userinfo_has_highlight_reels = "false";
     String userinfo_total_clips_count = "0";
-    Object userinfo_extra_properties = null;
 
     String direct_unseen_dialogs_count_type = "UNSEEN DIALOGS";
     String direct_pending_requests_dialogs_count_type = "PENDING DIALOGS";
@@ -393,9 +392,23 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         UsersInfoRequest usersInfoRequest = new UsersInfoRequest((client.getSelfProfile().getPk()));
                         CompletableFuture<UserResponse> userResponse = client.sendRequest(usersInfoRequest);
 
+                        try{
                         userinfo_total_media_count = userResponse.get().getUser().getMedia_count();
-                        userinfo_followers_count = userResponse.get().getUser().getFollower_count();
+                        }catch (Exception e){
+                            userinfo_total_media_count = 0;
+                        }
+
+                        try {
+                            userinfo_followers_count = userResponse.get().getUser().getFollower_count();
+                        }catch (Exception e){
+                            userinfo_followers_count = 0;
+                        }
+
+                        try{
                         userinfo_following_count = userResponse.get().getUser().getFollowing_count();
+                        }catch(Exception e){
+                            userinfo_following_count = 0;
+                        }
 
                         userinfo_usertags_count = userResponse.get().getUser().get("usertags_count").toString();
                         userinfo_total_igtv_videos = userResponse.get().getUser().get("total_igtv_videos").toString();
@@ -405,29 +418,43 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         userinfo_has_highlight_reels = userResponse.get().getUser().get("has_highlight_reels").toString();
                         userinfo_total_clips_count = userResponse.get().getUser().get("total_clips_count").toString();
 
-                        Thread.sleep(400);
+                        Thread.sleep(200);
                         //endregion
 
                         //region direct
                         CompletableFuture<DirectInboxResponse> directInboxResponse = new DirectInboxRequest().execute(client);
+                        try{
                         direct_unseen_dialogs_count = directInboxResponse.get().getInbox().getUnseen_count();
                         direct_pending_requests_dialogs_count = directInboxResponse.get().getPending_requests_total();
+                        }catch(Exception e){
+                            direct_unseen_dialogs_count = 0;
+                            direct_pending_requests_dialogs_count = 0;
+                        }
 
-                        Thread.sleep(400);
+                        Thread.sleep(200);
                         //endregion
 
                         //region story
                         FeedUserStoryRequest storyRequest = new FeedUserStoryRequest(client.getSelfProfile().getPk());
                         CompletableFuture<FeedUserStoryResponse> feedUserStoryResponse = client.sendRequest(storyRequest);
+
+                        try{
                         story_total_count = feedUserStoryResponse.get().getReel().getMedia_count();
-                        Log.e(TAG, "run: STORY total count" + story_total_count);
-                        for (ReelMedia reelMedia : feedUserStoryResponse.get().getReel().getItems()) {
-                            story_viewers_count = reelMedia.getViewer_count();
-                            Log.e(TAG, "run: Story viewers count" + story_viewers_count);
-                            story_taken_at_timestamp = reelMedia.getTaken_at();
-                            story_expires_timestamp = (HOURS24 * 1000) + story_taken_at_timestamp;
+                        }catch (Exception e){
+                            story_total_count = 0;
                         }
-                        Thread.sleep(400);
+
+                        Log.e(TAG, "run: STORY total count" + story_total_count);
+
+                        if(story_total_count != 0) {
+                            for (ReelMedia reelMedia : feedUserStoryResponse.get().getReel().getItems()) {
+                                story_viewers_count = reelMedia.getViewer_count();
+                                Log.e(TAG, "run: Story viewers count" + story_viewers_count);
+                                story_taken_at_timestamp = reelMedia.getTaken_at();
+                                story_expires_timestamp = (HOURS24 * 1000) + story_taken_at_timestamp;
+                            }
+                        }
+                        Thread.sleep(200);
                         //endregion
 
                         //region user's feed
@@ -436,7 +463,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
                         long nowTime = System.currentTimeMillis();
                         for (TimelineMedia timelineMedia : feedUserResponse.get().getItems()) {
-                            if (userfeed_items_count < 5) {
+                            do {
                                 userfeed_taken_at_timestamp = timelineMedia.getTaken_at();
                                 userfeed_comment_count = timelineMedia.getComment_count();
                                 userfeed_like_count = timelineMedia.getLike_count();
@@ -447,7 +474,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_likes_photo_himself, userfeed_likes_photo_himself_type);
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_like_count, userfeed_like_count_type);
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_comment_count, userfeed_comment_count_type);
-                            }
+
+                             }while(userfeed_items_count < 5); //takes only 5 first photos
                         }
 
                         //endregion
