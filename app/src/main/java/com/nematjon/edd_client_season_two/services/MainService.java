@@ -99,7 +99,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
-    private static final int TAKE_PHOTO_PERIOD = 30; // in sec
+    private static final int TAKE_PHOTO_PERIOD = 2 * 60; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int HOURS24 = 24 * 60 * 60; //in sec
 
@@ -156,8 +156,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private boolean phoneUnlocked = false;
     private boolean isCameraAvailable = false;
     private static float y_value_gravity = 0f;
-    private String instagramUsername = "";
-    private String instagramPassword = "";
+    private String instagramUsername = "default";
+    private String instagramPassword = "default";
 
     int direct_unseen_dialogs_count = 0;
     int direct_pending_requests_dialogs_count = 0;
@@ -377,15 +377,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
             instagramUsername = instagramPrefs.getString("instagram_username", "");
             instagramPassword = instagramPrefs.getString("instagram_password", "");
             if (Tools.isNetworkAvailable()) {
-                assert instagramPassword != null;
-                if (!instagramUsername.equals("") && !instagramPassword.equals("")) {
+                if (!instagramUsername.isEmpty() && !instagramPassword.isEmpty()) {
                     try {
                         //creating instagram client
                         IGClient client = IGClient.builder()
                                 .username(instagramUsername)
                                 .password(instagramPassword)
                                 .login();
-                        //todo: track login errors
 
                         //region user info
                         UsersInfoRequest usersInfoRequest = new UsersInfoRequest((client.getSelfProfile().getPk()));
