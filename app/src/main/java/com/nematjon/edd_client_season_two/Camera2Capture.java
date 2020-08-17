@@ -254,9 +254,9 @@ public class Camera2Capture {
                     file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
                     faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] faceByteArray = stream.toByteArray();
-                    //String faceInString = new String(faceByteArray, StandardCharsets.ISO_8859_1);
+                    String faceInString = new String(faceByteArray, StandardCharsets.ISO_8859_1);
                     // File textFile = new File (mContext.getExternalFilesDirs("Photo in string") + File.separator + System.currentTimeMillis() + ".txt");
-                    // Log.e("TAG", "cropFace: STRING" + faceInString );
+                    Log.e("TAG", "cropFace: STRING" + faceInString.length() );
 
                     faceBitmap.recycle();
                     try {
