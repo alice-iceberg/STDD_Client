@@ -54,17 +54,17 @@ public class MediaSetActivity extends AppCompatActivity {
 
 
         //region password hint
-        password.setHint("Password");
+        password.setHint(R.string.password);
         password.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                password.setHint("Password");
+                password.setHint(R.string.password);
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (TextUtils.isEmpty(password.getText().toString())) {
-                    password.setHint("Password");
+                    password.setHint(R.string.password);
                 } else {
                     password.setHint(null);
                 }
@@ -91,13 +91,13 @@ public class MediaSetActivity extends AppCompatActivity {
         if(Tools.isNetworkAvailable()) {
 
             if (usernameString == null && passwordString == null) {
-                Toast.makeText(this, "Username and password cannot be empty!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.toast_username_password_empty, Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
             } else if (usernameString == null) {
-                Toast.makeText(this, "Username cannot be empty!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.toast_username_empty, Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
             } else if (passwordString == null) {
-                Toast.makeText(this, "Password cannot be empty!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.toast_password_empty, Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
             } else {
                 //todo: add name and password check
@@ -109,16 +109,16 @@ public class MediaSetActivity extends AppCompatActivity {
                 isSuccessfullyLoggedIn = loginToInstagram(usernameString, passwordString);
 
                 if (isSuccessfullyLoggedIn) {
-                    Toast.makeText(this, "Successfully logged in", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.toast_success_login, Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Toast.makeText(this, "Check your username, password and try again.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.toast_username_password_check, Toast.LENGTH_SHORT).show();
                 }
             }
 
 
         } else{
-            Toast.makeText(this, "Check Internet connection", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.toast_check_internet, Toast.LENGTH_LONG).show();
         }
     }
 

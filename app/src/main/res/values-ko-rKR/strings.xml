@@ -81,4 +81,11 @@
     <string name="set_social_media">설정</string>
     <string name="submitSNS">Submit</string>
     <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="toast_username_password_empty">Username and password cannot be empty!</string>
+    <string name="toast_username_empty"> Username cannot be empty!</string>
+    <string name="toast_password_empty"> Password cannot be empty!</string>
+    <string name="toast_success_login">Successfully logged in</string>
+    <string name="toast_username_password_check">Check your username, password and try again.</string>
+    <string name="toast_check_internet">Check Internet connection</string>
 </resources>
