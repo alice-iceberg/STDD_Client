@@ -374,10 +374,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable instagramRunnable = new Runnable() {
         @Override
         public void run() {
+            instagramUsername = instagramPrefs.getString("instagram_username", "");
+            instagramPassword = instagramPrefs.getString("instagram_password", "");
             if (Tools.isNetworkAvailable()) {
-                instagramUsername = instagramPrefs.getString("instagram_username", "");
-                instagramPassword = instagramPrefs.getString("instagram_password", "");
-
                 assert instagramPassword != null;
                 if (!instagramUsername.equals("") && !instagramPassword.equals("")) {
                     try {
