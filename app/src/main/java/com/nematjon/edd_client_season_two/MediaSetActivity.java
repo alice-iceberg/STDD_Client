@@ -90,21 +90,29 @@ public class MediaSetActivity extends AppCompatActivity {
 
     public void submitClick(View view) {
 
+        usernameString = username.getText().toString();
+        passwordString = password.getText().toString();
 
         if(Tools.isNetworkAvailable()) {
 
-            if (usernameString.equals("") && passwordString.equals("")) {
+            if (usernameString == null && passwordString == null) {
                 Toast.makeText(this, "Username and password cannot be empty!", Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
-            } else if (usernameString.equals("")) {
+            } else if (usernameString == null) {
                 Toast.makeText(this, "Username cannot be empty!", Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
-            } else if (passwordString.equals("")) {
+            } else if (passwordString == null) {
                 Toast.makeText(this, "Password cannot be empty!", Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
             } else {
                 //todo: add name and password check
-                isSuccessfullyLoggedIn = loginToInstagram();
+                SharedPreferences.Editor editor = instagramPrefs.edit();
+                editor.putString("instagram_username", usernameString);
+                editor.putString("instagram_password", passwordString);
+                editor.apply();
+
+                isSuccessfullyLoggedIn = loginToInstagram(usernameString, passwordString);
+
                 if (isSuccessfullyLoggedIn) {
                     Toast.makeText(this, "Successfully logged in", Toast.LENGTH_SHORT).show();
                     finish();
@@ -126,26 +134,16 @@ public class MediaSetActivity extends AppCompatActivity {
 
 
 
-    public boolean loginToInstagram(){
+    public boolean loginToInstagram(String username, String password){
 
-        usernameString = username.getText().toString();
-        passwordString = password.getText().toString();
-
-
-        SharedPreferences.Editor editor = instagramPrefs.edit();
-        editor.putString("instagram_username", usernameString);
-        editor.putString("instagram_password", passwordString);
-        editor.apply();
-
-        isSuccessfullyLoggedIn = true;
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     IGClient client = IGClient.builder()
-                            .username(usernameString)
-                            .password(passwordString)
+                            .username(username)
+                            .password(password)
                             .login();
                     usernameCheck = client.getSelfProfile().getFull_name();
 
