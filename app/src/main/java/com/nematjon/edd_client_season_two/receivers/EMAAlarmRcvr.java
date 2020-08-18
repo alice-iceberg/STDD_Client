@@ -198,7 +198,6 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
 
         Intent notificationIntent = new Intent(context, EMAActivity.class);
         notificationIntent.putExtra("ema_order", ema_order);
-        //PendingIntent pendingIntent = PendingIntent.getActivities(CustomSensorsService.this, 0, new Intent[]{notificationIntent}, 0);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         String channelId = context.getString(R.string.notif_channel_id);
@@ -210,11 +209,11 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.mipmap.ic_launcher_no_bg)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setDefaults(Notification.DEFAULT_ALL);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel(channelId, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);
             }

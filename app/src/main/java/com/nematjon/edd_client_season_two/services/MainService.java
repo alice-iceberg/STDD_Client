@@ -95,6 +95,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short LIGHT_SENSOR_PERIOD = 30;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
     private static final short GRAVITY_SENSOR_PERIOD = 3; // in sec
+    private static final short GRAVITY_SENSOR_DURATION = 500; // in milliseconds
     private static final short PRESSURE_SENSOR_DURATION = 2; // in sec
     private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
@@ -119,6 +120,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private SignificantMotionDetector SMListener;
     boolean stopPressureSense = true;
     boolean canPressureSense = false;
+    boolean stopGravitySense = true;
+    boolean canGravitySense = false;
 
 
     static SharedPreferences loginPrefs;
@@ -129,11 +132,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static int stepDetectorDataSrcId;
     static int pressureDataSrcId;
     static int lightDataSrcId;
+    static int gravityDataSrcId;
     static int wifiScanDataSrcId;
     static int instagramDataSrcId;
 
     private static long prevLightStartTime = 0;
     private static long prevGravityStartTime = 0;
+    private static long prevGravityStopTime = 0;
     private static long prevPressureStopTime = 0;
     private static long prevAudioRecordStartTime = 0;
     private static long prevWifiScanStartTime = 0;
@@ -155,7 +160,12 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
     private boolean phoneUnlocked = false;
     private boolean isCameraAvailable = false;
+    private static float x_value_gravity = 0f;
     private static float y_value_gravity = 0f;
+    private static float z_value_gravity = 0f;
+    String x_value_type = "X";
+    String y_value_type = "Y";
+    String z_value_type = "Z";
     private String instagramUsername = "default";
     private String instagramPassword = "default";
 
@@ -527,6 +537,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         stepDetectorDataSrcId = confPrefs.getInt("ANDROID_STEP_DETECTOR", -1);
         pressureDataSrcId = confPrefs.getInt("ANDROID_PRESSURE", -1);
         lightDataSrcId = confPrefs.getInt("ANDROID_LIGHT", -1);
+        gravityDataSrcId = confPrefs.getInt("ANDROID_GRAVITY", -1);
         wifiScanDataSrcId = confPrefs.getInt("ANDROID_WIFI", -1);
         instagramDataSrcId = confPrefs.getInt("INSTAGRAM_FEATURES", -1);
 
@@ -790,13 +801,26 @@ public class MainService extends Service implements SensorEventListener, Locatio
             }
         } else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
             long nowTime = System.currentTimeMillis();
-            boolean canGravitySense = (nowTime > prevGravityStartTime + GRAVITY_SENSOR_PERIOD * 1000);
-            if (canGravitySense) {
-                y_value_gravity = event.values[1];
-                SharedPreferences.Editor editor = phoneUsageVariablesPrefs.edit();
-                editor.putFloat("y_value_gravity", y_value_gravity);
-                editor.apply();
 
+            if(prevGravityStopTime == 0) {
+                prevGravityStopTime = nowTime;
+            } else{
+                canGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_PERIOD * 1000);
+                stopGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_DURATION + GRAVITY_SENSOR_PERIOD * 1000);
+
+                if(canGravitySense){
+                    y_value_gravity = event.values[1];
+                    SharedPreferences.Editor editor = phoneUsageVariablesPrefs.edit();
+                    editor.putFloat("y_value_gravity", y_value_gravity);
+                    editor.apply();
+                    x_value_gravity = event.values[0];
+                    z_value_gravity = event.values[2];
+                    DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, x_value_gravity, x_value_type);
+                    DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, y_value_gravity, y_value_type);
+                    DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, z_value_gravity, z_value_type);
+                } if(stopGravitySense){
+                    prevGravityStopTime = nowTime;
+                }
             }
         }
     }
