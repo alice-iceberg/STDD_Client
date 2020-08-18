@@ -11,7 +11,7 @@ public class DbMgr {
     public static void init(Context context) {
         con = context;
         db = context.openOrCreateDatabase(context.getPackageName(), Context.MODE_PRIVATE, null);
-        db.execSQL("create table if not exists Data(id integer primary key autoincrement, dataSourceId int default(0), timestamp bigint default(0), accuracy float default(0.0), data varchar(512) default(null));");
+        db.execSQL("create table if not exists Data(id integer primary key autoincrement, dataSourceId int default(0), timestamp bigint default(0), accuracy float default(0.0), data text default(null));");
     }
 
     public static SQLiteDatabase getDB(){
@@ -35,8 +35,6 @@ public class DbMgr {
         if (sb.length() > 0)
             sb.replace(sb.length() - 1, sb.length(), "");
         saveStringData(sensorId, timestamp, accuracy, sb.toString());
-        //String res = sensorId + "," + timestamp + "," + sb.toString();
-        //Log.e("saveMixedData", "Insertion: " + res);
     }
 
     private static void saveStringData(int dataSourceId, long timestamp, float accuracy, String data) {

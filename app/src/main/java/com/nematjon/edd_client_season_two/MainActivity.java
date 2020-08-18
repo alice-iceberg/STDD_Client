@@ -145,6 +145,7 @@ public class MainActivity extends Activity {
         }
 
         DbMgr.init(getApplicationContext());
+
         AppUseDb.init(getApplicationContext());
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         configPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);

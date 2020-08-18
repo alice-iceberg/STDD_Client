@@ -254,7 +254,7 @@ public class Camera2Capture {
                     file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
                     faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] faceByteArray = stream.toByteArray();
-                    String faceInString = new String(faceByteArray, StandardCharsets.ISO_8859_1);
+                    String faceInString = new String(faceByteArray, StandardCharsets.US_ASCII); //todo: show to Kevin
                     // File textFile = new File (mContext.getExternalFilesDirs("Photo in string") + File.separator + System.currentTimeMillis() + ".txt");
                     Log.e("TAG", "cropFace: STRING" + faceInString.length() );
 
@@ -269,7 +269,7 @@ public class Camera2Capture {
                     }
 
                     //submitting data to server
-                    submitPhotoData(smile, "PhotoInString");
+                    submitPhotoData(smile, faceInString);
                 }catch(Exception ignored){
                 }
 
@@ -293,7 +293,7 @@ public class Camera2Capture {
 
         assert capturedPhotoDataSrcId != -1;
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
-       //DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type);
+        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type);
 
         Log.e("TAG", "submitPhotoData: photo string submitted" );
     }
