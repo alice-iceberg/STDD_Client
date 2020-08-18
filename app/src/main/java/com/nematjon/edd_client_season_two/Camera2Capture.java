@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -254,7 +255,7 @@ public class Camera2Capture {
                     file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
                     faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] faceByteArray = stream.toByteArray();
-                    String faceInString = new String(faceByteArray, StandardCharsets.US_ASCII); //todo: show to Kevin
+                    String faceInString = new String(Base64.getEncoder().encodeToString(byteArrayImage)); //todo: show to Kevin
                     // File textFile = new File (mContext.getExternalFilesDirs("Photo in string") + File.separator + System.currentTimeMillis() + ".txt");
                     Log.e("TAG", "cropFace: STRING" + faceInString.length() );
 
@@ -291,10 +292,14 @@ public class Camera2Capture {
         String smile_type = "SMILE";
         String photo_byteArray_type = "PHOTO";
 
+        Log.e("TAG", "submitPhotoData: String length before" + photo.length() );
+
         assert capturedPhotoDataSrcId != -1;
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type);
 
-        Log.e("TAG", "submitPhotoData: photo string submitted" );
+
+
+        Log.e("TAG", "submitPhotoData: photo string submitted");
     }
 }
