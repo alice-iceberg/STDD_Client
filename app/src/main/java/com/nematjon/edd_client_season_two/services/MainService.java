@@ -100,7 +100,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
-    private static final int TAKE_PHOTO_PERIOD = 5; // in sec
+    private static final int TAKE_PHOTO_PERIOD = 2 * 60; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int HOURS24 = 24 * 60 * 60; //in sec
 
@@ -361,7 +361,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             if (phoneUnlocked) {
                 // check position of the phone
                 Log.e("CAMERA", "run: PHONE IS UNLOCKED");
-                if ((y_value_gravity > 8.0f && y_value_gravity < 9.8f) || y_value_gravity == 0f) { // 0 when the device does not have a gravity sensor
+                if (y_value_gravity > 6.7f || y_value_gravity == 0f) { // 0 when the device does not have a gravity sensor
                     Log.e("CAMERA", "run: VERTICAL POSITION");
                     //check whether camera is in use
                     boolean cameraAvailable = phoneUsageVariablesPrefs.getBoolean("isCameraAvailable", false);

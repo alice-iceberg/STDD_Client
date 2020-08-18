@@ -88,7 +88,11 @@ public class MediaSetActivity extends AppCompatActivity {
         usernameString = username.getText().toString();
         passwordString = password.getText().toString();
 
-        if(Tools.isNetworkAvailable()) {
+        //removing spaces at the beginning and at the end
+        usernameString = usernameString.trim();
+        passwordString = passwordString.trim();
+
+        if (Tools.isNetworkAvailable()) {
 
             if (usernameString == null && passwordString == null) {
                 Toast.makeText(this, R.string.toast_username_password_empty, Toast.LENGTH_LONG).show();
@@ -117,7 +121,7 @@ public class MediaSetActivity extends AppCompatActivity {
             }
 
 
-        } else{
+        } else {
             Toast.makeText(this, R.string.toast_check_internet, Toast.LENGTH_LONG).show();
         }
     }
@@ -128,8 +132,7 @@ public class MediaSetActivity extends AppCompatActivity {
     //endregion
 
 
-
-    public boolean loginToInstagram(String username, String password){
+    public boolean loginToInstagram(String username, String password) {
 
 
         Thread thread = new Thread(new Runnable() {
@@ -142,9 +145,9 @@ public class MediaSetActivity extends AppCompatActivity {
                             .login();
                     usernameCheck = client.getSelfProfile().getFull_name();
 
-                    if(!usernameCheck.equals("")){
+                    if (!usernameCheck.equals("")) {
                         isSuccessfullyLoggedIn = true;
-                    }else{
+                    } else {
                         isSuccessfullyLoggedIn = false;
                     }
                 } catch (IOException e) {
