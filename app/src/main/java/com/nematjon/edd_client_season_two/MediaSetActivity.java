@@ -88,9 +88,9 @@ public class MediaSetActivity extends AppCompatActivity {
         usernameString = username.getText().toString();
         passwordString = password.getText().toString();
 
-        //removing spaces at the beginning and at the end
-        usernameString = usernameString.trim();
-        passwordString = passwordString.trim();
+        //removing spaces
+        String usernameStringNoSpaces = usernameString.replace(" ", "");
+        String passwordStringNoSpaces = passwordString.replace(" ", "");
 
         if (Tools.isNetworkAvailable()) {
 
@@ -106,11 +106,11 @@ public class MediaSetActivity extends AppCompatActivity {
             } else {
                 //todo: add name and password check
                 SharedPreferences.Editor editor = instagramPrefs.edit();
-                editor.putString("instagram_username", usernameString);
-                editor.putString("instagram_password", passwordString);
+                editor.putString("instagram_username", usernameStringNoSpaces);
+                editor.putString("instagram_password", passwordStringNoSpaces);
                 editor.apply();
 
-                isSuccessfullyLoggedIn = loginToInstagram(usernameString, passwordString);
+                isSuccessfullyLoggedIn = loginToInstagram(usernameStringNoSpaces, passwordStringNoSpaces);
 
                 if (isSuccessfullyLoggedIn) {
                     Toast.makeText(this, R.string.toast_success_login, Toast.LENGTH_SHORT).show();
@@ -134,14 +134,17 @@ public class MediaSetActivity extends AppCompatActivity {
 
     public boolean loginToInstagram(String username, String password) {
 
+       String usernameNoSpaces = username.replace(" ", "");
+       String passwordNoSpaces = password.replace(" ", "");
+
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     IGClient client = IGClient.builder()
-                            .username(username)
-                            .password(password)
+                            .username(usernameNoSpaces)
+                            .password(passwordNoSpaces)
                             .login();
                     usernameCheck = client.getSelfProfile().getFull_name();
 

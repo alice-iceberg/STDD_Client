@@ -35,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.github.instagram4j.instagram4j.IGClient;
+import com.github.instagram4j.instagram4j.exceptions.IGLoginException;
 import com.github.instagram4j.instagram4j.models.media.reel.ReelMedia;
 import com.github.instagram4j.instagram4j.models.media.timeline.TimelineMedia;
 import com.github.instagram4j.instagram4j.requests.direct.DirectInboxRequest;
@@ -102,8 +103,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
     private static final int TAKE_PHOTO_PERIOD = 2 * 60; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
+    private static final int INSTAGRAM_PHOTOS_NUMBER = 5;
     private static final int HOURS24 = 24 * 60 * 60; //in sec
-
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
     public static final String LOCATIONS_TXT = "locations.txt";
@@ -470,7 +471,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
                         long nowTime = System.currentTimeMillis();
                         for (TimelineMedia timelineMedia : feedUserResponse.get().getItems()) {
-                            do {
+                            if (userfeed_items_count < INSTAGRAM_PHOTOS_NUMBER) {
                                 userfeed_taken_at_timestamp = timelineMedia.getTaken_at();
                                 userfeed_comment_count = timelineMedia.getComment_count();
                                 userfeed_like_count = timelineMedia.getLike_count();
@@ -481,11 +482,14 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_likes_photo_himself, userfeed_likes_photo_himself_type);
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_like_count, userfeed_like_count_type);
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_comment_count, userfeed_comment_count_type);
-
-                             }while(userfeed_items_count < 5); //takes only 5 first photos
+                            } else {
+                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_items_count, userfeed_items_count_type);
+                                userfeed_items_count = 0;
+                                break;
+                            }
                         }
 
-                        //endregion
+                    //endregion
 
                         //region Instagram data submission
                         nowTime = System.currentTimeMillis();
@@ -506,8 +510,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_viewers_count, story_viewers_count_type);
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_taken_at_timestamp, story_taken_at_timestamp_type);
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_expires_timestamp, story_expires_timestamp_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_items_count, userfeed_items_count_type);
-                        userfeed_items_count = 0;
 
                         Log.e(TAG, "run: Instagram data submitted");
                         //endregion
