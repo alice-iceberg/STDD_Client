@@ -88,29 +88,25 @@ public class MediaSetActivity extends AppCompatActivity {
         usernameString = username.getText().toString();
         passwordString = password.getText().toString();
 
-        //removing spaces
-        String usernameStringNoSpaces = usernameString.replace(" ", "");
-        String passwordStringNoSpaces = passwordString.replace(" ", "");
-
         if (Tools.isNetworkAvailable()) {
 
-            if (usernameString == null && passwordString == null) {
+            if (usernameString == null && passwordString == null || usernameString.isEmpty() && passwordString.isEmpty()) {
                 Toast.makeText(this, R.string.toast_username_password_empty, Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
-            } else if (usernameString == null) {
+            } else if (usernameString == null || usernameString.isEmpty()) {
                 Toast.makeText(this, R.string.toast_username_empty, Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
-            } else if (passwordString == null) {
+            } else if (passwordString == null || passwordString.isEmpty()) {
                 Toast.makeText(this, R.string.toast_password_empty, Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
             } else {
                 //todo: add name and password check
                 SharedPreferences.Editor editor = instagramPrefs.edit();
-                editor.putString("instagram_username", usernameStringNoSpaces);
-                editor.putString("instagram_password", passwordStringNoSpaces);
+                editor.putString("instagram_username", usernameString.trim());
+                editor.putString("instagram_password", passwordString.trim());
                 editor.apply();
 
-                isSuccessfullyLoggedIn = loginToInstagram(usernameStringNoSpaces, passwordStringNoSpaces);
+                isSuccessfullyLoggedIn = loginToInstagram(usernameString, passwordString);
 
                 if (isSuccessfullyLoggedIn) {
                     Toast.makeText(this, R.string.toast_success_login, Toast.LENGTH_SHORT).show();
