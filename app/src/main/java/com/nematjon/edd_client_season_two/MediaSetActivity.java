@@ -1,7 +1,10 @@
 package com.nematjon.edd_client_season_two;
 
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -26,6 +29,8 @@ public class MediaSetActivity extends AppCompatActivity {
     EditText password;
     TextInputLayout textInputLayout;
     Button homeBtn;
+    LoadingDialog loadingDialog;
+
 
     String usernameString = null;
     String passwordString = null;
@@ -46,6 +51,7 @@ public class MediaSetActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_socialmedia_setting);
+        loadingDialog = new LoadingDialog(MediaSetActivity.this);
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
@@ -83,7 +89,7 @@ public class MediaSetActivity extends AppCompatActivity {
 
     //region Button clicks listeners
 
-    public void submitClick(View view) {
+    public void submitClick(View view) throws InterruptedException {
 
         usernameString = username.getText().toString();
         passwordString = password.getText().toString();
@@ -100,10 +106,11 @@ public class MediaSetActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.toast_password_empty, Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
             } else {
-                //todo: add name and password check
 
 
-                isSuccessfullyLoggedIn = loginToInstagram(usernameString, passwordString);
+                loginToInstagram(usernameString, passwordString);
+                isSuccessfullyLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
+                loadingDialog.dismissDialog();
 
                 if (isSuccessfullyLoggedIn) {
                     Toast.makeText(this, R.string.toast_success_login, Toast.LENGTH_SHORT).show();
@@ -130,41 +137,100 @@ public class MediaSetActivity extends AppCompatActivity {
     //endregion
 
 
-    public boolean loginToInstagram(String username, String password) {
+    public void loginToInstagram(String username, String password) throws InterruptedException {
 
-       String usernameNoSpaces = username.replace(" ", "");
-       String passwordNoSpaces = password.replace(" ", "");
+        String usernameNoSpaces = username.replace(" ", "");
+        String passwordNoSpaces = password.replace(" ", "");
 
-       //todo: add waiting icon (animated)
+        LoggingInProgressTask loggingInProgressTask = new LoggingInProgressTask();
+        loggingInProgressTask.execute(usernameNoSpaces, passwordNoSpaces);
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    IGClient client = IGClient.builder()
-                            .username(usernameNoSpaces)
-                            .password(passwordNoSpaces)
-                            .login();
-                    usernameCheck = client.getSelfProfile().getFull_name();
 
-                    if (!usernameCheck.equals("")) {
-                        isSuccessfullyLoggedIn = true;
-                    } else {
-                        isSuccessfullyLoggedIn = false;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+//        loadingDialog.startLoadingDialog();
+//
+//        //todo: add waiting icon (animated)
+//
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    IGClient client = IGClient.builder()
+//                            .username(usernameNoSpaces)
+//                            .password(passwordNoSpaces)
+//                            .login();
+//                    usernameCheck = client.getSelfProfile().getFull_name();
+//
+//                    if (!usernameCheck.equals("")) {
+//                        isSuccessfullyLoggedIn = true;
+//                    } else {
+//                        isSuccessfullyLoggedIn = false;
+//                    }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                loadingDialog.dismissDialog();
+//            }
+//        });
+//
+//        thread.start();
+//        thread.join(); // wait the thread to finish
 
-        thread.start();
-        return isSuccessfullyLoggedIn;
+//        SharedPreferences.Editor editor = instagramPrefs.edit();
+//        editor.putBoolean("is_logged_in", isSuccessfullyLoggedIn);
+//        editor.apply();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    private class LoggingInProgressTask extends AsyncTask <String, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            try {
+                loadingDialog.startLoadingDialog();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+
+            String usernameNoSpaces = strings[0];
+            String passwordNoSpaces = strings[1];
+
+            try {
+                IGClient client = IGClient.builder()
+                        .username(usernameNoSpaces)
+                        .password(passwordNoSpaces)
+                        .login();
+                usernameCheck = client.getSelfProfile().getFull_name();
+
+                if (!usernameCheck.equals("")) {
+                    isSuccessfullyLoggedIn = true;
+                } else {
+                    isSuccessfullyLoggedIn = false;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            SharedPreferences.Editor editor = instagramPrefs.edit();
+            editor.putBoolean("is_logged_in", isSuccessfullyLoggedIn);
+            editor.apply();
+            return isSuccessfullyLoggedIn;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            loadingDialog.dismissDialog();
+        }
     }
 
 }

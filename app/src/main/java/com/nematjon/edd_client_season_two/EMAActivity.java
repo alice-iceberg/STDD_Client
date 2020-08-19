@@ -138,7 +138,7 @@ public class EMAActivity extends AppCompatActivity {
             notificationManager.cancel(EMA_NOTIFICATION_ID);
         }
 
-        Toast.makeText(this, "Response saved", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.response_saved, Toast.LENGTH_SHORT).show();
         rewardDialog = new Dialog(this);
         sendRewardsData(250);
         showRewardPopup(250);

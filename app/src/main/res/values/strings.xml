@@ -55,7 +55,7 @@
     <string name="permissions">Permissions</string>
     <string name="answer_last_ema">answer last EMA</string>
     <string name="loading_the_map">Loading the map…</string>
-    <string name="please_wait">Please, wait!</string>
+    <string name="please_wait">Please wait…</string>
     <string name="_10_00">10:00</string>
     <string name="_14_00">14:00</string>
     <string name="_18_00">18:00</string>
@@ -89,4 +89,5 @@
     <string name="toast_username_password_check">Check your username, password and try again.</string>
     <string name="toast_check_internet">Check Internet connection</string>
     <string name="instagram_loggedin_as">You are currently logged in as: </string>
+    <string name="response_saved">Response saved</string>
 </resources>
