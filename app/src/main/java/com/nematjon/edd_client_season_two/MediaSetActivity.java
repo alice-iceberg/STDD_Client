@@ -101,15 +101,17 @@ public class MediaSetActivity extends AppCompatActivity {
                 isSuccessfullyLoggedIn = false;
             } else {
                 //todo: add name and password check
-                SharedPreferences.Editor editor = instagramPrefs.edit();
-                editor.putString("instagram_username", usernameString.trim());
-                editor.putString("instagram_password", passwordString.trim());
-                editor.apply();
+
 
                 isSuccessfullyLoggedIn = loginToInstagram(usernameString, passwordString);
 
                 if (isSuccessfullyLoggedIn) {
                     Toast.makeText(this, R.string.toast_success_login, Toast.LENGTH_SHORT).show();
+                    SharedPreferences.Editor editor = instagramPrefs.edit();
+                    editor.putString("instagram_username", usernameString.trim());
+                    editor.putString("instagram_password", passwordString.trim());
+                    editor.putBoolean("is_logged_in", isSuccessfullyLoggedIn);
+                    editor.apply();
                     finish();
                 } else {
                     Toast.makeText(this, R.string.toast_username_password_check, Toast.LENGTH_SHORT).show();
@@ -133,6 +135,7 @@ public class MediaSetActivity extends AppCompatActivity {
        String usernameNoSpaces = username.replace(" ", "");
        String passwordNoSpaces = password.replace(" ", "");
 
+       //todo: add waiting icon (animated)
 
         Thread thread = new Thread(new Runnable() {
             @Override

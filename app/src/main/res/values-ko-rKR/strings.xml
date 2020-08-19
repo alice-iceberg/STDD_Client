@@ -88,4 +88,5 @@
     <string name="toast_success_login">Successfully logged in</string>
     <string name="toast_username_password_check">Check your username, password and try again.</string>
     <string name="toast_check_internet">Check Internet connection</string>
+    <string name="instagram_loggedin_as">You are currently logged in as: </string>
 </resources>

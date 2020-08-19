@@ -563,8 +563,15 @@ public class MainActivity extends Activity {
         startActivity(new Intent(MainActivity.this, LocationSetActivity.class));
     }
 
-    public void setSocialMediaClick(MenuItem item){
-        startActivity(new Intent(MainActivity.this, MediaSetActivity.class ));
+    public void setSocialMediaClick(MenuItem item) {
+        SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
+        Boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
+
+        if (isLoggedIn) {
+            startActivity(new Intent(MainActivity.this, InstagramLoggedInActivity.class));
+        } else {
+            startActivity(new Intent(MainActivity.this, MediaSetActivity.class));
+        }
     }
 
     public void setAlarams() {
@@ -628,9 +635,6 @@ public class MainActivity extends Activity {
     }
 
     public void logoutClick(MenuItem item) {
-//        tvBonus.setText("Bonus: " + calculateBonusPoints(myList));
-//        Log.e(TAG, "Calculated bonuses: " + calculateBonusPoints(myList));
-
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setMessage(getString(R.string.log_out_confirmation));
