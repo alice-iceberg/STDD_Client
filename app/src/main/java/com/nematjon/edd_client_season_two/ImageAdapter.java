@@ -10,12 +10,13 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ImageAdapter extends BaseAdapter {
 
     private Context mContext;
     ArrayList<File> takenPhotos = new ArrayList<File>();
-    File folder = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator); //getting the app folder
+    File folder = new File(Objects.requireNonNull(mContext).getExternalFilesDir("Cropped Faces").toString()); //getting the app folder
     File[] files = folder.listFiles();
 
 
@@ -31,12 +32,15 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        for (File file : files) {
-            if (!file.isDirectory()) {
-                takenPhotos.add(file);
-            }
+        if (folder.exists()) {
+            for (File file : files) {
+                if (!file.isDirectory()) {
+                    takenPhotos.add(file);
+                }
 
+            }
         }
+
 
         return takenPhotos.get(position);
     }
