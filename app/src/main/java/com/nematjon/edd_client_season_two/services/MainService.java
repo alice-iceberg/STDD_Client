@@ -138,7 +138,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static int instagramDataSrcId;
 
     private static long prevLightStartTime = 0;
-    private static long prevGravityStartTime = 0;
     private static long prevGravityStopTime = 0;
     private static long prevPressureStopTime = 0;
     private static long prevAudioRecordStartTime = 0;
