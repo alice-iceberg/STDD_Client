@@ -3,8 +3,6 @@ package com.nematjon.edd_client_season_two;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -29,7 +27,7 @@ public class MediaSetActivity extends AppCompatActivity {
     EditText password;
     TextInputLayout textInputLayout;
     Button homeBtn;
-    LoadingDialog loadingDialog;
+    //LoadingDialog loadingDialog;
 
 
     String usernameString = null;
@@ -51,7 +49,7 @@ public class MediaSetActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_socialmedia_setting);
-        loadingDialog = new LoadingDialog(MediaSetActivity.this);
+        // loadingDialog = new LoadingDialog(MediaSetActivity.this);
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
@@ -106,26 +104,8 @@ public class MediaSetActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.toast_password_empty, Toast.LENGTH_LONG).show();
                 isSuccessfullyLoggedIn = false;
             } else {
-
-
                 loginToInstagram(usernameString, passwordString);
-                isSuccessfullyLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
-                loadingDialog.dismissDialog();
-
-                if (isSuccessfullyLoggedIn) {
-                    Toast.makeText(this, R.string.toast_success_login, Toast.LENGTH_SHORT).show();
-                    SharedPreferences.Editor editor = instagramPrefs.edit();
-                    editor.putString("instagram_username", usernameString.trim());
-                    editor.putString("instagram_password", passwordString.trim());
-                    editor.putBoolean("is_logged_in", isSuccessfullyLoggedIn);
-                    editor.apply();
-                    finish();
-                } else {
-                    Toast.makeText(this, R.string.toast_username_password_check, Toast.LENGTH_SHORT).show();
-                }
             }
-
-
         } else {
             Toast.makeText(this, R.string.toast_check_internet, Toast.LENGTH_LONG).show();
         }
@@ -137,48 +117,13 @@ public class MediaSetActivity extends AppCompatActivity {
     //endregion
 
 
-    public void loginToInstagram(String username, String password) throws InterruptedException {
+    public void loginToInstagram(String username, String password) {
 
         String usernameNoSpaces = username.replace(" ", "");
         String passwordNoSpaces = password.replace(" ", "");
 
         LoggingInProgressTask loggingInProgressTask = new LoggingInProgressTask();
         loggingInProgressTask.execute(usernameNoSpaces, passwordNoSpaces);
-
-
-//        loadingDialog.startLoadingDialog();
-//
-//        //todo: add waiting icon (animated)
-//
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    IGClient client = IGClient.builder()
-//                            .username(usernameNoSpaces)
-//                            .password(passwordNoSpaces)
-//                            .login();
-//                    usernameCheck = client.getSelfProfile().getFull_name();
-//
-//                    if (!usernameCheck.equals("")) {
-//                        isSuccessfullyLoggedIn = true;
-//                    } else {
-//                        isSuccessfullyLoggedIn = false;
-//                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                loadingDialog.dismissDialog();
-//            }
-//        });
-//
-//        thread.start();
-//        thread.join(); // wait the thread to finish
-
-//        SharedPreferences.Editor editor = instagramPrefs.edit();
-//        editor.putBoolean("is_logged_in", isSuccessfullyLoggedIn);
-//        editor.apply();
     }
 
     @Override
@@ -186,7 +131,9 @@ public class MediaSetActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private class LoggingInProgressTask extends AsyncTask <String, Void, Boolean> {
+    private class LoggingInProgressTask extends AsyncTask<String, Void, Boolean> {
+
+        LoadingDialog loadingDialog = new LoadingDialog(MediaSetActivity.this);
 
         @Override
         protected void onPreExecute() {
@@ -230,6 +177,21 @@ public class MediaSetActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             loadingDialog.dismissDialog();
+
+            if (isSuccessfullyLoggedIn) {
+                Toast.makeText(MediaSetActivity.this, R.string.toast_success_login, Toast.LENGTH_SHORT).show();
+                SharedPreferences.Editor editor = instagramPrefs.edit();
+                editor.putString("instagram_username", usernameString.trim());
+                editor.putString("instagram_password", passwordString.trim());
+                editor.putBoolean("is_logged_in", isSuccessfullyLoggedIn);
+                editor.apply();
+                finish();
+            } else {
+                Toast.makeText(MediaSetActivity.this, R.string.toast_username_password_check, Toast.LENGTH_SHORT).show();
+                SharedPreferences.Editor editor = instagramPrefs.edit();
+                editor.putBoolean("is_logged_in", isSuccessfullyLoggedIn);
+                editor.apply();
+            }
         }
     }
 

@@ -21,4 +21,6 @@
     <color name="login_form_details">#ccffff</color>
     <color name="login_form_details_light">#0D262626</color>
     <color name="login_form_details_medium">#c3ffff</color>
+
+    <color name="transparent">#00FFFFFF</color>
 </resources>
