@@ -90,4 +90,5 @@
     <string name="toast_check_internet">인터넷 연결상태를 확인하세요</string>
     <string name="instagram_loggedin_as">귀하는 다음의 아이디로 현재 로그인되어있습니다: </string>
     <string name="response_saved">응답이 제출되었습니다</string>
+    <string name="saved_images">사진</string>
 </resources>

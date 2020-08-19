@@ -90,4 +90,5 @@
     <string name="toast_check_internet">Check Internet connection</string>
     <string name="instagram_loggedin_as">You are currently logged in as: </string>
     <string name="response_saved">Response saved</string>
+    <string name="saved_images">Photos</string>
 </resources>

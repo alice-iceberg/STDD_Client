@@ -27,7 +27,6 @@ public class MediaSetActivity extends AppCompatActivity {
     EditText password;
     TextInputLayout textInputLayout;
     Button homeBtn;
-    //LoadingDialog loadingDialog;
 
 
     String usernameString = null;
@@ -49,7 +48,6 @@ public class MediaSetActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_socialmedia_setting);
-        // loadingDialog = new LoadingDialog(MediaSetActivity.this);
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);

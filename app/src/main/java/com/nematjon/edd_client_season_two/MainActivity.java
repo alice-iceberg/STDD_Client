@@ -509,6 +509,10 @@ public class MainActivity extends Activity {
         }
     }
 
+    public void savedImagesClick (MenuItem item){
+        startActivity(new Intent(MainActivity.this, CapturedPhotosActivity.class));
+    }
+
     public void restartService(MenuItem item) {
         customSensorsService = new Intent(this, MainService.class);
 

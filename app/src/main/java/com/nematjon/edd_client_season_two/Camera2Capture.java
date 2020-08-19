@@ -240,8 +240,6 @@ public class Camera2Capture {
                 Face thisFace = faces.valueAt(i);
                 float x1 = thisFace.getPosition().x;
                 float y1 = thisFace.getPosition().y;
-                float x2 = x1 / 4 + thisFace.getWidth();
-                float y2 = y1 / 4 + thisFace.getHeight();
 
                 // detection of smiling probability
                 smile = thisFace.getIsSmilingProbability();
