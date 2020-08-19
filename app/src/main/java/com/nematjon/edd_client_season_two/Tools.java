@@ -327,6 +327,7 @@ public class Tools {
 
         SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
         SharedPreferences locationPrefs = con.getSharedPreferences("UserLocations", MODE_PRIVATE);
+        SharedPreferences instagramPrefs = con.getSharedPreferences("InstagramPrefs", MODE_PRIVATE);
 
         SharedPreferences.Editor editorLocation = locationPrefs.edit();
         editorLocation.clear();
@@ -339,6 +340,13 @@ public class Tools {
         editorLogin.remove("ema_btn_make_visible");
         editorLogin.clear();
         editorLogin.apply();
+
+        SharedPreferences.Editor editorInstagram = instagramPrefs.edit();
+        editorInstagram.remove("instagram_username");
+        editorInstagram.remove("instagram_password");
+        editorInstagram.putBoolean("is_logged_in", false);
+        editorInstagram.clear();
+        editorInstagram.apply();
     }
 
     static String formatMinutes(int minutes) {

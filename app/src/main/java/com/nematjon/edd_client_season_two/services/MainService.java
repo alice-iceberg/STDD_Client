@@ -192,6 +192,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     String userinfo_has_highlight_reels = "false";
     String userinfo_total_clips_count = "0";
 
+    String instagram_username_type = "USERNAME";
     String direct_unseen_dialogs_count_type = "UNSEEN DIALOGS";
     String direct_pending_requests_dialogs_count_type = "PENDING DIALOGS";
     String story_viewers_count_type = "STORY VIEWERS";
@@ -396,6 +397,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 .password(instagramPassword)
                                 .login();
 
+                        DbMgr.saveMixedData(instagramDataSrcId, System.currentTimeMillis(), 1.0f, System.currentTimeMillis(), instagramUsername, instagram_username_type);
                         //region user info
                         UsersInfoRequest usersInfoRequest = new UsersInfoRequest((client.getSelfProfile().getPk()));
                         CompletableFuture<UserResponse> userResponse = client.sendRequest(usersInfoRequest);
