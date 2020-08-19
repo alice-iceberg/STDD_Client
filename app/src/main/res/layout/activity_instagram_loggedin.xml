@@ -64,7 +64,8 @@
         app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
         android:text="@string/instagram_loggedin_as"
         android:textSize="20dp"
-        android:textAllCaps="true"
+        android:textAllCaps="false"
+        android:textStyle="bold"
         android:textColor="@color/login_form_details"
         app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
         app:layout_constraintTop_toBottomOf="@+id/iconloggedin" />

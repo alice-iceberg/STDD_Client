@@ -105,7 +105,7 @@
         android:background="@drawable/btn_bg"
         android:onClick="submitClick"
         android:text="@string/submitSNS"
-        android:textAllCaps="false"
+        android:textAllCaps="true"
 
         android:textColor="@color/login_form_details_medium"
         android:layout_marginTop="16dp"
