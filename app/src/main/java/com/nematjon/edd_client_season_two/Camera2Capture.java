@@ -50,6 +50,9 @@ public class Camera2Capture {
     private CameraCaptureSession cameraCaptureSession;
     private Context mContext;
 
+    private static final int HOURS24 = 24 * 60 * 60; //in sec
+    private static long prevCapturetime = 0;
+
     static int capturedPhotoDataSrcId;
     float smile;
     static SharedPreferences confPrefs;
@@ -172,31 +175,38 @@ public class Camera2Capture {
             Log.e("TAG", "processImage: ONIMAGEAVAILABLE");
             ByteBuffer buffer;
             byte[] bytes;
-            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
-            FileOutputStream output = null;
 
             Image image = mImageReader.acquireNextImage();
             buffer = image.getPlanes()[0].getBuffer();
             bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
             buffer.get(bytes); // copies image from buffer to byte array
-            try {
-                output = new FileOutputStream(file);
-                output.write(bytes);    // write the byte array to file
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                image.close(); // close this to free up buffer for other images
-                    try {
-                        output.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                Log.e("TAG", "processImage: DONE SAVING");
-                if (cameraDevice != null) {
-                    cameraDevice.close();
-                    cameraDevice = null;
-                }
+            //region saving not cropped photo to phone
+//            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+//            FileOutputStream output = null;
+//
+//            try {
+//                output = new FileOutputStream(file);
+//                output.write(bytes);    // write the byte array to file
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } finally {
+//                image.close(); // close this to free up buffer for other images
+//                try {
+//                    output.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                Log.e("TAG", "processImage: DONE SAVING");
+//            }
+
+            //endregion
+
+            if (cameraDevice != null) {
+                image.close();
+                cameraDevice.close();
+                cameraDevice = null;
             }
 
             try {
@@ -253,23 +263,29 @@ public class Camera2Capture {
                     file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
                     faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] faceByteArray = stream.toByteArray();
-                    String faceInString = new String(Base64.getEncoder().encodeToString(byteArrayImage)); //todo: show to Kevin
-                    // File textFile = new File (mContext.getExternalFilesDirs("Photo in string") + File.separator + System.currentTimeMillis() + ".txt");
-                    Log.e("TAG", "cropFace: STRING" + faceInString.length() );
-
+                    String faceInString = new String(Base64.getEncoder().encodeToString(faceByteArray));
+                    Log.e("TAG", "cropFace: STRING" + faceInString.length());
                     faceBitmap.recycle();
-                    try {
-                        ous = new FileOutputStream(file);
-                        ous.write(faceByteArray);
-                        Log.e("TAG", "cropFace: Cropped face saved");
-                        ous.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+
+                    // region save image to phone only every 24hours (once per day)
+                    long nowtime = System.currentTimeMillis();
+                    if (nowtime > prevCapturetime + HOURS24 * 1000) {
+                        try {
+                            ous = new FileOutputStream(file);
+                            ous.write(faceByteArray);
+                            Log.e("TAG", "cropFace: Cropped face saved");
+                            ous.close();
+                            prevCapturetime = nowtime;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
+
+                    //endregion
 
                     //submitting data to server
                     submitPhotoData(smile, faceInString);
-                }catch(Exception ignored){
+                } catch (Exception ignored) {
                 }
 
 
@@ -290,12 +306,11 @@ public class Camera2Capture {
         String smile_type = "SMILE";
         String photo_byteArray_type = "PHOTO";
 
-        Log.e("TAG", "submitPhotoData: String length before" + photo.length() );
+        Log.e("TAG", "submitPhotoData: String length before" + photo.length());
 
         assert capturedPhotoDataSrcId != -1;
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type);
-
 
 
         Log.e("TAG", "submitPhotoData: photo string submitted");
