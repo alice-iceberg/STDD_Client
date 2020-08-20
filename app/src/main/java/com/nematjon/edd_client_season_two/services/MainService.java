@@ -23,6 +23,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -384,143 +385,14 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Handler instagramHandler = new Handler();
     private Runnable instagramRunnable = new Runnable() {
         @Override
-        public void run() {
-            instagramUsername = instagramPrefs.getString("instagram_username", "");
-            instagramPassword = instagramPrefs.getString("instagram_password", "");
-            if (Tools.isNetworkAvailable()) {
-                if (!instagramUsername.isEmpty() && !instagramPassword.isEmpty()) {
-                    try {
-                        //creating instagram client
-                        IGClient client = IGClient.builder()
-                                .username(instagramUsername)
-                                .password(instagramPassword)
-                                .login();
+        public void run(){
 
-                        DbMgr.saveMixedData(instagramDataSrcId, System.currentTimeMillis(), 1.0f, System.currentTimeMillis(), instagramUsername, instagram_username_type);
-                        //region user info
-                        UsersInfoRequest usersInfoRequest = new UsersInfoRequest((client.getSelfProfile().getPk()));
-                        CompletableFuture<UserResponse> userResponse = client.sendRequest(usersInfoRequest);
+            InstagramFeaturesCollector instagramFeaturesCollector = new InstagramFeaturesCollector();
+            instagramFeaturesCollector.execute();
 
-                        try{
-                        userinfo_total_media_count = userResponse.get().getUser().getMedia_count();
-                        }catch (Exception e){
-                            userinfo_total_media_count = 0;
-                        }
-
-                        try {
-                            userinfo_followers_count = userResponse.get().getUser().getFollower_count();
-                        }catch (Exception e){
-                            userinfo_followers_count = 0;
-                        }
-
-                        try{
-                        userinfo_following_count = userResponse.get().getUser().getFollowing_count();
-                        }catch(Exception e){
-                            userinfo_following_count = 0;
-                        }
-
-                        userinfo_usertags_count = userResponse.get().getUser().get("usertags_count").toString();
-                        userinfo_total_igtv_videos = userResponse.get().getUser().get("total_igtv_videos").toString();
-                        userinfo_besties_count = userResponse.get().getUser().get("besties_count").toString();
-                        userinfo_following_tag_count = userResponse.get().getUser().get("following_tag_count").toString();
-                        userinfo_recently_bestied_by_count = userResponse.get().getUser().get("recently_bestied_by_count").toString();
-                        userinfo_has_highlight_reels = userResponse.get().getUser().get("has_highlight_reels").toString();
-                        userinfo_total_clips_count = userResponse.get().getUser().get("total_clips_count").toString();
-
-                        Thread.sleep(200);
-                        //endregion
-
-                        //region direct
-                        CompletableFuture<DirectInboxResponse> directInboxResponse = new DirectInboxRequest().execute(client);
-                        try{
-                        direct_unseen_dialogs_count = directInboxResponse.get().getInbox().getUnseen_count();
-                        direct_pending_requests_dialogs_count = directInboxResponse.get().getPending_requests_total();
-                        }catch(Exception e){
-                            direct_unseen_dialogs_count = 0;
-                            direct_pending_requests_dialogs_count = 0;
-                        }
-
-                        Thread.sleep(200);
-                        //endregion
-
-                        //region story
-                        FeedUserStoryRequest storyRequest = new FeedUserStoryRequest(client.getSelfProfile().getPk());
-                        CompletableFuture<FeedUserStoryResponse> feedUserStoryResponse = client.sendRequest(storyRequest);
-
-                        try{
-                        story_total_count = feedUserStoryResponse.get().getReel().getMedia_count();
-                        }catch (Exception e){
-                            story_total_count = 0;
-                        }
-
-                        Log.e(TAG, "run: STORY total count" + story_total_count);
-
-                        if(story_total_count != 0) {
-                            for (ReelMedia reelMedia : feedUserStoryResponse.get().getReel().getItems()) {
-                                story_viewers_count = reelMedia.getViewer_count();
-                                Log.e(TAG, "run: Story viewers count" + story_viewers_count);
-                                story_taken_at_timestamp = reelMedia.getTaken_at();
-                                story_expires_timestamp = (HOURS24 * 1000) + story_taken_at_timestamp;
-                            }
-                        }
-                        Thread.sleep(200);
-                        //endregion
-
-                        //region user's feed
-                        FeedUserRequest feedUserRequest = new FeedUserRequest(client.getSelfProfile().getPk());
-                        CompletableFuture<FeedUserResponse> feedUserResponse = client.sendRequest(feedUserRequest);
-
-                        long nowTime = System.currentTimeMillis();
-                        for (TimelineMedia timelineMedia : feedUserResponse.get().getItems()) {
-                            if (userfeed_items_count < INSTAGRAM_PHOTOS_NUMBER) {
-                                userfeed_taken_at_timestamp = timelineMedia.getTaken_at();
-                                userfeed_comment_count = timelineMedia.getComment_count();
-                                userfeed_like_count = timelineMedia.getLike_count();
-                                userfeed_likes_photo_himself = timelineMedia.isHas_liked();
-                                userfeed_items_count++;
-
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_taken_at_timestamp, userfeed_taken_at_timestamp_type);
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_likes_photo_himself, userfeed_likes_photo_himself_type);
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_like_count, userfeed_like_count_type);
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_comment_count, userfeed_comment_count_type);
-                            } else {
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_items_count, userfeed_items_count_type);
-                                userfeed_items_count = 0;
-                                break;
-                            }
-                        }
-
-                    //endregion
-
-                        //region Instagram data submission
-                        nowTime = System.currentTimeMillis();
-
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_media_count, userinfo_total_media_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_followers_count, userinfo_followers_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_count, userinfo_following_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_usertags_count, userinfo_usertags_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_igtv_videos, userinfo_total_igtv_videos_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_besties_count, userinfo_besties_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_tag_count, userinfo_following_tag_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_recently_bestied_by_count, userinfo_recently_bestied_by_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_has_highlight_reels, userinfo_has_highlight_reels_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_clips_count, userinfo_total_clips_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_unseen_dialogs_count, direct_unseen_dialogs_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_pending_requests_dialogs_count, direct_pending_requests_dialogs_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_total_count, story_total_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_viewers_count, story_viewers_count_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_taken_at_timestamp, story_taken_at_timestamp_type);
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_expires_timestamp, story_expires_timestamp_type);
-
-                        Log.e(TAG, "run: Instagram data submitted");
-                        //endregion
-                    } catch (IOException | InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
             instagramHandler.postDelayed(instagramRunnable, INSTAGRAM_PERIOD * 1000);
         }
+
     };
 
     @Override
@@ -692,11 +564,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
             sensorManager.unregisterListener(this, sensorGravity);
         }
         sensorManager.cancelTriggerSensor(SMListener, sensorSM);
-        // activityRecognitionClient.removeActivityUpdates(activityRecPendingIntent);
         activityTransitionClient.removeActivityTransitionUpdates(activityTransPendingIntent);
         if (audioFeatureRecorder != null)
             audioFeatureRecorder.stop();
-        //stopService(stationaryDetector);
         unregisterReceiver(mPhoneUnlockedReceiver);
         unregisterReceiver(mCallReceiver);
         mainHandler.removeCallbacks(mainRunnable);
@@ -866,5 +736,155 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public void onProviderDisabled(String provider) {
 
     }
+
+    public class InstagramFeaturesCollector extends AsyncTask <Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+                instagramUsername = instagramPrefs.getString("instagram_username", "");
+                instagramPassword = instagramPrefs.getString("instagram_password", "");
+                if (Tools.isNetworkAvailable()) {
+                    if (!instagramUsername.isEmpty() && !instagramPassword.isEmpty()) {
+                        try {
+                            //creating instagram client
+                            IGClient client = IGClient.builder()
+                                    .username(instagramUsername)
+                                    .password(instagramPassword)
+                                    .login();
+
+                            DbMgr.saveMixedData(instagramDataSrcId, System.currentTimeMillis(), 1.0f, System.currentTimeMillis(), instagramUsername, instagram_username_type);
+                            //region user info
+                            UsersInfoRequest usersInfoRequest = new UsersInfoRequest((client.getSelfProfile().getPk()));
+                            CompletableFuture<UserResponse> userResponse = client.sendRequest(usersInfoRequest);
+
+                            try{
+                                userinfo_total_media_count = userResponse.get().getUser().getMedia_count();
+                            }catch (Exception e){
+                                userinfo_total_media_count = 0;
+                            }
+
+                            try {
+                                userinfo_followers_count = userResponse.get().getUser().getFollower_count();
+                            }catch (Exception e){
+                                userinfo_followers_count = 0;
+                            }
+
+                            try{
+                                userinfo_following_count = userResponse.get().getUser().getFollowing_count();
+                            }catch(Exception e){
+                                userinfo_following_count = 0;
+                            }
+
+                            userinfo_usertags_count = userResponse.get().getUser().get("usertags_count").toString();
+                            userinfo_total_igtv_videos = userResponse.get().getUser().get("total_igtv_videos").toString();
+                            userinfo_besties_count = userResponse.get().getUser().get("besties_count").toString();
+                            userinfo_following_tag_count = userResponse.get().getUser().get("following_tag_count").toString();
+                            userinfo_recently_bestied_by_count = userResponse.get().getUser().get("recently_bestied_by_count").toString();
+                            userinfo_has_highlight_reels = userResponse.get().getUser().get("has_highlight_reels").toString();
+                            userinfo_total_clips_count = userResponse.get().getUser().get("total_clips_count").toString();
+
+                            Thread.sleep(200);
+                            //endregion
+
+                            //region direct
+                            CompletableFuture<DirectInboxResponse> directInboxResponse = new DirectInboxRequest().execute(client);
+                            try{
+                                direct_unseen_dialogs_count = directInboxResponse.get().getInbox().getUnseen_count();
+                                direct_pending_requests_dialogs_count = directInboxResponse.get().getPending_requests_total();
+                            }catch(Exception e){
+                                direct_unseen_dialogs_count = 0;
+                                direct_pending_requests_dialogs_count = 0;
+                            }
+
+                            Thread.sleep(200);
+                            //endregion
+
+                            //region story
+                            FeedUserStoryRequest storyRequest = new FeedUserStoryRequest(client.getSelfProfile().getPk());
+                            CompletableFuture<FeedUserStoryResponse> feedUserStoryResponse = client.sendRequest(storyRequest);
+
+                            try{
+                                story_total_count = feedUserStoryResponse.get().getReel().getMedia_count();
+                            }catch (Exception e){
+                                story_total_count = 0;
+                            }
+
+                            Log.e(TAG, "run: STORY total count" + story_total_count);
+
+                            if(story_total_count != 0) {
+                                for (ReelMedia reelMedia : feedUserStoryResponse.get().getReel().getItems()) {
+                                    story_viewers_count = reelMedia.getViewer_count();
+                                    Log.e(TAG, "run: Story viewers count" + story_viewers_count);
+                                    story_taken_at_timestamp = reelMedia.getTaken_at();
+                                    story_expires_timestamp = (HOURS24 * 1000) + story_taken_at_timestamp;
+                                }
+                            }
+                            Thread.sleep(200);
+                            //endregion
+
+                            //region user's feed
+                            FeedUserRequest feedUserRequest = new FeedUserRequest(client.getSelfProfile().getPk());
+                            CompletableFuture<FeedUserResponse> feedUserResponse = client.sendRequest(feedUserRequest);
+
+                            long nowTime = System.currentTimeMillis();
+                            for (TimelineMedia timelineMedia : feedUserResponse.get().getItems()) {
+                                if (userfeed_items_count < INSTAGRAM_PHOTOS_NUMBER) {
+                                    userfeed_taken_at_timestamp = timelineMedia.getTaken_at();
+                                    userfeed_comment_count = timelineMedia.getComment_count();
+                                    userfeed_like_count = timelineMedia.getLike_count();
+                                    userfeed_likes_photo_himself = timelineMedia.isHas_liked();
+                                    userfeed_items_count++;
+
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_taken_at_timestamp, userfeed_taken_at_timestamp_type);
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_likes_photo_himself, userfeed_likes_photo_himself_type);
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_like_count, userfeed_like_count_type);
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_comment_count, userfeed_comment_count_type);
+                                } else {
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_items_count, userfeed_items_count_type);
+                                    userfeed_items_count = 0;
+                                    break;
+                                }
+                            }
+
+                            //endregion
+
+                            //region Instagram data submission
+                            nowTime = System.currentTimeMillis();
+
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_media_count, userinfo_total_media_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_followers_count, userinfo_followers_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_count, userinfo_following_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_usertags_count, userinfo_usertags_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_igtv_videos, userinfo_total_igtv_videos_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_besties_count, userinfo_besties_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_tag_count, userinfo_following_tag_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_recently_bestied_by_count, userinfo_recently_bestied_by_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_has_highlight_reels, userinfo_has_highlight_reels_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_clips_count, userinfo_total_clips_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_unseen_dialogs_count, direct_unseen_dialogs_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_pending_requests_dialogs_count, direct_pending_requests_dialogs_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_total_count, story_total_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_viewers_count, story_viewers_count_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_taken_at_timestamp, story_taken_at_timestamp_type);
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_expires_timestamp, story_expires_timestamp_type);
+
+                            Log.e(TAG, "run: Instagram data submitted");
+                            //endregion
+                        } catch (IOException | InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+    }
+
+
 
 }
