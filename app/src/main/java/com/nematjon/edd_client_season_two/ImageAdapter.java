@@ -2,6 +2,7 @@ package com.nematjon.edd_client_season_two;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -16,7 +17,7 @@ public class ImageAdapter extends BaseAdapter {
 
     private Context mContext;
     ArrayList<File> takenPhotos = new ArrayList<File>();
-    File folder = new File(Objects.requireNonNull(mContext).getExternalFilesDir("Cropped Faces").toString()); //getting the app folder
+    File folder = new File(Objects.requireNonNull(mContext).getExternalFilesDir("Cropped Faces").toString() + File.separator); //getting the app folder
     File[] files = folder.listFiles();
 
 
@@ -32,17 +33,27 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        if (folder.exists()) {
-            for (File file : files) {
-                if (!file.isDirectory()) {
-                    takenPhotos.add(file);
-                }
 
+        if (folder.exists()) {
+            if (files.length > 0) {
+                Log.e("TAG", "getItem: " + files.length );
+                for (File file : files) {
+                    if (!file.isDirectory()) {
+                        takenPhotos.add(file);
+                    }
+
+                }
+            }else{
+                Log.e("TAG", "getItem: " + files.length );
             }
+            return takenPhotos.get(position);
         }
 
+        else{
+            Log.e("TAG", "getItem: folder does not exist" );
+            return null;
+        }
 
-        return takenPhotos.get(position);
     }
 
     @Override

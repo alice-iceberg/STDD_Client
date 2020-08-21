@@ -15,11 +15,11 @@
         android:title="@string/set_social_media"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/btn_saved_images"
-        android:onClick="savedImagesClick"
-        android:title="@string/saved_images"
-        app:showAsAction="never"/>
+<!--    <item-->
+<!--        android:id="@+id/btn_saved_images"-->
+<!--        android:onClick="savedImagesClick"-->
+<!--        android:title="@string/saved_images"-->
+<!--        app:showAsAction="never"/>-->
 
 
     <item

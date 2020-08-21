@@ -20,7 +20,7 @@
     <string name="ema_question_7">7. 일에 집중하는 것이 어려움</string>
     <string name="ema_question_8">8. 너무 느리게 혹은 너무 많이 움직이거나 말을 함</string>
     <string name="ema_question_9">9. 죽고싶다고 생각하거나 어떤 식으로든 자신을 해칠 것이라고 생각함</string>
-    <string name="submit">Submit</string>
+    <string name="submit">제출하기</string>
     <string name="notif_channel_id">YouNoOne_notif_chanel</string>
     <string name="daily_notif_text">설문 시간입니다. 클릭하시어 설문에 응답해주세요 :)</string>
     <string name="smartphone">smartphone</string>
