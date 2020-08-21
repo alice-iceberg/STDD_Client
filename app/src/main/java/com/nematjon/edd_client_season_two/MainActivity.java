@@ -5,10 +5,14 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.os.Handler;
-import android.widget.Toolbar;
 
+
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -26,6 +30,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import com.google.android.material.navigation.NavigationView;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 import com.nematjon.edd_client_season_two.services.MainService;
 
@@ -47,11 +53,15 @@ import io.grpc.StatusRuntimeException;
 
 import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     //region UI variables
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    Toolbar toolbar;
+
     private Button btnEMA;
     private TextView tvServiceStatus;
     private TextView tvInternetStatus;
@@ -88,7 +98,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setActionBar((Toolbar) findViewById(R.id.my_toolbar));
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.icon_menu);
 
         init();
 
@@ -108,6 +120,9 @@ public class MainActivity extends Activity {
 
     public void init() {
         //region Init UI variables
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        toolbar = findViewById(R.id.my_toolbar);
         btnEMA = findViewById(R.id.btn_late_ema);
         tvServiceStatus = findViewById(R.id.tvStatus);
         tvInternetStatus = findViewById(R.id.connectivityStatus);
@@ -125,6 +140,10 @@ public class MainActivity extends Activity {
         tvBonus = findViewById(R.id.bonus_points);
         tvTotalReward = findViewById(R.id.total_reward_with_bonus);
         //endregion
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
         if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             // only for gingerbread and newer versions
@@ -253,7 +272,7 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 tvServiceStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
-                tvServiceStatus.setText(getString(R.string.service_runnig));
+                tvServiceStatus.setText(getString(R.string.service_running));
 
                 // region get EMA ticks when offline
                 if (!Tools.isNetworkAvailable()) {

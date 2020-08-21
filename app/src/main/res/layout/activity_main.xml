@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity"
+    android:id="@+id/drawer_layout">
+
+
 
     <RelativeLayout
         android:id="@+id/loadingPanel"
@@ -31,24 +38,26 @@
             android:indeterminate="true" />
     </RelativeLayout>
 
-    <Toolbar
-        android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?android:actionBarSize"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="-5dp"
-        android:background="@color/colorPrimary"
-        android:elevation="4dp"
-        android:gravity="center_horizontal"
-        android:title="@string/app_name"
-        android:titleTextColor="@color/colorPrimaryDark"
-        tools:targetApi="m" />
+
+
+
+    <com.google.android.material.navigation.NavigationView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/nav_view"
+        app:headerLayout="@layout/header"
+        app:menu="@menu/main_menu"
+        android:layout_gravity = "start"
+        />
+
+
+
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/pullToRefresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/my_toolbar">
+        android:layout_below="@id/loadingPanel">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -62,6 +71,19 @@
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:paddingTop="10dp">
+
+                <Toolbar
+                    android:id="@+id/my_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:actionBarSize"
+                    android:layout_marginTop="-5dp"
+                    android:background="@color/colorPrimary"
+
+                    android:elevation="4dp"
+                    android:gravity="center_horizontal"
+                    android:title="@string/app_name"
+                    android:titleTextColor="@color/colorPrimaryDark"
+                    tools:targetApi="m" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -343,7 +365,9 @@
 
         </RelativeLayout>
 
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
-</RelativeLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
+

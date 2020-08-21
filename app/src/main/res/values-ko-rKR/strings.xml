@@ -33,7 +33,7 @@
     <string name="last_active">최신 접속:  %1$s</string>
     <string name="restart_data_collection">재시작</string>
     <string name="set_locations">장소 설정</string>
-    <string name="service_runnig">서비스 : 작동 중 :)</string>
+    <string name="service_running">서비스 : 작동 중 :)</string>
     <string name="service_stopped">서비스 : 미작동 :(</string>
     <string name="internet_on">인터넷 : 연결됨 :)</string>
     <string name="internet_off">인터넷 : 연결 안됨 :(</string>
@@ -91,4 +91,6 @@
     <string name="instagram_loggedin_as">귀하는 다음의 아이디로 현재 로그인되어있습니다: </string>
     <string name="response_saved">응답이 제출되었습니다</string>
     <string name="saved_images">사진</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

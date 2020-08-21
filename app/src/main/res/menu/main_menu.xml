@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/home_icon"
+            android:title="Home" />
+
+        <item
+            android:id="@+id/nav_location"
+            android:icon="@drawable/location_icon"
+            android:title="@string/set_locations" />
+
+        <item
+            android:id="@+id/nav_sns"
+            android:icon="@drawable/social_media_icon"
+            android:title="@string/set_social_media" />
+
+        <item
+            android:id="@+id/nav_photos"
+            android:icon="@drawable/photo_icon"
+            android:title="@string/saved_images" />
+
+    </group>
+
+    <group android:checkableBehavior="single">
+
+        <item android:title="General">
+            <menu>
+
+                <item
+                    android:id="@+id/nav_restart"
+                    android:icon="@drawable/restart_icon"
+                    android:title="@string/restart_data_collection" />
+
+                <item
+                    android:id="@+id/nav_logout"
+                    android:icon="@drawable/logout_icon"
+                    android:title="@string/log_out" />
+
+            </menu>
+        </item>
+
+
+    </group>
+</menu>

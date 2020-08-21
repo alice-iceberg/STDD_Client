@@ -33,7 +33,7 @@
     <string name="last_active">Last active:  %1$s</string>
     <string name="restart_data_collection">Restart service</string>
     <string name="set_locations">Set locations</string>
-    <string name="service_runnig">Service: Running :)</string>
+    <string name="service_running">Service: Running :)</string>
     <string name="service_stopped">Service: Not running :(</string>
     <string name="internet_on">Internet: Connected :)</string>
     <string name="internet_off">Internet: Not connected :(</string>
@@ -91,4 +91,6 @@
     <string name="instagram_loggedin_as">You are currently logged in as: </string>
     <string name="response_saved">Response saved</string>
     <string name="saved_images">Photos</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>
