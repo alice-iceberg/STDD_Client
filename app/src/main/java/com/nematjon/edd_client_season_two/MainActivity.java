@@ -1,14 +1,15 @@
 package com.nematjon.edd_client_season_two;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.os.Handler;
 
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.widget.Toolbar;
@@ -22,7 +23,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -53,7 +53,7 @@ import io.grpc.StatusRuntimeException;
 
 import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -89,18 +89,9 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog dialog;
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.drawable.icon_menu);
 
         init();
 
@@ -122,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         //region Init UI variables
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
-        toolbar = findViewById(R.id.my_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         btnEMA = findViewById(R.id.btn_late_ema);
         tvServiceStatus = findViewById(R.id.tvStatus);
         tvInternetStatus = findViewById(R.id.connectivityStatus);
@@ -141,9 +132,15 @@ public class MainActivity extends AppCompatActivity {
         tvTotalReward = findViewById(R.id.total_reward_with_bonus);
         //endregion
 
+        setSupportActionBar(toolbar);
+
+        navigationView.bringToFront();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.nav_home);
 
         if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             // only for gingerbread and newer versions
@@ -197,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                         configPrefs.getLong("endTimestamp", -1),
                         configPrefs.getInt("participantCount", -1)
                 );
-                restartService(null);
+                restartService();
             } catch (JSONException e) {
                 e.printStackTrace();
                 finish();
@@ -301,6 +298,89 @@ public class MainActivity extends AppCompatActivity {
                 // endregion
             }
         }, 500);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_home:
+                break;
+            case R.id.nav_location:
+                startActivity(new Intent(MainActivity.this, LocationSetActivity.class));
+                break;
+            case R.id.nav_sns:
+                SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
+                boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
+
+                if (isLoggedIn) {
+                    startActivity(new Intent(MainActivity.this, InstagramLoggedInActivity.class));
+                } else {
+                    startActivity(new Intent(MainActivity.this, MediaSetActivity.class));
+                }
+                break;
+            case R.id.nav_photos:
+                startActivity(new Intent(MainActivity.this, CapturedPhotosActivity.class));
+                break;
+            case R.id.nav_restart:
+                customSensorsService = new Intent(this, MainService.class);
+
+                //when the function is called by clicking the button
+                stopService(customSensorsService);
+                if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // dialog = Tools.requestPermissions(MainActivity.this); // todo come back
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "restartServiceClick: 3");
+                    if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
+                        Log.e(TAG, "RESTART SERVICE");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(customSensorsService);
+                        } else {
+                            startService(customSensorsService);
+                        }
+                    }
+                }
+                break;
+
+            case R.id.nav_logout:
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+                alertDialog.setMessage(getString(R.string.log_out_confirmation));
+                alertDialog.setPositiveButton(
+                        getString(R.string.yes), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Tools.perform_logout(getApplicationContext());
+                                stopService(customSensorsService);
+                                finish();
+                            }
+                        });
+                alertDialog.setNegativeButton(
+                        getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                alertDialog.show();
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     public void setMainStats() {
@@ -528,25 +608,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void savedImagesClick (MenuItem item){
-        startActivity(new Intent(MainActivity.this, CapturedPhotosActivity.class));
-    }
-
-    public void restartService(MenuItem item) {
+    public void restartService() {
         customSensorsService = new Intent(this, MainService.class);
-
-        if (item != null) {
-            //when the function is called by clicking the button
+        //when the function is called without clicking the button
+        if (!Tools.isMainServiceRunning(getApplicationContext())) {
+            customSensorsService = new Intent(this, MainService.class);
             stopService(customSensorsService);
             if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        // dialog = Tools.requestPermissions(MainActivity.this); // todo come back
+                        dialog = Tools.requestPermissions(MainActivity.this);
                     }
                 });
             } else {
-                Log.e(TAG, "restartServiceClick: 3");
                 if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
                     Log.e(TAG, "RESTART SERVICE");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -556,46 +631,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-        } else {
-            //when the function is called without clicking the button
-            if (!Tools.isMainServiceRunning(getApplicationContext())) {
-                customSensorsService = new Intent(this, MainService.class);
-                stopService(customSensorsService);
-                if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // dialog = Tools.requestPermissions(MainActivity.this); // todo come back
-                        }
-                    });
-                } else {
-                    if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
-                        Log.e(TAG, "RESTART SERVICE");
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            startForegroundService(customSensorsService);
-                        } else {
-                            startService(customSensorsService);
-                        }
-                    }
-                }
-            }
         }
     }
 
-    public void setLocationsClick(MenuItem item) {
-        startActivity(new Intent(MainActivity.this, LocationSetActivity.class));
-    }
-
-    public void setSocialMediaClick(MenuItem item) {
-        SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
-        Boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
-
-        if (isLoggedIn) {
-            startActivity(new Intent(MainActivity.this, InstagramLoggedInActivity.class));
-        } else {
-            startActivity(new Intent(MainActivity.this, MediaSetActivity.class));
-        }
-    }
 
     public void setAlarams() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -657,29 +695,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void logoutClick(MenuItem item) {
-
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setMessage(getString(R.string.log_out_confirmation));
-        alertDialog.setPositiveButton(
-                getString(R.string.yes), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Tools.perform_logout(getApplicationContext());
-                        stopService(customSensorsService);
-                        finish();
-                    }
-                });
-        alertDialog.setNegativeButton(
-                getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        alertDialog.show();
-    }
-
     private void loadCampaign() {
         new Thread(new Runnable() {
             @Override
@@ -714,7 +729,7 @@ public class MainActivity extends AppCompatActivity {
                         editor.putInt("participantCount", retrieveCampaignResponse.getParticipantCount());
                         editor.putBoolean("campaignLoaded", true);
                         editor.apply();
-                        restartService(null);
+                        restartService();
                     }
                 } catch (StatusRuntimeException | JSONException e) {
                     e.printStackTrace();

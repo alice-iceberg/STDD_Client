@@ -15,12 +15,6 @@ public class InstagramLoggedInActivity extends AppCompatActivity {
     TextView instagramUsername;
     SharedPreferences instagramPrefs;
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -25,11 +25,9 @@
 
     </group>
 
-    <group android:checkableBehavior="single">
-
         <item android:title="General">
             <menu>
-
+                <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/nav_restart"
                     android:icon="@drawable/restart_icon"
@@ -40,9 +38,11 @@
                     android:icon="@drawable/logout_icon"
                     android:title="@string/log_out" />
 
+                </group>
             </menu>
+
         </item>
 
 
-    </group>
+
 </menu>

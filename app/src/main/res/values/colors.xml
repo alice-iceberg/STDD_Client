@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ffffff</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#2B3A67</color>
+    <color name="colorPrimaryDark">#2B3A67</color>
     <color name="iconsColor">#303F9F</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="statusBarColor">#00000000</color>
 
     <color name="yellowLight">#F9EBC8</color>
     <color name="yellowDark">#EFB630</color>
