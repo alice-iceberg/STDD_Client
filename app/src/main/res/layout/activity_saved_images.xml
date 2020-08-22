@@ -1,20 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
-    <GridView
-        android:id="@+id/saved_images_gridview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:numColumns="3"
-        android:columnWidth="90dp"
-        android:horizontalSpacing="10dp"
-        android:verticalSpacing="10dp"
-        android:gravity="center"
-        android:stretchMode="columnWidth"/>
+<!--    <GridView-->
+<!--        android:id="@+id/saved_images_gridview"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:numColumns="3"-->
+<!--        android:columnWidth="90dp"-->
+<!--        android:horizontalSpacing="10dp"-->
+<!--        android:verticalSpacing="10dp"-->
+<!--        android:gravity="center"-->
+<!--        android:stretchMode="columnWidth"/>-->
 
+
+    <me.itangqi.waveloadingview.WaveLoadingView
+        android:id="@+id/waveLoadingView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:wlv_borderColor="@color/pastel4"
+        app:wlv_borderWidth="3dp"
+        app:wlv_shapeType="circle"
+        app:wlv_round_rectangle="true"
+        app:wlv_triangle_direction="north"
+
+        app:wlv_titleCenterStrokeColor="@color/pastel4"
+        app:wlv_titleCenterStrokeWidth="3dp"
+        app:wlv_titleCenterColor="@color/white"
+        app:wlv_titleCenterSize="24sp"
+
+        app:wlv_titleTopStrokeColor="@color/pastel4"
+        app:wlv_titleTopStrokeWidth="3dp"
+        app:wlv_titleTopColor="@color/white"
+        app:wlv_titleTopSize="24sp"
+
+        app:wlv_titleBottomStrokeColor="@color/pastel4"
+        app:wlv_titleBottomStrokeWidth="3dp"
+        app:wlv_titleBottomColor="@color/white"
+        app:wlv_titleBottomSize="24sp"
+
+        app:wlv_waveAmplitude="70"
+        app:wlv_waveColor="@color/pastel3"
+        app:wlv_wave_background_Color="@color/pastel2"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </me.itangqi.waveloadingview.WaveLoadingView>
+
+
+    <SeekBar
+        android:id="@+id/waveSeekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/waveLoadingView"
+        tools:layout_editor_absoluteX="27dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

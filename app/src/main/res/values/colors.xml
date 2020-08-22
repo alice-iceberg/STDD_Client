@@ -25,4 +25,9 @@
     <color name="login_form_details_medium">#c3ffff</color>
 
     <color name="transparent">#00FFFFFF</color>
+
+    <color name="pastel1">#f4eeff</color>
+    <color name="pastel2">#dcd6f7</color>
+    <color name="pastel3">#a6b1e1</color>
+    <color name="pastel4">#424874</color>
 </resources>
