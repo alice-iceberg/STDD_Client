@@ -83,7 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/button_green_round"
+                android:background="@drawable/button_round"
                 android:text="@string/yessss"
                 android:textColor="@color/yellowLight"
                 android:textStyle="bold" />

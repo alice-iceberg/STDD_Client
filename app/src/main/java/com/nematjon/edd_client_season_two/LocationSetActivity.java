@@ -223,7 +223,7 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
                 location_title = TITLE_LIBRARY;
                 break;
             case ID_ADDITIONAL:
-                iconDrawable = ContextCompat.getDrawable(this, R.drawable.additional);
+                iconDrawable = ContextCompat.getDrawable(this, R.drawable.location_marker);
                 location_title = TITLE_ADDITIONAL;
                 break;
             default:

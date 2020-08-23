@@ -86,6 +86,5 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.2'
     implementation 'commons-codec:commons-codec:1.14'
 
-    implementation 'me.itangqi.waveloadingview:library:0.3.5'
 
 }
