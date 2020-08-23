@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: ./app/libs/instagram4j-develop-32d42c0-dirty.jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/instagram4j-develop-32d42c0-dirty.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
