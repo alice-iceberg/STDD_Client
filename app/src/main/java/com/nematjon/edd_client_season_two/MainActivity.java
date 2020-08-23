@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //region UI variables
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
     Toolbar toolbar;
 
     private Button btnEMA;
@@ -96,15 +95,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         init();
 
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
-        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                initUI();
-                updateUI();
+        pullToRefresh.setOnRefreshListener(() -> {
+            initUI();
+            updateUI();
 
-                Tools.sendHeartbeat(getApplicationContext());
-                pullToRefresh.setRefreshing(false);
-            }
+            Tools.sendHeartbeat(getApplicationContext());
+            pullToRefresh.setRefreshing(false);
         });
 
     }
@@ -112,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void init() {
         //region Init UI variables
         drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         btnEMA = findViewById(R.id.btn_late_ema);
         tvServiceStatus = findViewById(R.id.tvStatus);
@@ -340,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            // dialog = Tools.requestPermissions(MainActivity.this); // todo come back
+                            dialog = Tools.requestPermissions(MainActivity.this);
                         }
                     });
                 } else {
@@ -360,21 +356,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
                 alertDialog.setMessage(getString(R.string.log_out_confirmation));
                 alertDialog.setPositiveButton(
-                        getString(R.string.yes), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Tools.perform_logout(getApplicationContext());
-                                stopService(customSensorsService);
-                                finish();
-                            }
+                        getString(R.string.yes), (dialog, which) -> {
+                            Tools.perform_logout(getApplicationContext());
+                            stopService(customSensorsService);
+                            finish();
                         });
                 alertDialog.setNegativeButton(
-                        getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
+                        getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
                 break;
         }
@@ -457,86 +445,83 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     final EtService.RetrieveFilteredDataRecords.Response responseMessage = stub.retrieveFilteredDataRecords(retrieveFilteredEMARecordsRequest);
                     if (responseMessage.getSuccess()) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
-                                ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
-                                ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
-                                ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
-                                if (responseMessage.getValueList() != null) {
-                                    Calendar fromCal = Calendar.getInstance();
-                                    fromCal.set(Calendar.HOUR_OF_DAY, 0);
-                                    fromCal.set(Calendar.MINUTE, 0);
-                                    fromCal.set(Calendar.SECOND, 0);
-                                    fromCal.set(Calendar.MILLISECOND, 0);
-                                    Calendar tillCal = (Calendar) fromCal.clone();
-                                    tillCal.set(Calendar.HOUR_OF_DAY, 23);
-                                    tillCal.set(Calendar.MINUTE, 59);
-                                    tillCal.set(Calendar.SECOND, 59);
+                        runOnUiThread(() -> {
+                            ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+                            ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+                            ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+                            ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+                            if (responseMessage.getValueList() != null) {
+                                Calendar fromCal = Calendar.getInstance();
+                                fromCal.set(Calendar.HOUR_OF_DAY, 0);
+                                fromCal.set(Calendar.MINUTE, 0);
+                                fromCal.set(Calendar.SECOND, 0);
+                                fromCal.set(Calendar.MILLISECOND, 0);
+                                Calendar tillCal1 = (Calendar) fromCal.clone();
+                                tillCal1.set(Calendar.HOUR_OF_DAY, 23);
+                                tillCal1.set(Calendar.MINUTE, 59);
+                                tillCal1.set(Calendar.SECOND, 59);
 
-                                    //check for duplicates and get only unique ones
-                                    List<String> uniqueValues = new ArrayList<>();
-                                    for (String item : responseMessage.getValueList())
-                                        if (!uniqueValues.contains(item))
-                                            uniqueValues.add(item);
+                                //check for duplicates and get only unique ones
+                                List<String> uniqueValues = new ArrayList<>();
+                                for (String item : responseMessage.getValueList())
+                                    if (!uniqueValues.contains(item))
+                                        uniqueValues.add(item);
 
-                                    int rewardPoints = uniqueValues.size() * 250;
-                                    int bonus = calculateBonusPoints(uniqueValues);
+                                int rewardPoints = uniqueValues.size() * 250;
+                                int bonus = calculateBonusPoints(uniqueValues);
 
-                                    // saving results to Shared Preferences
-                                    SharedPreferences.Editor editor = rewardPrefs.edit();
-                                    editor.putInt("rewardPoints", rewardPoints);
-                                    editor.putInt("bonus", bonus);
+                                // saving results to Shared Preferences
+                                SharedPreferences.Editor editor = rewardPrefs.edit();
+                                editor.putInt("rewardPoints", rewardPoints);
+                                editor.putInt("bonus", bonus);
+                                editor.putBoolean("ema1_answered", false);
+                                editor.putBoolean("ema2_answered", false);
+                                editor.putBoolean("ema3_answered", false);
+                                editor.putBoolean("ema4_answered", false);
+                                editor.apply();
+
+                                int ema_answered_count = 0;
+
+                                for (String val : uniqueValues) {
+                                    if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal1.getTimeInMillis())) {
+                                        ema_answered_count++;
+                                        switch (Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1])) {
+                                            case 1:
+                                                ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                                                editor.putBoolean("ema1_answered", true);
+                                                editor.apply();
+                                                break;
+                                            case 2:
+                                                ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                                                editor.putBoolean("ema2_answered", true);
+                                                editor.apply();
+                                                break;
+                                            case 3:
+                                                ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                                                editor.putBoolean("ema3_answered", true);
+                                                editor.apply();
+                                                break;
+                                            case 4:
+                                                ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                                                editor.putBoolean("ema4_answered", true);
+                                                editor.apply();
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                }
+
+                                editor.putInt("ema_answered_count", ema_answered_count);
+                                editor.apply();
+                                tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_count));
+
+                                if (ema_answered_count == 0) {
                                     editor.putBoolean("ema1_answered", false);
                                     editor.putBoolean("ema2_answered", false);
                                     editor.putBoolean("ema3_answered", false);
                                     editor.putBoolean("ema4_answered", false);
                                     editor.apply();
-
-                                    int ema_answered_count = 0;
-
-                                    for (String val : uniqueValues) {
-                                        if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal.getTimeInMillis())) {
-                                            ema_answered_count++;
-                                            switch (Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1])) {
-                                                case 1:
-                                                    ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                                                    editor.putBoolean("ema1_answered", true);
-                                                    editor.apply();
-                                                    break;
-                                                case 2:
-                                                    ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                                                    editor.putBoolean("ema2_answered", true);
-                                                    editor.apply();
-                                                    break;
-                                                case 3:
-                                                    ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                                                    editor.putBoolean("ema3_answered", true);
-                                                    editor.apply();
-                                                    break;
-                                                case 4:
-                                                    ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                                                    editor.putBoolean("ema4_answered", true);
-                                                    editor.apply();
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
-                                        }
-                                    }
-
-                                    editor.putInt("ema_answered_count", ema_answered_count);
-                                    editor.apply();
-                                    tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_count));
-
-                                    if (ema_answered_count == 0) {
-                                        editor.putBoolean("ema1_answered", false);
-                                        editor.putBoolean("ema2_answered", false);
-                                        editor.putBoolean("ema3_answered", false);
-                                        editor.putBoolean("ema4_answered", false);
-                                        editor.apply();
-                                    }
                                 }
                             }
                         });
@@ -615,12 +600,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             customSensorsService = new Intent(this, MainService.class);
             stopService(customSensorsService);
             if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog = Tools.requestPermissions(MainActivity.this);
-                    }
-                });
+                runOnUiThread(() -> dialog = Tools.requestPermissions(MainActivity.this));
             } else {
                 if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
                     Log.e(TAG, "RESTART SERVICE");
@@ -696,46 +676,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void loadCampaign() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ManagedChannel channel = ManagedChannelBuilder.forAddress(getString(R.string.grpc_host), Integer.parseInt(getString(R.string.grpc_port))).usePlaintext().build();
-                try {
-                    ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-                    EtService.RetrieveCampaign.Request retrieveCampaignRequest = EtService.RetrieveCampaign.Request.newBuilder()
-                            .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
-                            .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
-                            .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
-                            .build();
+        new Thread(() -> {
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(getString(R.string.grpc_host), Integer.parseInt(getString(R.string.grpc_port))).usePlaintext().build();
+            try {
+                ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
+                EtService.RetrieveCampaign.Request retrieveCampaignRequest = EtService.RetrieveCampaign.Request.newBuilder()
+                        .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
+                        .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
+                        .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
+                        .build();
 
-                    EtService.RetrieveCampaign.Response retrieveCampaignResponse = stub.retrieveCampaign(retrieveCampaignRequest);
-                    if (retrieveCampaignResponse.getSuccess()) {
-                        setUpCampaignConfigurations(
-                                retrieveCampaignResponse.getName(),
-                                retrieveCampaignResponse.getNotes(),
-                                retrieveCampaignResponse.getCreatorEmail(),
-                                retrieveCampaignResponse.getConfigJson(),
-                                retrieveCampaignResponse.getStartTimestamp(),
-                                retrieveCampaignResponse.getEndTimestamp(),
-                                retrieveCampaignResponse.getParticipantCount()
-                        );
-                        SharedPreferences.Editor editor = configPrefs.edit();
-                        editor.putString("name", retrieveCampaignResponse.getName());
-                        editor.putString("notes", retrieveCampaignResponse.getNotes());
-                        editor.putString("creatorEmail", retrieveCampaignResponse.getCreatorEmail());
-                        editor.putString("configJson", retrieveCampaignResponse.getConfigJson());
-                        editor.putLong("startTimestamp", retrieveCampaignResponse.getStartTimestamp());
-                        editor.putLong("endTimestamp", retrieveCampaignResponse.getEndTimestamp());
-                        editor.putInt("participantCount", retrieveCampaignResponse.getParticipantCount());
-                        editor.putBoolean("campaignLoaded", true);
-                        editor.apply();
-                        restartService();
-                    }
-                } catch (StatusRuntimeException | JSONException e) {
-                    e.printStackTrace();
-                } finally {
-                    channel.shutdown();
+                EtService.RetrieveCampaign.Response retrieveCampaignResponse = stub.retrieveCampaign(retrieveCampaignRequest);
+                if (retrieveCampaignResponse.getSuccess()) {
+                    setUpCampaignConfigurations(
+                            retrieveCampaignResponse.getName(),
+                            retrieveCampaignResponse.getNotes(),
+                            retrieveCampaignResponse.getCreatorEmail(),
+                            retrieveCampaignResponse.getConfigJson(),
+                            retrieveCampaignResponse.getStartTimestamp(),
+                            retrieveCampaignResponse.getEndTimestamp(),
+                            retrieveCampaignResponse.getParticipantCount()
+                    );
+                    SharedPreferences.Editor editor = configPrefs.edit();
+                    editor.putString("name", retrieveCampaignResponse.getName());
+                    editor.putString("notes", retrieveCampaignResponse.getNotes());
+                    editor.putString("creatorEmail", retrieveCampaignResponse.getCreatorEmail());
+                    editor.putString("configJson", retrieveCampaignResponse.getConfigJson());
+                    editor.putLong("startTimestamp", retrieveCampaignResponse.getStartTimestamp());
+                    editor.putLong("endTimestamp", retrieveCampaignResponse.getEndTimestamp());
+                    editor.putInt("participantCount", retrieveCampaignResponse.getParticipantCount());
+                    editor.putBoolean("campaignLoaded", true);
+                    editor.apply();
+                    restartService();
                 }
+            } catch (StatusRuntimeException | JSONException e) {
+                e.printStackTrace();
+            } finally {
+                channel.shutdown();
             }
         }).start();
     }

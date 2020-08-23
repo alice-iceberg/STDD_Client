@@ -159,16 +159,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private ActivityRecognitionClient activityTransitionClient;
     private PendingIntent activityTransPendingIntent;
 
-    private boolean phoneUnlocked = false;
     private boolean isCameraAvailable = false;
-    private static float x_value_gravity = 0f;
     private static float y_value_gravity = 0f;
-    private static float z_value_gravity = 0f;
     String x_value_type = "X";
     String y_value_type = "Y";
     String z_value_type = "Z";
-    private String instagramUsername = "default";
-    private String instagramPassword = "default";
 
     int direct_unseen_dialogs_count = 0;
     int direct_pending_requests_dialogs_count = 0;
@@ -214,8 +209,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     String userinfo_recently_bestied_by_count_type = "BESTIED BY";
     String userinfo_has_highlight_reels_type = "HAS HIGHLIGHT REELS";
     String userinfo_total_clips_count_type = "CLIPS";
-
-
     //endregion
 
 
@@ -359,7 +352,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable takePhotoRunnable = new Runnable() {
         @Override
         public void run() {
-            phoneUnlocked = phoneUsageVariablesPrefs.getBoolean("unlocked", false);
+            boolean phoneUnlocked = phoneUsageVariablesPrefs.getBoolean("unlocked", false);
             if (phoneUnlocked) {
                 // check position of the phone
                 Log.e("CAMERA", "run: PHONE IS UNLOCKED");
@@ -448,18 +441,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
         activityTransitionClient = ActivityRecognition.getClient(getApplicationContext());
         activityTransPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(getApplicationContext(), ActivityTransRcvr.class), PendingIntent.FLAG_UPDATE_CURRENT);
         activityTransitionClient.requestActivityTransitionUpdates(new ActivityTransitionRequest(getActivityTransitions()), activityTransPendingIntent)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Registered: Activity Transition");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Failed: Activity Transition " + e.toString());
-                    }
-                });
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Registered: Activity Transition"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed: Activity Transition " + e.toString()));
 
         //region Register Phone unlock & Screen On state receiver
         mPhoneUnlockedReceiver = new ScreenAndUnlockRcvr();
@@ -505,7 +488,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
             }
         };
         manager.registerAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback, cameraAvailabilityHandler);
-        //    }
         //endregion
 
         mainHandler.post(mainRunnable);
@@ -686,8 +668,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     SharedPreferences.Editor editor = phoneUsageVariablesPrefs.edit();
                     editor.putFloat("y_value_gravity", y_value_gravity);
                     editor.apply();
-                    x_value_gravity = event.values[0];
-                    z_value_gravity = event.values[2];
+                    float x_value_gravity = event.values[0];
+                    float z_value_gravity = event.values[2];
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, x_value_gravity, x_value_type);
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, y_value_gravity, y_value_type);
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, z_value_gravity, z_value_type);
@@ -712,7 +694,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         try {
             SharedPreferences prefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
             int dataSourceId = prefs.getInt("LOCATION_GPS", -1);
-            // assert dataSourceId != -1;
             DbMgr.saveMixedData(dataSourceId, nowTime, location.getAccuracy(), nowTime, location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getAccuracy(), location.getAltitude());
             FileOutputStream fileOutputStream = openFileOutput(LOCATIONS_TXT, Context.MODE_APPEND);
             fileOutputStream.write(resultString.getBytes());
@@ -741,9 +722,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
         @Override
         protected Void doInBackground(Void... voids) {
-                instagramUsername = instagramPrefs.getString("instagram_username", "");
-                instagramPassword = instagramPrefs.getString("instagram_password", "");
+            String instagramUsername = instagramPrefs.getString("instagram_username", "");
+            String instagramPassword = instagramPrefs.getString("instagram_password", "");
                 if (Tools.isNetworkAvailable()) {
+                    assert instagramUsername != null;
+                    assert instagramPassword != null;
                     if (!instagramUsername.isEmpty() && !instagramPassword.isEmpty()) {
                         try {
                             //creating instagram client
