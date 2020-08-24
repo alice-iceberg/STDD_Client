@@ -182,24 +182,24 @@ public class Camera2Capture {
             buffer.get(bytes); // copies image from buffer to byte array
 
             //region saving not cropped photo to phone
-//            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
-//            FileOutputStream output = null;
-//
-//            try {
-//                output = new FileOutputStream(file);
-//                output.write(bytes);    // write the byte array to file
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } finally {
-//                image.close(); // close this to free up buffer for other images
-//                try {
-//                    output.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                Log.e("TAG", "processImage: DONE SAVING");
-//            }
+            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+            FileOutputStream output = null;
+
+            try {
+                output = new FileOutputStream(file);
+                output.write(bytes);    // write the byte array to file
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                image.close(); // close this to free up buffer for other images
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.e("TAG", "processImage: DONE SAVING");
+            }
 
             //endregion
 
@@ -269,17 +269,17 @@ public class Camera2Capture {
 
                     // region save image to phone only every 24hours (once per day)
                     long nowtime = System.currentTimeMillis();
-                    if (nowtime > prevCapturetime + HOURS24 * 1000) {
+                   // if (nowtime > prevCapturetime + HOURS24 * 1000) {
                         try {
                             ous = new FileOutputStream(file);
                             ous.write(faceByteArray);
                             Log.e("TAG", "cropFace: Cropped face saved");
                             ous.close();
-                            prevCapturetime = nowtime;
+                           // prevCapturetime = nowtime;
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }
+                    //}
 
                     //endregion
 

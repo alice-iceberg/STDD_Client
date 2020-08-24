@@ -52,8 +52,6 @@ import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityTransition;
 import com.google.android.gms.location.ActivityTransitionRequest;
 import com.google.android.gms.location.DetectedActivity;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.nematjon.edd_client_season_two.AuthActivity;
 import com.nematjon.edd_client_season_two.Camera2Capture;
 import com.nematjon.edd_client_season_two.DbMgr;
@@ -661,7 +659,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 prevGravityStopTime = nowTime;
             } else{
                 canGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_PERIOD * 1000);
-                stopGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_DURATION * 1000 + GRAVITY_SENSOR_PERIOD * 1000);
+                stopGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_DURATION + GRAVITY_SENSOR_PERIOD * 1000);
 
                 if(canGravitySense){
                     y_value_gravity = event.values[1];
