@@ -661,7 +661,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 prevGravityStopTime = nowTime;
             } else{
                 canGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_PERIOD * 1000);
-                stopGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_DURATION + GRAVITY_SENSOR_PERIOD * 1000);
+                stopGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_DURATION * 1000 + GRAVITY_SENSOR_PERIOD * 1000);
 
                 if(canGravitySense){
                     y_value_gravity = event.values[1];
