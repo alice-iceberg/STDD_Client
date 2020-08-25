@@ -3,6 +3,7 @@ package com.nematjon.edd_client_season_two;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -10,15 +11,21 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,11 +35,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.navigation.NavigationView;
+import com.nematjon.edd_client_season_two.services.MainService;
 
 import java.util.Objects;
 
 
-public class LocationSetActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener {
+public class LocationSetActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     //region Constants
     private static final String TAG = LocationSetActivity.class.getSimpleName();
@@ -41,6 +50,9 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
     public static final String ID_UNIV = "UNIV";
     public static final String ID_LIBRARY = "LIBRARY";
     public static final String ID_ADDITIONAL = "ADDITIONAL";
+
+    private static Intent customSensorsService;
+
 
     private String TITLE_HOME;
     private String TITLE_DORM;
@@ -63,10 +75,14 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
     private Marker currentMarker;
     private StoreLocation currentStoringLocation;
 
+    private AlertDialog dialog;
 
     LinearLayout loadingLayout;
-
+    NavigationView navigationView;
+    DrawerLayout drawerLayout;
     Toolbar toolbar;
+
+    SharedPreferences configPrefs;
 
     //region Inner classes
     static class StoreLocation {
@@ -93,15 +109,23 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locations_setting);
-        toolbar = findViewById(R.id.my_toolbar);
-        setActionBar(toolbar);
-        toolbar.setNavigationIcon(getDrawable(R.drawable.back_press));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        configPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
+
+        customSensorsService = new Intent(LocationSetActivity.this, MainService.class);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        toolbar = findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
+        navigationView.bringToFront();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.nav_location);
+
 
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
@@ -350,5 +374,82 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
             }
         });
         builder.show();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_home:
+                startActivity(new Intent(LocationSetActivity.this, MainActivity.class));
+                break;
+            case R.id.nav_location:
+                startActivity(new Intent(LocationSetActivity.this, LocationSetActivity.class));
+                break;
+            case R.id.nav_sns:
+                SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
+                boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
+
+                if (isLoggedIn) {
+                    startActivity(new Intent(LocationSetActivity.this, InstagramLoggedInActivity.class));
+                } else {
+                    startActivity(new Intent(LocationSetActivity.this, MediaSetActivity.class));
+                }
+                break;
+            case R.id.nav_photos:
+                startActivity(new Intent(LocationSetActivity.this, CapturedPhotosActivity.class));
+                break;
+            case R.id.nav_restart:
+                customSensorsService = new Intent(this, MainService.class);
+
+                //when the function is called by clicking the button
+                stopService(customSensorsService);
+                if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog = Tools.requestPermissions(LocationSetActivity.this);
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "restartServiceClick: 3");
+                    if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
+                        Log.e(TAG, "RESTART SERVICE");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(customSensorsService);
+                        } else {
+                            startService(customSensorsService);
+                        }
+                    }
+                }
+                break;
+
+            case R.id.nav_logout:
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+                alertDialog.setMessage(getString(R.string.log_out_confirmation));
+                alertDialog.setPositiveButton(
+                        getString(R.string.yes), (dialog, which) -> {
+                            Tools.perform_logout(getApplicationContext());
+                            stopService(LocationSetActivity.customSensorsService);
+                            finish();
+                        });
+                alertDialog.setNegativeButton(
+                        getString(R.string.cancel), (dialog, which) -> dialog.cancel());
+                alertDialog.show();
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
