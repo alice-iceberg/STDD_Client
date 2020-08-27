@@ -46,8 +46,75 @@ public class NotificationService extends NotificationListenerService {
         Log.e("Package: ", packageName);
         Log.e("Key: ", notifKey);
         Log.e("Ticker: ", nTicker);
+
         if (title != null)
             Log.e("Title: ", title);
+
+        //region Extract music information
+        int musicPlayingDataSrcId = confPrefs.getInt("MUSIC_PLAYING", -1);
+        String melonMusicPlayingDataType = "MELON";
+        String bugsMusicPlayingDataType = "BUGS";
+        String genieMusicPlayingDataType = "GENIE";
+        String floMusicPlayingDataType = "FLO";
+        String vibeMusicPlayingDataType = "VIBE";
+        String musicPlayingArtistDataType = "ARTIST";
+        String musicPlayingSongDataType = "SONG";
+        String artist = "none";
+        String songName = "none";
+
+        //if "Melon" music application posts a notification
+        if (packageName.equals("com.iloen.melon")) {
+            long currentTime = System.currentTimeMillis();
+            songName = nTicker;
+            artist = title;
+            if (musicPlayingDataSrcId != -1) {
+                if (songName != null && artist != null) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, artist, musicPlayingArtistDataType, melonMusicPlayingDataType);
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, melonMusicPlayingDataType);
+                }
+            }
+            //if "Bugs" music application posts a notification
+        } else if (packageName.equals("com.neowiz.android.bugs")) {
+            long currentTime = System.currentTimeMillis();
+            songName = title;
+            if (musicPlayingDataSrcId != -1) {
+                if (songName != null) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, bugsMusicPlayingDataType);
+                }
+            }
+        }
+        //if "Genie" music application posts a notification
+        else if(packageName.equals("com.ktmusic.geniemusic")){
+            long currentTime = System.currentTimeMillis();
+            songName = title;
+            if (musicPlayingDataSrcId != -1) {
+                if (songName != null) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, genieMusicPlayingDataType);
+                }
+            }
+        }
+        // if "Flo" music application posts a notification
+        else if(packageName.equals("skplanet.musicmate")){
+            long currentTime = System.currentTimeMillis();
+            songName = title;
+            if (musicPlayingDataSrcId != -1) {
+                if (songName != null) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, floMusicPlayingDataType);
+                }
+            }
+        }
+        // if "Vibe" music application posts a notification
+        else if(packageName.equals("com.naver.vibe")){
+            long currentTime = System.currentTimeMillis();
+            songName = title;
+            if (musicPlayingDataSrcId != -1) {
+                if (songName != null) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, vibeMusicPlayingDataType);
+                }
+            }
+        }
+
+        //endregion
     }
 
     @Override
