@@ -30,13 +30,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.github.instagram4j.instagram4j.IGClient;
-import com.github.instagram4j.instagram4j.exceptions.IGLoginException;
 import com.github.instagram4j.instagram4j.models.media.reel.ReelMedia;
 import com.github.instagram4j.instagram4j.models.media.timeline.TimelineMedia;
 import com.github.instagram4j.instagram4j.requests.direct.DirectInboxRequest;
@@ -95,14 +93,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short LIGHT_SENSOR_PERIOD = 30;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
     private static final short GRAVITY_SENSOR_PERIOD = 3; // in sec
-    private static final short GRAVITY_SENSOR_DURATION = 500; // in milliseconds
     private static final short PRESSURE_SENSOR_DURATION = 2; // in sec
     private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
     private static final int TAKE_PHOTO_PERIOD = 2 * 60; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
-    private static final int INSTAGRAM_PHOTOS_NUMBER = 5;
+    private static final int INSTAGRAM_POSTS_NUMBER = 5;
     private static final int HOURS24 = 24 * 60 * 60; //in sec
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
@@ -654,13 +651,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             }
         } else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
             long nowTime = System.currentTimeMillis();
-
-            if(prevGravityStopTime == 0) {
-                prevGravityStopTime = nowTime;
-            } else{
                 canGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_PERIOD * 1000);
-                stopGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_DURATION + GRAVITY_SENSOR_PERIOD * 1000);
-
                 if(canGravitySense){
                     y_value_gravity = event.values[1];
                     SharedPreferences.Editor editor = phoneUsageVariablesPrefs.edit();
@@ -671,9 +662,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, x_value_gravity, x_value_type);
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, y_value_gravity, y_value_type);
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, z_value_gravity, z_value_type);
-                } if(stopGravitySense){
                     prevGravityStopTime = nowTime;
-                }
             }
         }
     }
@@ -809,7 +798,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
                             long nowTime = System.currentTimeMillis();
                             for (TimelineMedia timelineMedia : feedUserResponse.get().getItems()) {
-                                if (userfeed_items_count < INSTAGRAM_PHOTOS_NUMBER) {
+                                if (userfeed_items_count < INSTAGRAM_POSTS_NUMBER) {
                                     userfeed_taken_at_timestamp = timelineMedia.getTaken_at();
                                     userfeed_comment_count = timelineMedia.getComment_count();
                                     userfeed_like_count = timelineMedia.getLike_count();
