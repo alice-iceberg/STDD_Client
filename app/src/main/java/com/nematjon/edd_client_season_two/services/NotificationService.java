@@ -84,7 +84,7 @@ public class NotificationService extends NotificationListenerService {
             }
         }
         //if "Genie" music application posts a notification
-        else if(packageName.equals("com.ktmusic.geniemusic")){
+        else if (packageName.equals("com.ktmusic.geniemusic")) {
             long currentTime = System.currentTimeMillis();
             songName = title;
             if (musicPlayingDataSrcId != -1) {
@@ -94,7 +94,7 @@ public class NotificationService extends NotificationListenerService {
             }
         }
         // if "Flo" music application posts a notification
-        else if(packageName.equals("skplanet.musicmate")){
+        else if (packageName.equals("skplanet.musicmate")) {
             long currentTime = System.currentTimeMillis();
             songName = title;
             if (musicPlayingDataSrcId != -1) {
@@ -104,7 +104,7 @@ public class NotificationService extends NotificationListenerService {
             }
         }
         // if "Vibe" music application posts a notification
-        else if(packageName.equals("com.naver.vibe")){
+        else if (packageName.equals("com.naver.vibe")) {
             long currentTime = System.currentTimeMillis();
             songName = title;
             if (musicPlayingDataSrcId != -1) {

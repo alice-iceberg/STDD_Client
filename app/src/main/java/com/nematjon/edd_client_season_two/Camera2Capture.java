@@ -6,7 +6,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PointF;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -15,6 +22,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -22,11 +30,18 @@ import android.util.SparseArray;
 import android.view.Surface;
 
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.FaceDetector;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceContour;
+import com.google.mlkit.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,6 +54,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.google.mlkit.vision.face.FaceDetection.getClient;
 
 public class Camera2Capture {
 
@@ -222,78 +239,90 @@ public class Camera2Capture {
 
     public void cropFace(byte[] byteArrayImage, Context mContext) throws IOException {
 
-        File file;
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        OutputStream ous;
-
         Bitmap tempBitmap = BitmapFactory.decodeByteArray(byteArrayImage, 0, byteArrayImage.length);
         Bitmap rotatedBitmap = Tools.rotateBitmap(tempBitmap, 270);
+        final InputImage image = InputImage.fromBitmap(rotatedBitmap, 0); //check second parameter
 
 
-        FaceDetector detector = new FaceDetector.Builder(mContext)
-                .setTrackingEnabled(false).setClassificationType(1).
-                        build();
+        FaceDetectorOptions options =
+                new FaceDetectorOptions.Builder()
+                        .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+                        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                        .build();
 
-        if (!detector.isOperational()) {
-            Log.e("TAG", "cropFace: Could not set up face detector");
-        } else {
-            Frame frame = new Frame.Builder().setBitmap(rotatedBitmap).build();
-            SparseArray<Face> faces = detector.detect(frame);
-            Bitmap faceBitmap = null;
+        final FaceDetector detector = getClient(options);
+        detector.process(image).addOnSuccessListener(new OnSuccessListener<List<Face>>() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
+            public void onSuccess(List<Face> faces) {
+                Log.e("TAG", "onSuccess: Face detected. Number of faces: " + faces.size());
 
+                for (Face face : faces) {
+                    //Getting smiling probability
+                    float smile = 0f;
+                    smile = face.getSmilingProbability();
+                    Log.e("FACE", "SMILE: " + smile);
 
-            Log.e("TAG", "cropFace: Number of faces detected: " + faces.size());
+                    FaceContour contour = face.getContour(FaceContour.FACE);
+                    Path path = new Path();
+                    assert contour != null;
+                    path.moveTo(contour.getPoints().get(0).x, contour.getPoints().get(0).y);
+                    for (PointF item : contour.getPoints()) {
+                        path.lineTo(item.x, item.y);
+                    }
+                    path.close();
+                    detector.close();
 
-
-            for (int i = 0; i < faces.size(); i++) {
-
-                Face thisFace = faces.valueAt(i);
-                float x1 = thisFace.getPosition().x;
-                float y1 = thisFace.getPosition().y;
-
-                // detection of smiling probability
-                smile = thisFace.getIsSmilingProbability();
-                Log.e("SMILE", "onClick: SMILE: " + smile);
-
-                try { //try to crop the face
-                    // cropping the face
-                    faceBitmap = Bitmap.createBitmap(rotatedBitmap, Math.round(x1), Math.round(y1), Math.round(thisFace.getWidth() - 2), Math.round(thisFace.getHeight() - 2)); // todo: solve the problem with borders
+                    Bitmap output = Bitmap.createBitmap(rotatedBitmap.getWidth(), rotatedBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(output);
+                    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                    paint.setColor(Color.BLUE);
+                    canvas.drawPath(path, paint);
+                    paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+                    canvas.drawBitmap(rotatedBitmap, 0, 0, paint);
 
                     // saving the cropped face
+                    File file;
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    OutputStream ous;
+
                     file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
-                    faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    output.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] faceByteArray = stream.toByteArray();
-                    String faceInString = new String(Base64.getEncoder().encodeToString(faceByteArray));
+                    String faceInString = (Base64.getEncoder().encodeToString(faceByteArray));
                     Log.e("TAG", "cropFace: STRING" + faceInString.length());
-                    faceBitmap.recycle();
+                    output.recycle();
 
                     // region save image to phone only every 24hours (once per day)
-                    long nowtime = System.currentTimeMillis();
-                   // if (nowtime > prevCapturetime + HOURS24 * 1000) {
-                        try {
-                            ous = new FileOutputStream(file);
-                            ous.write(faceByteArray);
-                            Log.e("TAG", "cropFace: Cropped face saved");
-                            ous.close();
-                           // prevCapturetime = nowtime;
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    // long nowtime = System.currentTimeMillis();
+                    // if (nowtime > prevCapturetime + HOURS24 * 1000) {
+                    try {
+                        ous = new FileOutputStream(file);
+                        ous.write(faceByteArray);
+                        Log.e("TAG", "cropFace: Cropped face saved");
+                        ous.close();
+                        // prevCapturetime = nowtime;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     //}
 
                     //endregion
 
                     //submitting data to server
-                    submitPhotoData(smile, faceInString);
-                } catch (Exception ignored) {
+                   // submitPhotoData(smile, faceInString);
                 }
 
 
-                detector.release();
             }
-        }
 
-
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("TAG", "onFailure: Failed to detect face");
+                    }
+                });
     }
 
 
@@ -314,5 +343,14 @@ public class Camera2Capture {
 
 
         Log.e("TAG", "submitPhotoData: photo string submitted");
+    }
+
+    public static Bitmap createImage(int width, int height, int color) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setColor(color);
+        canvas.drawRect(0F, 0F, (float) width, (float) height, paint);
+        return bitmap;
     }
 }

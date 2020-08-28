@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "113070728578",
+    "firebase_url": "https://stdd-e1567.firebaseio.com",
+    "project_id": "stdd-e1567",
+    "storage_bucket": "stdd-e1567.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113070728578:android:88418ae34308ecf5abdb9b",
+        "android_client_info": {
+          "package_name": "com.nematjon.edd_client_season_two"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "113070728578-9gd3kn08h6f1r66nmrs80m80k50pdh2f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpfJJAM19w8L8rc-65PEB9GO-ZaW6nz3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "113070728578-9gd3kn08h6f1r66nmrs80m80k50pdh2f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
