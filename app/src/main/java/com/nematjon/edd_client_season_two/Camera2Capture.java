@@ -198,27 +198,11 @@ public class Camera2Capture {
             bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
             buffer.get(bytes); // copies image from buffer to byte array
 
-            //region saving not cropped photo to phone
-            File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
-            FileOutputStream output = null;
-
-            try {
-                output = new FileOutputStream(file);
-                output.write(bytes);    // write the byte array to file
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                image.close(); // close this to free up buffer for other images
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Log.e("TAG", "processImage: DONE SAVING");
+            try{
+            image.close();
+            }catch(Exception e){
+                Log.e("TAG", "onImageAvailable: image could not be closed" );
             }
-
-            //endregion
 
             if (cameraDevice != null) {
                 image.close();
@@ -258,6 +242,30 @@ public class Camera2Capture {
                 Log.e("TAG", "onSuccess: Face detected. Number of faces: " + faces.size());
 
                 if(faces.size()!=0) {
+
+                    //region saving not cropped photo to phone
+                    File fileFull = new File(mContext.getExternalFilesDir("Taken photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+                    //File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+                    FileOutputStream outputFull = null;
+
+                    try {
+                        outputFull = new FileOutputStream(fileFull);
+                        outputFull.write(byteArrayImage);    // write the byte array to file
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            outputFull.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Log.e("TAG", "processImage: DONE SAVING");
+                    }
+
+                    //endregion
+
+
                     for (Face face : faces) {
                         //Getting smiling probability
                         float smile = 0f;
@@ -292,7 +300,8 @@ public class Camera2Capture {
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
                         OutputStream ous;
 
-                        file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+                        file = new File(mContext.getExternalFilesDir("Taken photos") + File.separator + System.currentTimeMillis() + ".jpg");
+                        //file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
                         output.compress(Bitmap.CompressFormat.PNG, 100, stream);
                         byte[] faceByteArray = stream.toByteArray();
                         String faceInString = (Base64.getEncoder().encodeToString(faceByteArray));

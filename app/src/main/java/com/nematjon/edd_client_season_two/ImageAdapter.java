@@ -71,15 +71,17 @@ public class ImageAdapter extends BaseAdapter {
 
     private ArrayList<String> getAllImagesPath(Context activity) {
         ArrayList<String> imagesPaths = new ArrayList<>();
-        String path = context.getExternalFilesDir("Cropped Faces") + File.separator;
+        String path = context.getExternalFilesDir("Taken photos") + File.separator;
         File folder = new File(path); //getting the app folder
 
         if (folder.exists()) {
             File[] allImages = folder.listFiles();
 
-            for (int i = 0; i < allImages.length; i++) {
-              imagesPaths.add(folder.toString() + File.separator + allImages[i].getName());
-                Log.e("TAG", "getAllImagesPath: Name of the file:" + imagesPaths.get(i) );
+            if(allImages.length > 0) {
+                for (int i = 0; i < allImages.length; i++) {
+                    imagesPaths.add(folder.toString() + File.separator + allImages[i].getName());
+                    Log.e("TAG", "getAllImagesPath: Name of the file:" + imagesPaths.get(i));
+                }
             }
         }else {
             Log.e("TAG", "getAllImagesPath: Folder does not exist");
