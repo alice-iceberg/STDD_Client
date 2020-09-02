@@ -48,6 +48,8 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
         toolbar = findViewById(R.id.toolbar);
         gridView = findViewById(R.id.gridView);
 
+        gridView.setAdapter(new ImageAdapter(this));
+
         setSupportActionBar(toolbar);
         navigationView.bringToFront();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);

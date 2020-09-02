@@ -257,63 +257,70 @@ public class Camera2Capture {
             public void onSuccess(List<Face> faces) {
                 Log.e("TAG", "onSuccess: Face detected. Number of faces: " + faces.size());
 
-                for (Face face : faces) {
-                    //Getting smiling probability
-                    float smile = 0f;
-                    smile = face.getSmilingProbability();
-                    Log.e("FACE", "SMILE: " + smile);
+                if(faces.size()!=0) {
+                    for (Face face : faces) {
+                        //Getting smiling probability
+                        float smile = 0f;
+                        try {
+                            smile = face.getSmilingProbability();
+                            Log.e("FACE", "SMILE: " + smile);
+                        } catch (Exception e) {
+                            Log.e("TAG", "Could not find smile");
+                            smile = 0f;
+                        }
 
-                    FaceContour contour = face.getContour(FaceContour.FACE);
-                    Path path = new Path();
-                    assert contour != null;
-                    path.moveTo(contour.getPoints().get(0).x, contour.getPoints().get(0).y);
-                    for (PointF item : contour.getPoints()) {
-                        path.lineTo(item.x, item.y);
+                        FaceContour contour = face.getContour(FaceContour.FACE);
+                        Path path = new Path();
+                        assert contour != null;
+                        path.moveTo(contour.getPoints().get(0).x, contour.getPoints().get(0).y);
+                        for (PointF item : contour.getPoints()) {
+                            path.lineTo(item.x, item.y);
+                        }
+                        path.close();
+                        detector.close();
+
+                        Bitmap output = Bitmap.createBitmap(rotatedBitmap.getWidth(), rotatedBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(output);
+                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                        paint.setColor(Color.BLUE);
+                        canvas.drawPath(path, paint);
+                        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+                        canvas.drawBitmap(rotatedBitmap, 0, 0, paint);
+
+                        // saving the cropped face
+                        File file;
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        OutputStream ous;
+
+                        file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+                        output.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        byte[] faceByteArray = stream.toByteArray();
+                        String faceInString = (Base64.getEncoder().encodeToString(faceByteArray));
+                        Log.e("TAG", "cropFace: STRING" + faceInString.length());
+                        output.recycle();
+
+                        // region save image to phone only every 24hours (once per day)
+                        // long nowtime = System.currentTimeMillis();
+                        // if (nowtime > prevCapturetime + HOURS24 * 1000) {
+                        try {
+                            ous = new FileOutputStream(file);
+                            ous.write(faceByteArray);
+                            Log.e("TAG", "cropFace: Cropped face saved");
+                            ous.close();
+                            // prevCapturetime = nowtime;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        //}
+
+                        //endregion
+
+                        //submitting data to server
+                        // submitPhotoData(smile, faceInString);
                     }
-                    path.close();
-                    detector.close();
 
-                    Bitmap output = Bitmap.createBitmap(rotatedBitmap.getWidth(), rotatedBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(output);
-                    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                    paint.setColor(Color.BLUE);
-                    canvas.drawPath(path, paint);
-                    paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-                    canvas.drawBitmap(rotatedBitmap, 0, 0, paint);
 
-                    // saving the cropped face
-                    File file;
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    OutputStream ous;
-
-                    file = new File(mContext.getExternalFilesDir("Cropped Faces") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
-                    output.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] faceByteArray = stream.toByteArray();
-                    String faceInString = (Base64.getEncoder().encodeToString(faceByteArray));
-                    Log.e("TAG", "cropFace: STRING" + faceInString.length());
-                    output.recycle();
-
-                    // region save image to phone only every 24hours (once per day)
-                    // long nowtime = System.currentTimeMillis();
-                    // if (nowtime > prevCapturetime + HOURS24 * 1000) {
-                    try {
-                        ous = new FileOutputStream(file);
-                        ous.write(faceByteArray);
-                        Log.e("TAG", "cropFace: Cropped face saved");
-                        ous.close();
-                        // prevCapturetime = nowtime;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    //}
-
-                    //endregion
-
-                    //submitting data to server
-                   // submitPhotoData(smile, faceInString);
                 }
-
-
             }
 
         })
