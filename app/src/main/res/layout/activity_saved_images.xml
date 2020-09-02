@@ -41,6 +41,15 @@
             android:background="#c0c0c0"
             android:layout_below="@+id/toolbar"/>
 
+        <GridView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/gridView"
+            android:columnWidth="100dp"
+            android:numColumns="auto_fit"
+            android:verticalSpacing="10dp"
+            android:horizontalSpacing="10dp"
+            />
 
 
 

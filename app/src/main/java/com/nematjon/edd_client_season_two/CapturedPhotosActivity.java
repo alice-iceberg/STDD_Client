@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.GridView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +28,7 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
     NavigationView navigationView;
     DrawerLayout drawerLayout;
     Toolbar toolbar;
+    GridView gridView;
 
     SharedPreferences configPrefs;
     static Intent customSensorsService;
@@ -44,6 +46,7 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         toolbar = findViewById(R.id.toolbar);
+        gridView = findViewById(R.id.gridView);
 
         setSupportActionBar(toolbar);
         navigationView.bringToFront();
@@ -53,8 +56,6 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
 
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_photos);
-
-
 
 
 

@@ -18,57 +18,30 @@ public class ImageAdapter extends BaseAdapter {
     private Context mContext;
     ArrayList<File> takenPhotos = new ArrayList<File>();
     File folder = new File(Objects.requireNonNull(mContext).getExternalFilesDir("Cropped Faces").toString() + File.separator); //getting the app folder
-    File[] files = folder.listFiles();
 
 
-    public ImageAdapter(Context mContext) {
+    public ImageAdapter(Context mContext, ArrayList<File> takenPhotos) {
         this.mContext = mContext;
+        this.takenPhotos = takenPhotos;
     }
-
 
     @Override
     public int getCount() {
-        return takenPhotos.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-
-        if (folder.exists()) {
-            if (files.length > 0) {
-                Log.e("TAG", "getItem: " + files.length );
-                for (File file : files) {
-                    if (!file.isDirectory()) {
-                        takenPhotos.add(file);
-                    }
-
-                }
-            }else{
-                Log.e("TAG", "getItem: " + files.length );
-            }
-            return takenPhotos.get(position);
-        }
-
-        else{
-            Log.e("TAG", "getItem: folder does not exist" );
-            return null;
-        }
-
-    }
-
-    @Override
-    public long getItemId(int position) {
         return 0;
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
+    public Object getItem(int i) {
+        return null;
+    }
 
-        ImageView imageView = new ImageView(mContext);
-        imageView.setImageURI(Uri.fromFile(takenPhotos.get(position)));
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setLayoutParams(new GridView.LayoutParams(340, 350));
+    @Override
+    public long getItemId(int i) {
+        return 0;
+    }
 
-        return imageView;
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
+        return null;
     }
 }

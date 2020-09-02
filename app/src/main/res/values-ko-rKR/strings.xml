@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="grpc_host">165.246.21.202</string>
+    <string name="grpc_host">165.246.42.173</string>
     <string name="grpc_port">50051</string>
     <string name="campaign_id">12</string>
     <string name="app_name">YouNoOne</string>
