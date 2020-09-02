@@ -241,7 +241,7 @@ public class Camera2Capture {
 
         Bitmap tempBitmap = BitmapFactory.decodeByteArray(byteArrayImage, 0, byteArrayImage.length);
         Bitmap rotatedBitmap = Tools.rotateBitmap(tempBitmap, 270);
-        final InputImage image = InputImage.fromBitmap(rotatedBitmap, 0); //check second parameter
+        final InputImage image = InputImage.fromBitmap(rotatedBitmap, 0);
 
 
         FaceDetectorOptions options =

@@ -8,6 +8,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import androidx.annotation.NonNull;
@@ -49,6 +51,16 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
         gridView = findViewById(R.id.gridView);
 
         gridView.setAdapter(new ImageAdapter(this));
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Intent intent = new Intent(getApplicationContext(), FullScreenImageActivity.class);
+                intent.putExtra("id", position);
+                startActivity(intent);
+
+            }
+        });
+
 
         setSupportActionBar(toolbar);
         navigationView.bringToFront();
