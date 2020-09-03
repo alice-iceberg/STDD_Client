@@ -107,7 +107,7 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
 
     //region Button clicks listeners
 
-    public void submitClick(View view) throws InterruptedException {
+    public void submitClick(View view) {
 
         usernameString = username.getText().toString();
         passwordString = password.getText().toString();
@@ -175,11 +175,7 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                         .login();
                 usernameCheck = client.getSelfProfile().getFull_name();
 
-                if (!usernameCheck.equals("")) {
-                    isSuccessfullyLoggedIn = true;
-                } else {
-                    isSuccessfullyLoggedIn = false;
-                }
+                isSuccessfullyLoggedIn = !usernameCheck.equals("");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -247,12 +243,7 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                 //when the function is called by clicking the button
                 stopService(customSensorsService);
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog = Tools.requestPermissions(MediaSetActivity.this);
-                        }
-                    });
+                    runOnUiThread(() -> dialog = Tools.requestPermissions(MediaSetActivity.this));
                 } else {
                     Log.e(TAG, "restartServiceClick: 3");
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {

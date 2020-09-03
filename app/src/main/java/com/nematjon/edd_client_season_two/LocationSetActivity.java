@@ -138,7 +138,7 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
         Tools.disable_touch(this);
 
         TITLE_HOME = getString(R.string.set_home_location);
-        TITLE_DORM = getString(R.string.set_dorm_location);
+        TITLE_DORM = getString(R.string.set_work_location);
         TITLE_UNIV = getString(R.string.set_university_location);
         TITLE_LIBRARY = getString(R.string.set_library_location);
         TITLE_ADDITIONAL = getString(R.string.set_additional_location);

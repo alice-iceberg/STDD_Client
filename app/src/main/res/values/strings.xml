@@ -39,7 +39,7 @@
     <string name="internet_off">Internet: Not connected :(</string>
     <string name="log_out">Log out</string>
     <string name="set_home_location">Home</string>
-    <string name="set_dorm_location">Dormitory</string>
+    <string name="set_work_location">Workplace</string>
     <string name="set_university_location">University</string>
     <string name="set_library_location">Library</string>
     <string name="set_additional_location">Other place</string>

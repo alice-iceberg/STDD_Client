@@ -100,7 +100,7 @@
                 android:layout_weight="1"
                 android:onClick="setDormClick"
                 android:padding="15dp"
-                android:text="@string/set_dorm_location"
+                android:text="@string/set_work_location"
                 android:textSize="@dimen/question_txt_size"
                 android:textStyle="bold" />
 
