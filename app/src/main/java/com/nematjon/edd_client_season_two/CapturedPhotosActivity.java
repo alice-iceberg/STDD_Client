@@ -79,12 +79,18 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_home:
+                finish();
+                navigationView.setCheckedItem(R.id.nav_home);
                 startActivity(new Intent(CapturedPhotosActivity.this, MainActivity.class));
                 break;
             case R.id.nav_location:
+                finish();
                 startActivity(new Intent(CapturedPhotosActivity.this, LocationSetActivity.class));
+                navigationView.setCheckedItem(R.id.nav_location);
                 break;
             case R.id.nav_sns:
+                finish();
+                navigationView.setCheckedItem(R.id.nav_sns);
                 SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
                 boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
 
@@ -95,7 +101,6 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
                 }
                 break;
             case R.id.nav_photos:
-                startActivity(new Intent(CapturedPhotosActivity.this, CapturedPhotosActivity.class));
                 break;
             case R.id.nav_restart:
                 customSensorsService = new Intent(this, MainService.class);
@@ -148,6 +153,7 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
+            navigationView.setCheckedItem(R.id.nav_home);
             super.onBackPressed();
         }
     }

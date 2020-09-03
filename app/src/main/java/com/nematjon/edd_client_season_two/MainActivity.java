@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvRewards;
     private TextView tvBonus;
     private TextView tvTotalReward;
+    private NavigationView navigationView;
     //endregion
 
     private Intent customSensorsService;
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void init() {
         //region Init UI variables
         drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         btnEMA = findViewById(R.id.btn_late_ema);
         tvServiceStatus = findViewById(R.id.tvStatus);
@@ -167,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
+        navigationView.setCheckedItem(R.id.nav_home);
 
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
             dialog = Tools.requestPermissions(MainActivity.this);
@@ -302,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            navigationView.setCheckedItem(R.id.nav_home);
         }
     }
 
@@ -309,11 +312,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_home:
+                navigationView.setCheckedItem(R.id.nav_home);
                 break;
             case R.id.nav_location:
                 startActivity(new Intent(MainActivity.this, LocationSetActivity.class));
+                navigationView.setCheckedItem(R.id.nav_location);
                 break;
             case R.id.nav_sns:
+                navigationView.setCheckedItem(R.id.nav_sns);
                 SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
                 boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
 
@@ -325,6 +331,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_photos:
                 startActivity(new Intent(MainActivity.this, CapturedPhotosActivity.class));
+                navigationView.setCheckedItem(R.id.nav_photos);
                 break;
             case R.id.nav_restart:
                 customSensorsService = new Intent(this, MainService.class);

@@ -384,6 +384,8 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            navigationView.setCheckedItem(R.id.nav_home);
+
         }
     }
 
@@ -391,12 +393,15 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_home:
+                finish();
                 startActivity(new Intent(LocationSetActivity.this, MainActivity.class));
+                navigationView.setCheckedItem(R.id.nav_home);
                 break;
             case R.id.nav_location:
-                startActivity(new Intent(LocationSetActivity.this, LocationSetActivity.class));
                 break;
             case R.id.nav_sns:
+                finish();
+                navigationView.setCheckedItem(R.id.nav_sns);
                 SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
                 boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
 
@@ -407,7 +412,9 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
                 }
                 break;
             case R.id.nav_photos:
+                finish();
                 startActivity(new Intent(LocationSetActivity.this, CapturedPhotosActivity.class));
+                navigationView.setCheckedItem(R.id.nav_photos);
                 break;
             case R.id.nav_restart:
                 customSensorsService = new Intent(this, MainService.class);
