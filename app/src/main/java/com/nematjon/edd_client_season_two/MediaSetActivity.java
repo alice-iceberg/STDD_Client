@@ -1,33 +1,46 @@
 package com.nematjon.edd_client_season_two;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.Menu;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.github.instagram4j.instagram4j.IGClient;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.nematjon.edd_client_season_two.services.MainService;
 
 import java.io.IOException;
 
-public class MediaSetActivity extends AppCompatActivity {
+public class MediaSetActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String TAG = MediaSetActivity.class.getSimpleName();
 
     EditText username;
     EditText password;
     TextInputLayout textInputLayout;
-    Button homeBtn;
-
+    DrawerLayout drawerLayout;
+    NavigationView navigationView;
+    Toolbar toolbar;
 
     String usernameString = null;
     String passwordString = null;
@@ -36,6 +49,9 @@ public class MediaSetActivity extends AppCompatActivity {
     boolean isSuccessfullyLoggedIn = false;
 
     SharedPreferences instagramPrefs;
+    SharedPreferences configPrefs;
+    static Intent customSensorsService;
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,9 +60,12 @@ public class MediaSetActivity extends AppCompatActivity {
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
-        homeBtn = findViewById(R.id.home_btn);
         textInputLayout = findViewById(R.id.etPasswordLayout);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        toolbar = findViewById(R.id.toolbar);
 
+        customSensorsService = new Intent(MediaSetActivity.this, MainService.class);
 
         //region password hint
         password.setHint(R.string.password);
@@ -72,7 +91,17 @@ public class MediaSetActivity extends AppCompatActivity {
         });
         //endregion
 
+        setSupportActionBar(toolbar);
+        navigationView.bringToFront();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.nav_sns);
+
         instagramPrefs = getApplicationContext().getSharedPreferences("InstagramPrefs", MODE_PRIVATE);
+        configPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
     }
 
 
@@ -102,9 +131,6 @@ public class MediaSetActivity extends AppCompatActivity {
         }
     }
 
-    public void homeBtnClick(View view) {
-        finish();
-    }
     //endregion
 
 
@@ -183,6 +209,93 @@ public class MediaSetActivity extends AppCompatActivity {
                 editor.putBoolean("is_logged_in", isSuccessfullyLoggedIn);
                 editor.apply();
             }
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_home:
+                finish();
+                navigationView.setCheckedItem(R.id.nav_home);
+                startActivity(new Intent(MediaSetActivity.this, MainActivity.class));
+                break;
+            case R.id.nav_location:
+                finish();
+                startActivity(new Intent(MediaSetActivity.this, LocationSetActivity.class));
+                navigationView.setCheckedItem(R.id.nav_location);
+                break;
+            case R.id.nav_sns:
+                navigationView.setCheckedItem(R.id.nav_sns);
+                SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
+                boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
+                if (isLoggedIn) {
+                    finish();
+                    startActivity(new Intent(MediaSetActivity.this, InstagramLoggedInActivity.class));
+                }
+                break;
+            case R.id.nav_photos:
+                finish();
+                startActivity(new Intent(MediaSetActivity.this, CapturedPhotosActivity.class));
+                navigationView.setCheckedItem(R.id.nav_photos);
+                break;
+            case R.id.nav_restart:
+                finish();
+                navigationView.setCheckedItem(R.id.nav_restart);
+                customSensorsService = new Intent(this, MainService.class);
+
+                //when the function is called by clicking the button
+                stopService(customSensorsService);
+                if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog = Tools.requestPermissions(MediaSetActivity.this);
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "restartServiceClick: 3");
+                    if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
+                        Log.e(TAG, "RESTART SERVICE");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startActivity(new Intent(MediaSetActivity.this, MainActivity.class));
+                            startForegroundService(customSensorsService);
+                        } else {
+                            startActivity(new Intent(MediaSetActivity.this, MainActivity.class));
+                            startService(customSensorsService);
+                        }
+                    }
+                }
+                break;
+
+            case R.id.nav_logout:
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+                alertDialog.setMessage(getString(R.string.log_out_confirmation));
+                alertDialog.setPositiveButton(
+                        getString(R.string.yes), (dialog, which) -> {
+                            Tools.perform_logout(getApplicationContext());
+                            stopService(CapturedPhotosActivity.customSensorsService);
+                            finish();
+                        });
+                alertDialog.setNegativeButton(
+                        getString(R.string.cancel), (dialog, which) -> dialog.cancel());
+                alertDialog.show();
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            navigationView.setCheckedItem(R.id.nav_home);
+            super.onBackPressed();
         }
     }
 

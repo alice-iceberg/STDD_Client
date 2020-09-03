@@ -8,8 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.GridView;
 
 import androidx.annotation.NonNull;
@@ -51,14 +49,11 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
         gridView = findViewById(R.id.gridView);
 
         gridView.setAdapter(new ImageAdapter(this));
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Intent intent = new Intent(getApplicationContext(), FullScreenImageActivity.class);
-                intent.putExtra("id", position);
-                startActivity(intent);
+        gridView.setOnItemClickListener((adapterView, view, position, l) -> {
+            Intent intent = new Intent(getApplicationContext(), FullScreenImageActivity.class);
+            intent.putExtra("id", position);
+            startActivity(intent);
 
-            }
         });
 
 
@@ -103,8 +98,9 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
             case R.id.nav_photos:
                 break;
             case R.id.nav_restart:
+                navigationView.setCheckedItem(R.id.nav_restart);
+                finish();
                 customSensorsService = new Intent(this, MainService.class);
-
                 //when the function is called by clicking the button
                 stopService(customSensorsService);
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
@@ -119,8 +115,10 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
                         Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startActivity(new Intent(CapturedPhotosActivity.this, MainActivity.class));
                             startForegroundService(customSensorsService);
                         } else {
+                            startActivity(new Intent(CapturedPhotosActivity.this, MainActivity.class));
                             startService(customSensorsService);
                         }
                     }

@@ -1,103 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login"
-    tools:context=".InstagramLoggedInActivity"
-    tools:ignore="ExtraText">
+    android:background="@color/white"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context=".InstagramLoggedInActivity">
 
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_left_loggedin"
+    <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="24dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_right_loggedin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintGuide_end="24dp" />
+        android:layout_height="match_parent"
+        android:id="@+id/nav_view"
+        app:headerLayout="@layout/header"
+        app:menu="@menu/main_menu"
+        android:layout_gravity = "start"
+        />
 
 
-    <Button
-        android:id="@+id/home_btn_loggedin"
-        android:onClick="homeBtnLoggedinClick"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
-        app:layout_constraintHorizontal_bias="0.0"
-        android:drawableLeft="@drawable/ic_baseline_home_24"
-        android:background="@null"
-        app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.02"
-        tools:ignore="OnClick" />
-
-    <ImageView
-        android:id="@+id/iconloggedin"
-        android:layout_width="255dp"
-        android:layout_height="133dp"
-        android:src="@drawable/instagram_logo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
-        app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.197" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_login"
+        tools:context=".InstagramLoggedInActivity"
+        tools:ignore="ExtraText">
 
 
-    <TextView
-        android:id="@+id/currently_loggedin"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
-        android:text="@string/instagram_loggedin_as"
-        android:textSize="20dp"
-        android:textAllCaps="false"
-        android:textStyle="bold"
-        android:textColor="@color/login_form_details"
-        app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
-        app:layout_constraintTop_toBottomOf="@+id/iconloggedin" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_left_loggedin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="24dp"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/instagram_username"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
-        android:text="@string/dummy"
-        android:textSize="50dp"
-        android:textColor="@color/black"
-        android:fontFamily="@font/billabong"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
-        app:layout_constraintTop_toBottomOf="@+id/currently_loggedin" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_right_loggedin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintGuide_end="24dp" />
 
-    <Button
-        android:id="@+id/instagram_logout_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_bg"
-        android:layout_marginTop="50dp"
-        app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
-        app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
-        app:layout_constraintTop_toBottomOf="@+id/instagram_username"
-        android:text="@string/log_out"
-        android:gravity="center"
-        android:onClick="instagramLogOutClick"
-        android:textColor="@color/login_form_details"
-        tools:ignore="OnClick" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            android:layout_height="?android:actionBarSize"
+            android:elevation="-4dp"
+            android:gravity="center_horizontal"
+            app:layout_constraintTop_toTopOf="parent"
+            android:titleTextColor="@color/black" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/iconloggedin"
+            android:layout_width="255dp"
+            android:layout_height="133dp"
+            android:src="@drawable/instagram_logo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
+            app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.197"
+            android:contentDescription="@string/instagram" />
+
+
+        <TextView
+            android:id="@+id/currently_loggedin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:text="@string/instagram_loggedin_as"
+            android:textAllCaps="false"
+            android:textColor="@color/login_form_details"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
+            app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
+            app:layout_constraintTop_toBottomOf="@+id/iconloggedin" />
+
+        <TextView
+            android:id="@+id/instagram_username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/billabong"
+            android:gravity="center"
+            android:text="@string/dummy"
+            android:textColor="@color/black"
+            android:textSize="50dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
+            app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
+            app:layout_constraintTop_toBottomOf="@+id/currently_loggedin" />
+
+        <Button
+            android:id="@+id/instagram_logout_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/btn_bg"
+            android:gravity="center"
+            android:onClick="instagramLogOutClick"
+            android:text="@string/log_out"
+            android:textColor="@color/login_form_details"
+            app:layout_constraintEnd_toEndOf="@id/guideline_right_loggedin"
+            app:layout_constraintStart_toStartOf="@id/guideline_left_loggedin"
+            app:layout_constraintTop_toBottomOf="@+id/instagram_username"
+            tools:ignore="OnClick" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -417,7 +417,9 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
                 navigationView.setCheckedItem(R.id.nav_photos);
                 break;
             case R.id.nav_restart:
+                navigationView.setCheckedItem(R.id.nav_restart);
                 customSensorsService = new Intent(this, MainService.class);
+                finish();
 
                 //when the function is called by clicking the button
                 stopService(customSensorsService);
@@ -433,8 +435,10 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
                         Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startActivity(new Intent(LocationSetActivity.this, MainActivity.class));
                             startForegroundService(customSensorsService);
                         } else {
+                            startActivity(new Intent(LocationSetActivity.this, MainActivity.class));
                             startService(customSensorsService);
                         }
                     }
