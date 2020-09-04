@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="grpc_host">165.246.21.202</string>
-    <string name="grpc_port">50051</string>
-    <string name="campaign_id">12</string>
-    <string name="app_name">YouNoOne</string>
-    <string name="dummy">Dummy</string>
-    <string name="version">version 1.0.0</string>
+    <string name="version">version 1.1.0</string>
     <string name="status">현재 상태:</string>
     <string name="authentication_txt">회원가입</string>
     <string name="authentication_btn">회원가입하기</string>
@@ -21,9 +16,7 @@
     <string name="ema_question_8">8. 너무 느리게 혹은 너무 많이 움직이거나 말을 함</string>
     <string name="ema_question_9">9. 죽고싶다고 생각하거나 어떤 식으로든 자신을 해칠 것이라고 생각함</string>
     <string name="submit">제출하기</string>
-    <string name="notif_channel_id">YouNoOne_notif_chanel</string>
     <string name="daily_notif_text">설문 시간입니다. 클릭하시어 설문에 응답해주세요 :)</string>
-    <string name="smartphone">smartphone</string>
     <string name="uploading">업로드 중…</string>
     <string name="noti_service_running">서비스 작동 중…</string>
     <string name="day_num">참여일수: %1$d일</string>
@@ -64,19 +57,12 @@
     <string name="yessss">좋아요</string>
     <string name="earned_rewards">보상과 보너스</string>
     <string name="you_earned">획득</string>
-    <string name="reward_image">reward image</string>
     <string name="congratulations">축하합니다!!!</string>
-    <string name="close_image">close image</string>
     <string name="earned_points">획득한 보상 %1$d ₩</string>
     <string name="total_reward_with_bonus">총 %1$d ₩</string>
     <string name="plus_earned_points">+%1$d ₩</string>
     <string name="currently_earned_points">현재 총 포인트</string>
     <string name="bonus_points">보너스 %1$d ₩</string>
-    <string name="error_cannot_write">Cannot write image captured by camera.</string>
-    <string name="error_cannot_open">Cannot open camera.</string>
-    <string name="error_cannot_get_permission">Camera permission not available.</string>
-    <string name="error_not_having_camera">Your device does not have front camera.</string>
-    <string name="error_camera_permission_denied">Camera permission denied.</string>
     <string name="btn_tittle_capture_image">Capture image</string>
     <string name="set_social_media">설정</string>
     <string name="submitSNS">제출하기</string>
@@ -91,7 +77,6 @@
     <string name="instagram_loggedin_as">귀하는 다음의 아이디로 현재 로그인되어있습니다: </string>
     <string name="response_saved">응답이 제출되었습니다</string>
     <string name="saved_images">사진</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="instagram">Instagram</string>
+    <string name="home_drawer_layout">홈</string>
+    <string name="general_drawer_layout">기본</string>
 </resources>

@@ -69,7 +69,7 @@ public class EMAActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-           dialog = Tools.requestPermissions(EMAActivity.this);
+            dialog = Tools.requestPermissions(EMAActivity.this);
         }
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         if (!loginPrefs.getBoolean("logged_in", false)) {
@@ -129,9 +129,26 @@ public class EMAActivity extends AppCompatActivity {
         assert dataSourceId != -1;
         DbMgr.saveMixedData(dataSourceId, timestamp, 1.0f, timestamp, emaOrder, answers);
 
+        SharedPreferences rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
+
         SharedPreferences.Editor editor = loginPrefs.edit();
         editor.putBoolean("ema_btn_make_visible", false);
         editor.apply();
+
+        SharedPreferences.Editor reward_editor = rewardPrefs.edit();
+        if (emaOrder == 1) {
+            reward_editor.putBoolean("ema1_answered", true);
+            reward_editor.apply();
+        } else if (emaOrder == 2) {
+            reward_editor.putBoolean("ema2_answered", true);
+            reward_editor.apply();
+        } else if (emaOrder == 3) {
+            reward_editor.putBoolean("ema3_answered", true);
+            reward_editor.apply();
+        } else if (emaOrder == 4) {
+            reward_editor.putBoolean("ema2_answered", true);
+            reward_editor.apply();
+        }
 
         final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
@@ -154,6 +171,7 @@ public class EMAActivity extends AppCompatActivity {
     }
 
     Dialog rewardDialog;
+
     private void showRewardPopup(int points) {
         rewardDialog.setContentView(R.layout.reward_pop_up);
         Button yesButton = rewardDialog.findViewById(R.id.button_accept);

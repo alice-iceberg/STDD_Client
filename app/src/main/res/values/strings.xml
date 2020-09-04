@@ -1,10 +1,10 @@
 <resources>
     <!-- REST API Server URLs -->
-    <string name="grpc_host">165.246.21.202</string>
-    <string name="grpc_port">50051</string>
-    <string name="campaign_id">12</string>
-    <string name="app_name">YouNoOne</string>
-    <string name="dummy">Dummy</string>
+    <string name="grpc_host" translatable="false">165.246.21.202</string>
+    <string name="grpc_port" translatable="false">50051</string>
+    <string name="campaign_id" translatable="false">12</string>
+    <string name="app_name" translatable="false">YouNoOne</string>
+    <string name="dummy" translatable="false">Dummy</string>
     <string name="version">version 1.1.0</string>
     <string name="status">Status for today:</string>
     <string name="authentication_txt">Authentication</string>
@@ -21,9 +21,9 @@
     <string name="ema_question_8">8. Moving or talking too slowly or too much</string>
     <string name="ema_question_9">9. Thoughts that you would be better off dead, or thoughts of hurting yourself in some way</string>
     <string name="submit">Submit</string>
-    <string name="notif_channel_id">YouNoOne_notif_chanel</string>
+    <string name="notif_channel_id" translatable="false">YouNoOne_notif_chanel</string>
     <string name="daily_notif_text">Hey there! Please, fill in the questionnaire :)</string>
-    <string name="smartphone">smartphone</string>
+    <string name="smartphone" translatable="false">smartphone</string>
     <string name="uploading">Uploading…</string>
     <string name="noti_service_running">Service is running…</string>
     <string name="day_num">Duration: %1$d day</string>
@@ -64,19 +64,19 @@
     <string name="yessss">YESSSS</string>
     <string name="earned_rewards">Reward and Bonus</string>
     <string name="you_earned">You\'ve earned</string>
-    <string name="reward_image">reward image</string>
+    <string name="reward_image" translatable="false">reward image</string>
     <string name="congratulations">Congratulations!!!</string>
-    <string name="close_image">close image</string>
+    <string name="close_image" translatable="false">close image</string>
     <string name="earned_points">Earned reward %1$d ₩</string>
     <string name="plus_earned_points">+%1$d ₩</string>
     <string name="total_reward_with_bonus">Total %1$d ₩</string>
     <string name="currently_earned_points">Currently earned points</string>
     <string name="bonus_points">Bonus %1$d ₩</string>
-    <string name="error_cannot_write">Cannot write image captured by camera.</string>
-    <string name="error_cannot_open">Cannot open camera.</string>
-    <string name="error_cannot_get_permission">Camera permission not available.</string>
-    <string name="error_not_having_camera">Your device does not have front camera.</string>
-    <string name="error_camera_permission_denied">Camera permission denied.</string>
+    <string name="error_cannot_write" translatable="false">Cannot write image captured by camera.</string>
+    <string name="error_cannot_open" translatable="false">Cannot open camera.</string>
+    <string name="error_cannot_get_permission" translatable="false">Camera permission not available.</string>
+    <string name="error_not_having_camera" translatable="false">Your device does not have front camera.</string>
+    <string name="error_camera_permission_denied" translatable="false">Camera permission denied.</string>
     <string name="btn_tittle_capture_image">Capture image</string>
     <string name="set_social_media">SNS</string>
     <string name="submitSNS">Submit</string>
@@ -91,7 +91,10 @@
     <string name="instagram_loggedin_as">You are currently logged in as: </string>
     <string name="response_saved">Response saved</string>
     <string name="saved_images">Photos</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="instagram">Instagram</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="instagram" translatable="false">Instagram</string>
+    <string name="default_notification_channel_id" translatable="false">ema_notif_channel_id</string>
+    <string name="home_drawer_layout">Home</string>
+    <string name="general_drawer_layout">General</string>
 </resources>
