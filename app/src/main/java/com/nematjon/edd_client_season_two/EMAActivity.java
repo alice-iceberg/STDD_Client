@@ -102,7 +102,8 @@ public class EMAActivity extends AppCompatActivity {
 
         btnSubmit = findViewById(R.id.btn_submit);
 
-        emaOrder = getIntent().getIntExtra("ema_order", -1);
+       // emaOrder = getIntent().getIntExtra("ema_order", -1);
+        emaOrder = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
 
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
