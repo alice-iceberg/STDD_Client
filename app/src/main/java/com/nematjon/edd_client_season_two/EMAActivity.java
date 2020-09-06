@@ -182,22 +182,14 @@ public class EMAActivity extends AppCompatActivity {
         Ion.with(imageView).load("android.resource://com.nematjon.edd_client_season_two/" + R.drawable.reward);
 
 
-        closePopUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rewardDialog.dismiss();
-            }
-        });
+        closePopUp.setOnClickListener(v -> rewardDialog.dismiss());
 
-        yesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //go to main activity
-                Intent intent = new Intent(EMAActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-                rewardDialog.dismiss();
-            }
+        yesButton.setOnClickListener(v -> {
+            //go to main activity
+            Intent intent = new Intent(EMAActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            rewardDialog.dismiss();
         });
 
         Objects.requireNonNull(rewardDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

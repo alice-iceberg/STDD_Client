@@ -263,38 +263,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvBonus.setText(getString(R.string.bonus_points, bonus));
         tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
 
-        (new Handler()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                tvServiceStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
-                tvServiceStatus.setText(getString(R.string.service_running));
+        (new Handler()).postDelayed(() -> {
+            tvServiceStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
+            tvServiceStatus.setText(getString(R.string.service_running));
 
-                // region get EMA ticks when offline
-                if (!Tools.isNetworkAvailable()) {
-                    boolean ema1_answered = rewardPrefs.getBoolean("ema1_answered", false);
-                    boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
-                    boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
-                    boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
-                    int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
+            //region get EMA ticks
 
-                    if (ema1_answered) {
-                        ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                    }
-                    if (ema2_answered) {
-                        ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                    }
-                    if (ema3_answered) {
-                        ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                    }
+                boolean ema1_answered = rewardPrefs.getBoolean("ema1_answered", false);
+                boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
+                boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+                boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
+                int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
 
-                    if (ema4_answered) {
-                        ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                    }
-                    tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+                if (ema1_answered) {
+                    ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                }
+                if (ema2_answered) {
+                    ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                }
+                if (ema3_answered) {
+                    ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
                 }
 
-                // endregion
-            }
+                if (ema4_answered) {
+                    ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+                }
+                tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+
+
+            //endregion
         }, 500);
     }
 
