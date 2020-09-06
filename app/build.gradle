@@ -73,12 +73,11 @@ dependencies {
     implementation 'io.grpc:grpc-protobuf-lite:1.18.0'
     implementation 'io.grpc:grpc-stub:1.18.0'
     implementation 'javax.annotation:javax.annotation-api:1.2'
-    implementation 'com.google.android.material:material:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation 'com.google.mlkit:face-detection:16.0.2'
     implementation files('libs/TarsosDSP-Android-2.0.jar')
     implementation 'com.github.bumptech.glide:glide:4.8.0'
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
-    implementation 'com.google.firebase:firebase-messaging:20.2.4'
 
     //libraries for Instagram
     implementation 'org.slf4j:slf4j-jdk14:1.7.30'

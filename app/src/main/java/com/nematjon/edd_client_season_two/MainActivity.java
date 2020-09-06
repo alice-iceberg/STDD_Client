@@ -162,8 +162,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         configPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
-        //
-        // setAlarams();
+
+        setAlarams();
     }
 
     @Override
@@ -340,12 +340,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //when the function is called by clicking the button
                 stopService(customSensorsService);
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog = Tools.requestPermissions(MainActivity.this);
-                        }
-                    });
+                    runOnUiThread(() -> dialog = Tools.requestPermissions(MainActivity.this));
                 } else {
                     Log.e(TAG, "restartServiceClick: 3");
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
@@ -616,65 +611,65 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-//    public void setAlarams() {
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-//
-//        Intent intent1 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
-//        intent1.putExtra("ema_order", 1);
-//        Intent intent2 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
-//        intent2.putExtra("ema_order", 2);
-//        Intent intent3 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
-//        intent3.putExtra("ema_order", 3);
-//        Intent intent4 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
-//        intent4.putExtra("ema_order", 4);
-//
-//        PendingIntent pendingIntent1 = PendingIntent.getBroadcast(MainActivity.this, 1, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
-//        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(MainActivity.this, 2, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
-//        PendingIntent pendingIntent3 = PendingIntent.getBroadcast(MainActivity.this, 3, intent3, PendingIntent.FLAG_UPDATE_CURRENT);
-//        PendingIntent pendingIntent4 = PendingIntent.getBroadcast(MainActivity.this, 4, intent4, PendingIntent.FLAG_UPDATE_CURRENT);
-//        if (alarmManager == null)
-//            return;
-//
-//        Calendar currentCal = Calendar.getInstance();
-//        long currentTime = currentCal.getTimeInMillis();
-//
-//        Calendar firingCal1 = Calendar.getInstance();
-//        firingCal1.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[0]); // at 10am
-//        firingCal1.set(Calendar.MINUTE, 0); // Particular minute
-//        firingCal1.set(Calendar.SECOND, 0); // particular second
-//        firingCal1.set(Calendar.MILLISECOND, 0); // particular second
-//
-//        Calendar firingCal2 = Calendar.getInstance();
-//        firingCal2.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[1]); // at 2pm
-//        firingCal2.set(Calendar.MINUTE, 0); // Particular minute
-//        firingCal2.set(Calendar.SECOND, 0); // particular second
-//        firingCal2.set(Calendar.MILLISECOND, 0); // particular second
-//
-//        Calendar firingCal3 = Calendar.getInstance();
-//        firingCal3.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[2]); // at 6pm
-//        firingCal3.set(Calendar.MINUTE, 0); // Particular minute
-//        firingCal3.set(Calendar.SECOND, 0); // particular second
-//        firingCal3.set(Calendar.MILLISECOND, 0); // particular second
-//
-//        Calendar firingCal4 = Calendar.getInstance();
-//        firingCal4.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[3]); // at 10pm
-//        firingCal4.set(Calendar.MINUTE, 0); // Particular minute
-//        firingCal4.set(Calendar.SECOND, 0); // particular second
-//        firingCal4.set(Calendar.MILLISECOND, 0); // particular second
-//
-//        if (firingCal1.getTimeInMillis() > currentTime)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
-//        else if (firingCal2.getTimeInMillis() > currentTime)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
-//        else if (firingCal3.getTimeInMillis() > currentTime)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
-//        else if (firingCal4.getTimeInMillis() > currentTime)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
-//        else if (currentTime > firingCal4.getTimeInMillis()) {
-//            firingCal1.add(Calendar.DAY_OF_MONTH, 1);
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
-//        }
-//    }
+    public void setAlarams() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        Intent intent1 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
+        intent1.putExtra("ema_order", 1);
+        Intent intent2 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
+        intent2.putExtra("ema_order", 2);
+        Intent intent3 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
+        intent3.putExtra("ema_order", 3);
+        Intent intent4 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
+        intent4.putExtra("ema_order", 4);
+
+        PendingIntent pendingIntent1 = PendingIntent.getBroadcast(MainActivity.this, 1, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(MainActivity.this, 2, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent3 = PendingIntent.getBroadcast(MainActivity.this, 3, intent3, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent4 = PendingIntent.getBroadcast(MainActivity.this, 4, intent4, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (alarmManager == null)
+            return;
+
+        Calendar currentCal = Calendar.getInstance();
+        long currentTime = currentCal.getTimeInMillis();
+
+        Calendar firingCal1 = Calendar.getInstance();
+        firingCal1.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[0]); // at 10am
+        firingCal1.set(Calendar.MINUTE, 0); // Particular minute
+        firingCal1.set(Calendar.SECOND, 0); // particular second
+        firingCal1.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCal2 = Calendar.getInstance();
+        firingCal2.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[1]); // at 2pm
+        firingCal2.set(Calendar.MINUTE, 0); // Particular minute
+        firingCal2.set(Calendar.SECOND, 0); // particular second
+        firingCal2.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCal3 = Calendar.getInstance();
+        firingCal3.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[2]); // at 6pm
+        firingCal3.set(Calendar.MINUTE, 0); // Particular minute
+        firingCal3.set(Calendar.SECOND, 0); // particular second
+        firingCal3.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCal4 = Calendar.getInstance();
+        firingCal4.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[3]); // at 10pm
+        firingCal4.set(Calendar.MINUTE, 0); // Particular minute
+        firingCal4.set(Calendar.SECOND, 0); // particular second
+        firingCal4.set(Calendar.MILLISECOND, 0); // particular second
+
+        if (firingCal1.getTimeInMillis() > currentTime)
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
+        else if (firingCal2.getTimeInMillis() > currentTime)
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
+        else if (firingCal3.getTimeInMillis() > currentTime)
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
+        else if (firingCal4.getTimeInMillis() > currentTime)
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
+        else if (currentTime > firingCal4.getTimeInMillis()) {
+            firingCal1.add(Calendar.DAY_OF_MONTH, 1);
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
+        }
+    }
 
     private void loadCampaign() {
         new Thread(() -> {
