@@ -44,6 +44,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         SharedPreferences networkPrefs = context.getSharedPreferences("NetworkVariables", MODE_PRIVATE);
         SharedPreferences configPrefs = context.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         SharedPreferences loginPrefs = context.getSharedPreferences("UserLogin", MODE_PRIVATE);
+        SharedPreferences rewardPrefs = context.getSharedPreferences("Rewards", MODE_PRIVATE);
         ContentResolver CR = context.getContentResolver();
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
@@ -56,8 +57,19 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         PendingResult pendingResult = goAsync();
         Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
         task.execute();
-        sendNotification(context, intent.getIntExtra("ema_order", -1));
-        setAlarams(context, intent.getIntExtra("ema_order", -1));
+
+        if(intent.getIntExtra("ema_order", -1) != 10) {
+            sendNotification(context, intent.getIntExtra("ema_order", -1));
+            setAlarams(context, intent.getIntExtra("ema_order", -1));
+        } else if(intent.getIntExtra("ema_order", -1) == 10){
+            SharedPreferences.Editor ema_editor = rewardPrefs.edit();
+            ema_editor.putBoolean("ema1_answered", false);
+            ema_editor.putBoolean("ema2_answered", false);
+            ema_editor.putBoolean("ema3_answered", false);
+            ema_editor.putBoolean("ema4_answered", false);
+            ema_editor.putInt("ema_answered_count", 0);
+            ema_editor.apply();
+        }
     }
 
     private static class Task extends AsyncTask<String, Integer, String> {

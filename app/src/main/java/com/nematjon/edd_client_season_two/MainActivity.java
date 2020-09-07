@@ -38,6 +38,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -269,31 +270,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             //region get EMA ticks
 
-                boolean ema1_answered = rewardPrefs.getBoolean("ema1_answered", false);
-                boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
-                boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
-                boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
-                int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
+            boolean ema1_answered = rewardPrefs.getBoolean("ema1_answered", false);
+            boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
+            boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+            boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
+            int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
 
-                if (ema1_answered) {
-                    ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                }
-                if (ema2_answered) {
-                    ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                }
-                if (ema3_answered) {
-                    ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                }
+            if (ema1_answered) {
+                ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+            }
+            if (ema2_answered) {
+                ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+            }
+            if (ema3_answered) {
+                ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+            }
 
-                if (ema4_answered) {
-                    ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                }
-                tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+            if (ema4_answered) {
+                ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+            }
 
+            if (!ema1_answered) {
+                ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+            }
+            if (!ema2_answered) {
+                ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+            }
+            if (!ema3_answered) {
+                ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+            }
 
+            if (!ema4_answered) {
+                ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+            }
 
-
+            tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
             //endregion
+
+
         }, 500);
     }
 
@@ -442,10 +456,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 final EtService.RetrieveFilteredDataRecords.Response responseMessage = stub.retrieveFilteredDataRecords(retrieveFilteredEMARecordsRequest);
                 if (responseMessage.getSuccess()) {
                     runOnUiThread(() -> {
-                        ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
-                        ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
-                        ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
-                        ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+//                        ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+//                        ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+//                        ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
+//                        ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
                         if (responseMessage.getValueList() != null) {
                             Calendar fromCal = Calendar.getInstance();
                             fromCal.set(Calendar.HOUR_OF_DAY, 0);
@@ -467,59 +481,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             int bonus = calculateBonusPoints(uniqueValues);
 
                             // saving results to Shared Preferences
-                            SharedPreferences.Editor editor = rewardPrefs.edit();
-                            editor.putInt("rewardPoints", rewardPoints);
-                            editor.putInt("bonus", bonus);
-                            editor.putBoolean("ema1_answered", false);
-                            editor.putBoolean("ema2_answered", false);
-                            editor.putBoolean("ema3_answered", false);
-                            editor.putBoolean("ema4_answered", false);
-                            editor.apply();
+                              SharedPreferences.Editor editor = rewardPrefs.edit();
+                              editor.putInt("rewardPoints", rewardPoints);
+                              editor.putInt("bonus", bonus);
+//                            editor.putBoolean("ema1_answered", false);
+//                            editor.putBoolean("ema2_answered", false);
+//                            editor.putBoolean("ema3_answered", false);
+//                            editor.putBoolean("ema4_answered", false);
+                              editor.apply();
 
                             int ema_answered_count = 0;
 
-                            for (String val : uniqueValues) {
-                                if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal1.getTimeInMillis())) {
-                                    ema_answered_count++;
-                                    switch (Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1])) {
-                                        case 1:
-                                            ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                                            editor.putBoolean("ema1_answered", true);
-                                            editor.apply();
-                                            break;
-                                        case 2:
-                                            ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                                            editor.putBoolean("ema2_answered", true);
-                                            editor.apply();
-                                            break;
-                                        case 3:
-                                            ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                                            editor.putBoolean("ema3_answered", true);
-                                            editor.apply();
-                                            break;
-                                        case 4:
-                                            ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
-                                            editor.putBoolean("ema4_answered", true);
-                                            editor.apply();
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
+//                            for (String val : uniqueValues) {
+//                                if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal1.getTimeInMillis())) {
+//                                    ema_answered_count++;
+//                                    switch (Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1])) {
+//                                        case 1:
+//                                            ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+//                                            editor.putBoolean("ema1_answered", true);
+//                                            editor.apply();
+//                                            break;
+//                                        case 2:
+//                                            ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+//                                            editor.putBoolean("ema2_answered", true);
+//                                            editor.apply();
+//                                            break;
+//                                        case 3:
+//                                            ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+//                                            editor.putBoolean("ema3_answered", true);
+//                                            editor.apply();
+//                                            break;
+//                                        case 4:
+//                                            ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
+//                                            editor.putBoolean("ema4_answered", true);
+//                                            editor.apply();
+//                                            break;
+//                                        default:
+//                                            break;
+//                                    }
+//                                }
+//                            }
 
-                            editor.putInt("ema_answered_count", ema_answered_count);
-                            editor.apply();
-                            tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_count));
+//                            editor.putInt("ema_answered_count", ema_answered_count);
+//                            editor.apply();
+//                            tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_count));
 
-                            if (ema_answered_count == 0) {
-                                editor.putBoolean("ema1_answered", false);
-                                editor.putBoolean("ema2_answered", false);
-                                editor.putBoolean("ema3_answered", false);
-                                editor.putBoolean("ema4_answered", false);
-                                editor.apply();
-                            }
-                        }
+//                            if (ema_answered_count == 0) {
+//                                editor.putBoolean("ema1_answered", false);
+//                                editor.putBoolean("ema2_answered", false);
+//                                editor.putBoolean("ema3_answered", false);
+//                                editor.putBoolean("ema4_answered", false);
+//                                editor.apply();
+//                            }
+                       }
                     });
                 }
             } catch (StatusRuntimeException e) {
@@ -622,10 +636,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent4 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
         intent4.putExtra("ema_order", 4);
 
+        Intent intent_reset = new Intent(MainActivity.this, EMAAlarmRcvr.class);
+        intent_reset.putExtra("ema_order", 10); //10 is just arbitrary number, to differentiate between other intents
+
         PendingIntent pendingIntent1 = PendingIntent.getBroadcast(MainActivity.this, 1, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent pendingIntent2 = PendingIntent.getBroadcast(MainActivity.this, 2, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent pendingIntent3 = PendingIntent.getBroadcast(MainActivity.this, 3, intent3, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent pendingIntent4 = PendingIntent.getBroadcast(MainActivity.this, 4, intent4, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent10 = PendingIntent.getBroadcast(MainActivity.this, 10, intent_reset, PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (alarmManager == null)
             return;
 
@@ -655,6 +674,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         firingCal4.set(Calendar.MINUTE, 0); // Particular minute
         firingCal4.set(Calendar.SECOND, 0); // particular second
         firingCal4.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCal10 = Calendar.getInstance();
+        firingCal10.set(Calendar.HOUR_OF_DAY, 23); // at 11:59pm
+        firingCal10.set(Calendar.MINUTE, 59); // Particular minute
+        firingCal10.set(Calendar.SECOND, 0); // particular second
+        firingCal10.set(Calendar.MILLISECOND, 0); // particular second
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal10.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent10); //repeat every day
 
         if (firingCal1.getTimeInMillis() > currentTime)
             alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
