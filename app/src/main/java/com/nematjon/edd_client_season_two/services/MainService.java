@@ -103,6 +103,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int HOURS24 = 24 * 60 * 60; //in sec
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
+    private static final float Y_GRAVITY_MIN = 7.6f;
     public static final String LOCATIONS_TXT = "locations.txt";
     //endregion
 
@@ -117,7 +118,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private SignificantMotionDetector SMListener;
     boolean stopPressureSense = true;
     boolean canPressureSense = false;
-    boolean stopGravitySense = true;
     boolean canGravitySense = false;
 
 
@@ -155,7 +155,10 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private PendingIntent activityTransPendingIntent;
 
     private boolean isCameraAvailable = false;
-    private static float y_value_gravity = 0f;
+    public static float x_value_gravity = 0f;
+    public static float y_value_gravity = 0f;
+    public static float z_value_gravity = 0f;
+
     String x_value_type = "X";
     String y_value_type = "Y";
     String z_value_type = "Z";
@@ -351,7 +354,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             if (phoneUnlocked) {
                 // check position of the phone
                 Log.e("CAMERA", "run: PHONE IS UNLOCKED");
-                if (y_value_gravity > 6.7f || y_value_gravity == 0f) { // 0 when the device does not have a gravity sensor
+                if (y_value_gravity > Y_GRAVITY_MIN || y_value_gravity == 0f) { // 0 when the device does not have a gravity sensor
                     Log.e("CAMERA", "run: VERTICAL POSITION");
                     //check whether camera is in use
                     boolean cameraAvailable = phoneUsageVariablesPrefs.getBoolean("isCameraAvailable", false);
@@ -653,12 +656,15 @@ public class MainService extends Service implements SensorEventListener, Locatio
             long nowTime = System.currentTimeMillis();
                 canGravitySense = (nowTime > prevGravityStopTime + GRAVITY_SENSOR_PERIOD * 1000);
                 if(canGravitySense){
+                    x_value_gravity = event.values[0];
                     y_value_gravity = event.values[1];
+                    z_value_gravity = event.values[2];
+
                     SharedPreferences.Editor editor = phoneUsageVariablesPrefs.edit();
                     editor.putFloat("y_value_gravity", y_value_gravity);
                     editor.apply();
-                    float x_value_gravity = event.values[0];
-                    float z_value_gravity = event.values[2];
+
+
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, x_value_gravity, x_value_type);
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, y_value_gravity, y_value_type);
                     DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, z_value_gravity, z_value_type);

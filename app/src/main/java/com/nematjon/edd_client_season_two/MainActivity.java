@@ -291,6 +291,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
 
 
+
+
             //endregion
         }, 500);
     }

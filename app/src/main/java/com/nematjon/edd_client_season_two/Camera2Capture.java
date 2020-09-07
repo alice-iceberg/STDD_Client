@@ -42,6 +42,7 @@ import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceContour;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
+import com.nematjon.edd_client_season_two.services.MainService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -351,11 +352,16 @@ public class Camera2Capture {
         String smile_type = "SMILE";
         String photo_byteArray_type = "PHOTO";
 
+        //gravity sensor values
+        float x_value = MainService.x_value_gravity;
+        float y_value = MainService.y_value_gravity;
+        float z_value = MainService.z_value_gravity;
+
         Log.e("TAG", "submitPhotoData: String length before" + photo.length());
 
         assert capturedPhotoDataSrcId != -1;
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
-        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type);
+        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, x_value, y_value, z_value, photo_byteArray_type);
 
 
         Log.e("TAG", "submitPhotoData: photo string submitted");
