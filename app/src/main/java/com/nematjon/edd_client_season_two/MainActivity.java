@@ -276,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
             int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
 
+
             if (ema1_answered) {
                 ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.checked_box, 0, 0);
             }
@@ -305,6 +306,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+            tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
             //endregion
 
 
