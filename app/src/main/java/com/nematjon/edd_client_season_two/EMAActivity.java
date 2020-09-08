@@ -135,7 +135,7 @@ public class EMAActivity extends AppCompatActivity {
         editor.putBoolean("ema_btn_make_visible", false);
         editor.apply();
 
-        int ema_answered_counter = 0;
+        int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
         SharedPreferences.Editor reward_editor = rewardPrefs.edit();
         if (emaOrder == 1) {
             reward_editor.putBoolean("ema1_answered", true);
