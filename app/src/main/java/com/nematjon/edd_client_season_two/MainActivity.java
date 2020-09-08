@@ -31,6 +31,8 @@ import android.widget.Toast;
 
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.common.io.ByteStreams;
+import com.google.protobuf.ByteString;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 import com.nematjon.edd_client_season_two.services.MainService;
 
@@ -38,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -50,6 +53,7 @@ import inha.nsl.easytrack.EtService;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import kotlin.text.Charsets;
 
 import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 
@@ -475,9 +479,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                             //check for duplicates and get only unique ones
                             List<String> uniqueValues = new ArrayList<>();
-                            for (String item : responseMessage.getValueList())
-                                if (!uniqueValues.contains(item))
-                                    uniqueValues.add(item);
+                            for (ByteString item : responseMessage.getValueList()){
+                                String strItem = item.toString(Charsets.UTF_8);
+                                if (!uniqueValues.contains(strItem))
+                                    uniqueValues.add(strItem);
+                            }
 
                             int rewardPoints = uniqueValues.size() * 250;
                             int bonus = calculateBonusPoints(uniqueValues);
