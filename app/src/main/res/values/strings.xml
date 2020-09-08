@@ -1,11 +1,11 @@
 <resources>
     <!-- REST API Server URLs -->
-    <string name="grpc_host" translatable="false">165.246.21.202</string>
+    <string name="grpc_host" translatable="false">165.246.42.173</string>
     <string name="grpc_port" translatable="false">50051</string>
-    <string name="campaign_id" translatable="false">12</string>
+    <string name="campaign_id" translatable="false">1</string>
     <string name="app_name" translatable="false">YouNoOne</string>
     <string name="dummy" translatable="false">Dummy</string>
-    <string name="version">version 1.1.0</string>
+    <string name="version">version 1.1.1</string>
     <string name="status">Status for today:</string>
     <string name="authentication_txt">Authentication</string>
     <string name="authentication_btn">Authenticate</string>

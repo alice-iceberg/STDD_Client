@@ -50,6 +50,7 @@ import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityTransition;
 import com.google.android.gms.location.ActivityTransitionRequest;
 import com.google.android.gms.location.DetectedActivity;
+import com.google.protobuf.ByteString;
 import com.nematjon.edd_client_season_two.AuthActivity;
 import com.nematjon.edd_client_season_two.Camera2Capture;
 import com.nematjon.edd_client_season_two.DbMgr;
@@ -63,6 +64,8 @@ import com.nematjon.edd_client_season_two.receivers.SignificantMotionDetector;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -299,7 +302,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                             .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
                                             .setDataSource(cursor.getInt(cursor.getColumnIndex("dataSourceId")))
                                             .setTimestamp(cursor.getLong(cursor.getColumnIndex("timestamp")))
-                                            .setValues(cursor.getString(cursor.getColumnIndex("data")))
+                                            .setValue(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8))
                                             .build();
 
                                     EtService.SubmitDataRecord.Response responseMessage = stub.submitDataRecord(submitDataRecordRequest);

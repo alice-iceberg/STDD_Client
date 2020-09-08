@@ -20,6 +20,7 @@ message LoginDashboard {
   }
   message Response{
     bool success = 1;
+    int32 userId = 2;
   }
 }
 message BindUserToCampaign {
@@ -169,7 +170,7 @@ message SubmitDataRecord {
     int64 timestamp = 4;
     int32 dataSource = 5;
     float accuracy = 6;
-    string values = 7;
+    bytes value = 7;
   }
   message Response{
     bool success = 1;
@@ -183,27 +184,28 @@ message SubmitDataRecords {
     repeated int64 timestamp = 4;
     repeated int32 dataSource = 5;
     repeated float accuracy = 6;
-    repeated string values = 7;
+    repeated bytes value = 7;
   }
   message Response{
     bool success = 1;
   }
 }
-message Retrieve100DataRecords {
+message RetrieveKNextDataRecords {
   message Request{
     int32 userId = 1;
     string email = 2;
     string targetEmail = 3;
     int32 targetCampaignId = 4;
     int32 targetDataSourceId = 5;
-    int64 fromTimestamp = 6;
+    int32 k = 6;
+    int32 fromRecordId = 7;
   }
   message Response{
     bool success = 1;
-    repeated int64 timestamp = 2;
-    repeated int32 dataSource = 3;
-    repeated string value = 4;
-    bool moreDataAvailable = 5;
+    repeated int32 id = 2;
+    repeated int64 timestamp = 3;
+    repeated int32 dataSource = 4;
+    repeated bytes value = 5;
   }
 }
 message RetrieveFilteredDataRecords{
@@ -299,7 +301,7 @@ service ETService {
   // data management module
   rpc submitDataRecord (SubmitDataRecord.Request) returns (SubmitDataRecord.Response) {}
   rpc submitDataRecords (SubmitDataRecords.Request) returns (SubmitDataRecords.Response) {}
-  rpc retrieve100DataRecords (Retrieve100DataRecords.Request) returns (Retrieve100DataRecords.Response) {}
+  rpc retrieveKNextDataRecords (RetrieveKNextDataRecords.Request) returns (RetrieveKNextDataRecords.Response) {}
   rpc retrieveFilteredDataRecords (RetrieveFilteredDataRecords.Request) returns (RetrieveFilteredDataRecords.Response) {}
 
   // statistics module
