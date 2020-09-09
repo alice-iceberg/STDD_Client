@@ -345,6 +345,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             }
             Tools.sendHeartbeat(MainService.this);
             heartBeatHandler.postDelayed(heartBeatSendRunnable, HEARTBEAT_PERIOD * 1000);
+            Log.e(TAG, "run: Heartbeat is sent");
         }
     };
 
