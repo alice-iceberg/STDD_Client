@@ -225,6 +225,18 @@ message RetrieveFilteredDataRecords{
     repeated bytes value = 4;
   }
 }
+message DownloadDumpfile{
+  message Request{
+    int32 userId = 1;
+    string email = 2;
+    int32 campaignId = 3;
+    string targetEmail = 4;
+  }
+  message Response{
+    bool success = 1;
+    bytes dump = 2;
+  }
+}
 
 // statistics module
 message SubmitHeartbeat {
@@ -280,20 +292,6 @@ message RetrieveUnreadNotifications {
 }
 
 
-// data extraction module
-message DownloadDumpfile{
-  message Request{
-    int32 userId = 1;
-    string email = 2;
-    int32 campaignId = 3;
-    int32 targetUserId = 4;
-  }
-  message Response{
-    bool success = 1;
-    bytes dump = 2;
-  }
-}
-
 service ETService {
   // user management module
   rpc loginWithGoogle (LoginWithGoogle.Request) returns (LoginWithGoogle.Response) {}
@@ -317,6 +315,7 @@ service ETService {
   rpc submitDataRecords (SubmitDataRecords.Request) returns (SubmitDataRecords.Response) {}
   rpc retrieveKNextDataRecords (RetrieveKNextDataRecords.Request) returns (RetrieveKNextDataRecords.Response) {}
   rpc retrieveFilteredDataRecords (RetrieveFilteredDataRecords.Request) returns (RetrieveFilteredDataRecords.Response) {}
+  rpc downloadDumpfile (DownloadDumpfile.Request) returns (DownloadDumpfile.Response){}
 
   // statistics module
   rpc submitHeartbeat (SubmitHeartbeat.Request) returns (SubmitHeartbeat.Response) {}
@@ -325,9 +324,6 @@ service ETService {
   rpc submitDirectMessage (SubmitDirectMessage.Request) returns (SubmitDirectMessage.Response) {}
   rpc retrieveUnreadDirectMessages (RetrieveUnreadDirectMessages.Request) returns (RetrieveUnreadDirectMessages.Response) {}
   rpc retrieveUnreadNotifications (RetrieveUnreadNotifications.Request) returns (RetrieveUnreadNotifications.Response) {}
-
-  // data extraction module
-  rpc downloadDumpfile (DownloadDumpfile.Request) returns (DownloadDumpfile.Response){}
 }
 
 
