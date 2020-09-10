@@ -183,7 +183,7 @@ public class EMAActivity extends AppCompatActivity {
 
     Dialog rewardDialog;
 
-    private void showRewardPopup(int points) {
+    public void showRewardPopup(int points) {
         rewardDialog.setContentView(R.layout.reward_pop_up);
         Button yesButton = rewardDialog.findViewById(R.id.button_accept);
         ImageView closePopUp = rewardDialog.findViewById(R.id.close);
