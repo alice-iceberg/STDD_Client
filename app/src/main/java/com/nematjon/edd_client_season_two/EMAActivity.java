@@ -172,12 +172,13 @@ public class EMAActivity extends AppCompatActivity {
     }
 
     private void sendRewardsData(int points) {
+        String reward_type = "REWARD";
         long nowTime = System.currentTimeMillis();
         SharedPreferences prefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = prefs.getInt("REWARD_POINTS", -1);
         assert dataSourceId != -1;
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HH:mm:ss", Locale.KOREA).format(Calendar.getInstance().getTime());
-        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, timeStamp, points);
+        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, timeStamp, points, reward_type);
     }
 
     Dialog rewardDialog;

@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
 import com.google.common.io.ByteStreams;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Internal;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 import com.nematjon.edd_client_season_two.services.MainService;
 
@@ -462,6 +463,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 final EtService.RetrieveFilteredDataRecords.Response responseMessage = stub.retrieveFilteredDataRecords(retrieveFilteredEMARecordsRequest);
                 if (responseMessage.getSuccess()) {
                     runOnUiThread(() -> {
+                        Log.e(TAG, "setEMAAndRewardsStats: REsponse message" + responseMessage);
 //                        ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
 //                        ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
 //                        ema_tv_3.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
@@ -480,12 +482,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             //check for duplicates and get only unique ones
                             List<String> uniqueValues = new ArrayList<>();
                             for (ByteString item : responseMessage.getValueList()){
+                                Log.e(TAG, "setEMAAndRewardsStats: " + item );
                                 String strItem = item.toString(Charsets.UTF_8);
                                 if (!uniqueValues.contains(strItem))
                                     uniqueValues.add(strItem);
                             }
 
                             int rewardPoints = uniqueValues.size() * 250;
+                            Log.e(TAG, "setEMAAndRewardsStats: UNIQUE values size" + rewardPoints);
                             int bonus = calculateBonusPoints(uniqueValues);
 
                             // saving results to Shared Preferences
@@ -498,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                            editor.putBoolean("ema4_answered", false);
                               editor.apply();
 
-                            int ema_answered_count = 0;
+//                            int ema_answered_count = 0;
 
 //                            for (String val : uniqueValues) {
 //                                if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal1.getTimeInMillis())) {
@@ -598,6 +602,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             prev_day = day;
         }
+
+        //region Submit bonus points to easytrack
+        String bonus_type = "BONUS";
+        long timestamp = System.currentTimeMillis();
+        int rewardDataSourceId= configPrefs.getInt("REWARD_POINTS", -1);
+        assert rewardDataSourceId != -1;
+        DbMgr.saveMixedData(rewardDataSourceId, timestamp, 1.0f, timestamp, total_bonus, bonus_type);
+        //endregion
+
         return total_bonus;
     }
 
@@ -796,4 +809,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             dialog = null;
         }
     }
+
 }

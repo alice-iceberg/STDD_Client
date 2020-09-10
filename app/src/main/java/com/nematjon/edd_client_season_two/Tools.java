@@ -248,16 +248,13 @@ public class Tools {
 
     public static boolean isNetworkAvailable() {
         try {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        InetAddress address = InetAddress.getByName("www.google.com");
-                        isReachable = !address.toString().equals("");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        isReachable = false;
-                    }
+            Thread thread = new Thread(() -> {
+                try {
+                    InetAddress address = InetAddress.getByName("www.google.com");
+                    isReachable = !address.toString().equals("");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    isReachable = false;
                 }
             });
             thread.start();

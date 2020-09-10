@@ -93,7 +93,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final short HEARTBEAT_PERIOD = 30;  // in sec
     public static final short DATA_SUBMIT_PERIOD = 60;  // in sec
     private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  // in sec
-    private static final short LIGHT_SENSOR_PERIOD = 30;  // in sec
+    private static final short LIGHT_SENSOR_PERIOD = 5 * 60;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
     private static final short GRAVITY_SENSOR_PERIOD = 3; // in sec
     private static final short PRESSURE_SENSOR_DURATION = 2; // in sec
