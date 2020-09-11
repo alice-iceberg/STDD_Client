@@ -46,7 +46,7 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
     //region Constants
     private static final String TAG = LocationSetActivity.class.getSimpleName();
     public static final String ID_HOME = "HOME";
-    public static final String ID_DORM = "DORM";
+    public static final String ID_WORK = "WORK";
     public static final String ID_UNIV = "UNIV";
     public static final String ID_LIBRARY = "LIBRARY";
     public static final String ID_ADDITIONAL = "ADDITIONAL";
@@ -55,7 +55,7 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
 
 
     private String TITLE_HOME;
-    private String TITLE_DORM;
+    private String TITLE_WORK;
     private String TITLE_UNIV;
     private String TITLE_LIBRARY;
     private String TITLE_ADDITIONAL;
@@ -63,7 +63,7 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
     static final StoreLocation[] ALL_LOCATIONS = new StoreLocation[]
             {
                     new StoreLocation(ID_HOME, null),
-                    new StoreLocation(ID_DORM, null),
+                    new StoreLocation(ID_WORK, null),
                     new StoreLocation(ID_UNIV, null),
                     new StoreLocation(ID_LIBRARY, null),
                     new StoreLocation(ID_ADDITIONAL, null)
@@ -138,7 +138,7 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
         Tools.disable_touch(this);
 
         TITLE_HOME = getString(R.string.set_home_location);
-        TITLE_DORM = getString(R.string.set_work_location);
+        TITLE_WORK = getString(R.string.set_work_location);
         TITLE_UNIV = getString(R.string.set_university_location);
         TITLE_LIBRARY = getString(R.string.set_library_location);
         TITLE_ADDITIONAL = getString(R.string.set_additional_location);
@@ -234,9 +234,9 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
                 iconDrawable = ContextCompat.getDrawable(this, R.drawable.home);
                 location_title = TITLE_HOME;
                 break;
-            case ID_DORM:
-                iconDrawable = ContextCompat.getDrawable(this, R.drawable.dormitory);
-                location_title = TITLE_DORM;
+            case ID_WORK:
+                iconDrawable = ContextCompat.getDrawable(this, R.drawable.workplace);
+                location_title = TITLE_WORK;
                 break;
             case ID_UNIV:
                 iconDrawable = ContextCompat.getDrawable(this, R.drawable.university);
@@ -280,7 +280,7 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
         editor.putFloat(location.getmId() + "_LAT", (float) location.getmLatLng().latitude);
         editor.putFloat(location.getmId() + "_LNG", (float) location.getmLatLng().longitude);
         editor.apply();
-        Toast.makeText(getApplicationContext(), locationText + getString(R.string.location_set), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), locationText + " " + getString(R.string.location_set), Toast.LENGTH_SHORT).show();
 
 
         SharedPreferences confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
@@ -295,8 +295,8 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
     private void removeLocation(String markerTitle) {
         if (markerTitle.equals(TITLE_HOME))
             displayRemoveDialog(ID_HOME);
-        else if (markerTitle.equals(TITLE_DORM))
-            displayRemoveDialog(ID_DORM);
+        else if (markerTitle.equals(TITLE_WORK))
+            displayRemoveDialog(ID_WORK);
         else if (markerTitle.equals(TITLE_UNIV))
             displayRemoveDialog(ID_UNIV);
         else if (markerTitle.equals(TITLE_LIBRARY))
@@ -336,9 +336,9 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
         displayDialog(TITLE_HOME, currentStoringLocation);
     }
 
-    public void setDormClick(View view) {
-        currentStoringLocation = new StoreLocation(ID_DORM, new LatLng(currentMarker.getPosition().latitude, currentMarker.getPosition().longitude));
-        displayDialog(TITLE_DORM, currentStoringLocation);
+    public void setWorkClick(View view) {
+        currentStoringLocation = new StoreLocation(ID_WORK, new LatLng(currentMarker.getPosition().latitude, currentMarker.getPosition().longitude));
+        displayDialog(TITLE_WORK, currentStoringLocation);
     }
 
     public void setUnivClick(View view) {
