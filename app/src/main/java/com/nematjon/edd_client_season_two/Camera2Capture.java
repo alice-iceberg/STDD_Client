@@ -326,7 +326,7 @@ public class Camera2Capture {
                         //endregion
 
                         //submitting data to server
-                        // submitPhotoData(smile, faceInString);
+                        submitPhotoData(smile, faceInString);
                     }
 
 
@@ -357,14 +357,10 @@ public class Camera2Capture {
         float y_value = MainService.y_value_gravity;
         float z_value = MainService.z_value_gravity;
 
-        Log.e("TAG", "submitPhotoData: String length before" + photo.length());
-
         assert capturedPhotoDataSrcId != -1;
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, x_value, y_value, z_value, photo_byteArray_type);
 
-
-        Log.e("TAG", "submitPhotoData: photo string submitted");
     }
 
     public static Bitmap createImage(int width, int height, int color) {

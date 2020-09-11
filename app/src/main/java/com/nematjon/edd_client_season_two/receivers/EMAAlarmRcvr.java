@@ -61,7 +61,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         Log.e(TAG, "onReceive: EMA order" + intent.getIntExtra("ema_order", -1));
         if (intent.getIntExtra("ema_order", -1) != 10) {
             sendNotification(context, intent.getIntExtra("ema_order", -1));
-            setAlarams(context, intent.getIntExtra("ema_order", -1));
+          //  setAlarams(context, intent.getIntExtra("ema_order", -1));
         } else if (intent.getIntExtra("ema_order", -1) == 10) {
             SharedPreferences.Editor ema_editor = rewardPrefs.edit();
             ema_editor.putBoolean("ema1_answered", false);
