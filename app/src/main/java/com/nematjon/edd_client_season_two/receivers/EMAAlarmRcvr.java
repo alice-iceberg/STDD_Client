@@ -58,10 +58,11 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
         task.execute();
 
-        if(intent.getIntExtra("ema_order", -1) != 10) {
+        Log.e(TAG, "onReceive: EMA order" + intent.getIntExtra("ema_order", -1));
+        if (intent.getIntExtra("ema_order", -1) != 10) {
             sendNotification(context, intent.getIntExtra("ema_order", -1));
             setAlarams(context, intent.getIntExtra("ema_order", -1));
-        } else if(intent.getIntExtra("ema_order", -1) == 10){
+        } else if (intent.getIntExtra("ema_order", -1) == 10) {
             SharedPreferences.Editor ema_editor = rewardPrefs.edit();
             ema_editor.putBoolean("ema1_answered", false);
             ema_editor.putBoolean("ema2_answered", false);
@@ -221,13 +222,12 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.mipmap.ic_launcher_no_bg)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(Notification.DEFAULT_ALL);
 
 
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel(channelId, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);
             }
@@ -282,16 +282,18 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         firingCal4.set(Calendar.SECOND, 0); // particular second
         firingCal4.set(Calendar.MILLISECOND, 0); // particular second
 
-        if (ema_order == 1)
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
-        else if (ema_order == 2)
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
-        else if (ema_order == 3)
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
-        else if (ema_order == 4) {
-            firingCal1.add(Calendar.DAY_OF_MONTH, 1);
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
-        }
+
+
+//        if (ema_order == 1)
+//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
+//        else if (ema_order == 2)
+//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
+//        else if (ema_order == 3)
+//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
+//        else if (ema_order == 4) {
+//            firingCal1.add(Calendar.DAY_OF_YEAR, 1);
+//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
+//        }
     }
 }
 

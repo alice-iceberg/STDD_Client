@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
 
-        setAlarams();
+        setAlarms();
     }
 
     @Override
@@ -482,14 +482,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             //check for duplicates and get only unique ones
                             List<String> uniqueValues = new ArrayList<>();
                             for (ByteString item : responseMessage.getValueList()){
-                                Log.e(TAG, "setEMAAndRewardsStats: " + item );
                                 String strItem = item.toString(Charsets.UTF_8);
                                 if (!uniqueValues.contains(strItem))
                                     uniqueValues.add(strItem);
                             }
 
                             int rewardPoints = uniqueValues.size() * 250;
-                            Log.e(TAG, "setEMAAndRewardsStats: UNIQUE values size" + rewardPoints);
                             int bonus = calculateBonusPoints(uniqueValues);
 
                             // saving results to Shared Preferences
@@ -645,7 +643,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    public void setAlarams() {
+    public void setAlarms() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         Intent intent1 = new Intent(MainActivity.this, EMAAlarmRcvr.class);
@@ -670,7 +668,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
 
         Calendar currentCal = Calendar.getInstance();
-      //  long currentTime = currentCal.getTimeInMillis();
+        long currentTime = currentCal.getTimeInMillis();
 
         Calendar firingCal1 = Calendar.getInstance();
         firingCal1.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[0]); // at 10am
@@ -703,19 +701,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         firingCal10.set(Calendar.MILLISECOND, 0); // particular second
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal10.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent10); //repeat every day
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent1); //repeat every day
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent2); //repeat every day
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent3); //repeat every day
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent4); //repeat every day
         //todo: uncomment the following if my solution does not work
-//        if (firingCal1.getTimeInMillis() > currentTime)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
-//        else if (firingCal2.getTimeInMillis() > currentTime)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
-//        else if (firingCal3.getTimeInMillis() > currentTime)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
-//        else if (firingCal4.getTimeInMillis() > currentTime)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
+        if (firingCal1.getTimeInMillis() > currentTime) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent1); //repeat every day
+           // alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
+        }
+        else if (firingCal2.getTimeInMillis() > currentTime) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent2); //repeat every day
+            //alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
+        }
+        else if (firingCal3.getTimeInMillis() > currentTime) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent3); //repeat every day
+           // alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
+        }
+        else if (firingCal4.getTimeInMillis() > currentTime) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent4); //repeat every day
+            //alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
+        }
 //        else if (currentTime > firingCal4.getTimeInMillis()) {
 //            firingCal1.add(Calendar.DAY_OF_MONTH, 1);
 //            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today

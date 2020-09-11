@@ -139,23 +139,23 @@ public class EMAActivity extends AppCompatActivity {
         SharedPreferences.Editor reward_editor = rewardPrefs.edit();
         if (emaOrder == 1) {
             reward_editor.putBoolean("ema1_answered", true);
-            ema_answered_counter ++;
+            ema_answered_counter++;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
             reward_editor.apply();
 
         } else if (emaOrder == 2) {
             reward_editor.putBoolean("ema2_answered", true);
-            ema_answered_counter ++;
+            ema_answered_counter++;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
             reward_editor.apply();
         } else if (emaOrder == 3) {
             reward_editor.putBoolean("ema3_answered", true);
-            ema_answered_counter ++;
+            ema_answered_counter++;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
             reward_editor.apply();
         } else if (emaOrder == 4) {
             reward_editor.putBoolean("ema4_answered", true);
-            ema_answered_counter ++;
+            ema_answered_counter++;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
             reward_editor.apply();
         }
@@ -224,6 +224,7 @@ public class EMAActivity extends AppCompatActivity {
             dialog.dismiss();
             dialog = null;
         }
-        rewardDialog.dismiss();
+        if (rewardDialog != null)
+            rewardDialog.dismiss();
     }
 }

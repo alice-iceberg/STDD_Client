@@ -94,7 +94,6 @@
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
     <string name="instagram" translatable="false">Instagram</string>
-    <string name="default_notification_channel_id" translatable="false">ema_notif_channel_id</string>
     <string name="home_drawer_layout">Home</string>
     <string name="general_drawer_layout">General</string>
 </resources>
