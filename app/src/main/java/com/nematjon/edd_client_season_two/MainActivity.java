@@ -354,6 +354,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(MainActivity.this, CapturedPhotosActivity.class));
                 navigationView.setCheckedItem(R.id.nav_photos);
                 break;
+            case R.id.nav_smartwatch:
+                startActivity(new Intent(MainActivity.this,SmartwatchActivity.class));
+                navigationView.setCheckedItem(R.id.nav_smartwatch);
+                break;
             case R.id.nav_restart:
                 customSensorsService = new Intent(this, MainService.class);
 

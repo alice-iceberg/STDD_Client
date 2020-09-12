@@ -23,6 +23,11 @@
             android:icon="@drawable/photo_icon"
             android:title="@string/saved_images" />
 
+        <item
+            android:id="@+id/nav_smartwatch"
+            android:icon="@drawable/watch_icon"
+            android:title="@string/smartwatch" />
+
     </group>
 
         <item android:title="@string/general_drawer_layout">

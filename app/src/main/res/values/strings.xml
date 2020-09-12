@@ -96,4 +96,5 @@
     <string name="instagram" translatable="false">Instagram</string>
     <string name="home_drawer_layout">Home</string>
     <string name="general_drawer_layout">General</string>
+    <string name="smartwatch">Smartwatch</string>
 </resources>

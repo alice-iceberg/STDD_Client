@@ -37,6 +37,8 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK" />
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
@@ -101,6 +103,10 @@
             android:name=".FullScreenImageActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".SmartwatchActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".services.KeyLogger"
@@ -126,6 +132,19 @@
         <service
             android:name=".services.MainService"
             android:foregroundServiceType="location" />
+        <service
+            android:name=".SAPAndroidAgent"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="Instantiatable" />
+        <service
+            android:name="com.samsung.android.sdk.accessory.SAJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service android:name="com.samsung.android.sdk.accessory.SAService" />
+        <service
+            android:name=".DataCollectorService"
+            android:enabled="true"
+            android:exported="true" />
 
         <receiver android:name=".receivers.EMAAlarmRcvr" />
         <receiver android:name=".receivers.ActivityTransRcvr" />
@@ -166,6 +185,16 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.samsung.accessory.action.SERVICE_CONNECTION_REQUESTED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver">
+            <intent-filter>
+                <action android:name="com.samsung.accessory.action.REGISTER_AGENT" />
+            </intent-filter>
+        </receiver>
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -179,6 +208,9 @@
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="face" />
+        <meta-data
+            android:name="AccessoryServicesLocation"
+            android:value="/res/xml/accessoryservices.xml" />
 
         <uses-library
             android:name="org.apache.http.legacy"

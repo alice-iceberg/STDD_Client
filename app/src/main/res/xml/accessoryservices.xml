@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <application name="STDD_Client">
+        <serviceProfile
+            name="SAPAndroidClient"
+            id="/org/example/myapp/my_message"
+            role="provider"
+            serviceImpl="com.nematjon.edd_client_season_two.SAPAndroidAgent"
+            serviceLimit="ANY"
+            serviceTimeout="10"
+            version="1.0">
+            <supportedTransports>
+                <transport type="TRANSPORT_BT" />
+                <transport type="TRANSPORT_WIFI" />
+            </supportedTransports>
+            <serviceChannel
+                id="110"
+                dataRate="high"
+                priority="high"
+                reliability="enable" />
+        </serviceProfile>
+    </application>
+</resources>

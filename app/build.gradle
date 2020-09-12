@@ -53,6 +53,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.koushikdutta.ion:ion:2.1.6'
+    implementation files('libs\\accessory-v2.6.1.jar')
+    implementation files('libs\\sdk-v1.0.0.jar')
 
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
