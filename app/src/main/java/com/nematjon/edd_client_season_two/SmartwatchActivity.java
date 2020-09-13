@@ -14,10 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -28,19 +26,10 @@ import com.google.android.material.navigation.NavigationView;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.samsung.android.sdk.accessory.SAAgentV2;
 
-import java.util.Calendar;
-
-import inha.nsl.easytrack.ETServiceGrpc;
-import inha.nsl.easytrack.EtService;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.StatusRuntimeException;
-
 
 public class SmartwatchActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     static final String TAG = "SAPAndroidAgent";
     static final int RC_OPEN_ET_AUTHENTICATOR = 100;
-    static final int RC_OPEN_APP_STORE = 101;
 
     private SAPAndroidAgent sapAndroidAgent;
     private boolean connectedToWatch = false;
@@ -91,26 +80,8 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
         });
         logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
 
-        if (authAppIsNotInstalled()) {
-            Toast.makeText(this, "Please install this app and reopen the application!", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=inha.nsl.easytrack"));
-            intent.setPackage("com.android.vending");
-            startActivityForResult(intent, RC_OPEN_APP_STORE);
-            finish();
-        } else {
-            SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
-            if (prefs.getInt("userId", -1) == -1 || prefs.getString("email", null) == null) {
-                Intent launchIntent = getPackageManager().getLaunchIntentForPackage("inha.nsl.easytrack");
-                if (launchIntent != null) {
-                    launchIntent.setFlags(0);
-                    startActivityForResult(launchIntent, RC_OPEN_ET_AUTHENTICATOR);
-                }
-            } else {
-                startSAPAgent();
-                startDataCollectionService();
-            }
-        }
+        startSAPAgent();
+
 
         runThreads = true;
         observerThread = new Thread(() -> {
@@ -132,7 +103,7 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
                     }
                     sampleCountTextView.setText(String.valueOf(count));
 
-                    if (DataCollectorService.uploadingSuccessfully) {
+                    if (MainService.uploadingSuccessfully) {
                         uploadStatusTextView.setText("ON");
                         uploadStatusTextView.setTextColor(Color.GREEN);
                     } else {
@@ -148,79 +119,6 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
             }
         });
         observerThread.start();
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (connectedToWatch) {
-            sapAndroidAgent.releaseAgent();
-            connectedToWatch = false;
-            smartwatchActivityRunning = false;
-        }
-        runThreads = false;
-        try {
-            observerThread.interrupt();
-            observerThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == RC_OPEN_ET_AUTHENTICATOR) {
-            if (resultCode == RESULT_OK && data != null) {
-                String fullName = data.getStringExtra("fullName");
-                String email = data.getStringExtra("email");
-                assert email != null;
-                int userId = data.getIntExtra("userId", -1);
-                new Thread(() -> {
-                    ManagedChannel channel = ManagedChannelBuilder.forAddress(getString(R.string.grpc_host), Integer.parseInt(getString(R.string.grpc_port))).usePlaintext().build();
-                    ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-                    EtService.BindUserToCampaign.Request requestMessage = EtService.BindUserToCampaign.Request.newBuilder()
-                            .setUserId(userId)
-                            .setEmail(email)
-                            .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
-                            .build();
-                    try {
-                        final EtService.BindUserToCampaign.Response responseMessage = stub.bindUserToCampaign(requestMessage);
-                        if (responseMessage.getSuccess()) runOnUiThread(() -> {
-                            SharedPreferences prefs = getSharedPreferences("SmartwatchPrefs", Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = prefs.edit();
-                            editor.putString("fullName", fullName);
-                            editor.putString("email", email);
-                            editor.putInt("userId", userId);
-                            editor.apply();
-                            Toast.makeText(getApplicationContext(), "Successfully authorized and connected to the stress sensing campaign!", Toast.LENGTH_SHORT).show();
-                            startSAPAgent();
-                            startDataCollectionService();
-                        });
-                        else runOnUiThread(() -> {
-                            Calendar cal = Calendar.getInstance();
-                            cal.setTimeInMillis(responseMessage.getCampaignStartTimestamp());
-                            Toast.makeText(getApplicationContext(), "Campaign hasn't started yet (start time : ${SimpleDateFormat.getDateTimeInstance().format(cal.time)}", Toast.LENGTH_SHORT).show();
-                        });
-                    } catch (StatusRuntimeException e) {
-                        runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error occurred when joining to the campaign, please try again later!", Toast.LENGTH_SHORT).show());
-                        e.printStackTrace();
-                    } finally {
-                        channel.shutdown();
-                    }
-                }).start();
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-
-    private boolean authAppIsNotInstalled() {
-        try {
-            getPackageManager().getPackageInfo("inha.nsl.easytrack", 0);
-            return false;
-        } catch (PackageManager.NameNotFoundException e) {
-            return true;
-        }
     }
 
     private void startSAPAgent() {
@@ -251,15 +149,6 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
             }
         });
     }
-
-    private void startDataCollectionService() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(new Intent(getApplicationContext(), DataCollectorService.class));
-        } else {
-            startService(new Intent(getApplicationContext(), DataCollectorService.class));
-        }
-    }
-
 
     @Override
     public void onBackPressed() {

@@ -39,6 +39,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK" />
+    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE"/>
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
@@ -141,10 +142,7 @@
             android:name="com.samsung.android.sdk.accessory.SAJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service android:name="com.samsung.android.sdk.accessory.SAService" />
-        <service
-            android:name=".DataCollectorService"
-            android:enabled="true"
-            android:exported="true" />
+
 
         <receiver android:name=".receivers.EMAAlarmRcvr" />
         <receiver android:name=".receivers.ActivityTransRcvr" />

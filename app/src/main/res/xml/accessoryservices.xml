@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <application name="STDD_Client">
+    <application name="SAPAndroidClient">
         <serviceProfile
             name="SAPAndroidClient"
             id="/org/example/myapp/my_message"

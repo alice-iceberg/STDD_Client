@@ -16,7 +16,7 @@ import static com.nematjon.edd_client_season_two.SmartwatchActivity.TAG;
 
 public class SAPAndroidAgent extends SAAgentV2 {
     private static final int CHANNEL_ID = 110;
-    static SASocket mProviderServiceSocket;
+    public static SASocket mProviderServiceSocket;
     static boolean runThreads = true;
     private static boolean sent = false;
 
@@ -98,7 +98,7 @@ public class SAPAndroidAgent extends SAAgentV2 {
         runThreads = false;
     }
 
-    static boolean sendMessage(byte[] bytes) {
+    public static boolean sendMessage(byte[] bytes) {
         sent = false;
         Thread thread = new Thread(() -> {
             try {
