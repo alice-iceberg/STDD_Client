@@ -359,6 +359,7 @@ public class Camera2Capture {
 
         assert capturedPhotoDataSrcId != -1;
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
+        timestamp = System.currentTimeMillis();
         DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, x_value, y_value, z_value, photo_byteArray_type);
 
     }
