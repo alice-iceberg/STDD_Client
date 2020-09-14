@@ -1,9 +1,10 @@
-package com.nematjon.edd_client_season_two;
+package com.nematjon.edd_client_season_two.smartwatch;
 
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.nematjon.edd_client_season_two.DbMgr;
 import com.samsung.android.sdk.SsdkUnsupportedException;
 import com.samsung.android.sdk.accessory.SA;
 import com.samsung.android.sdk.accessory.SAAgentV2;
@@ -12,7 +13,7 @@ import com.samsung.android.sdk.accessory.SASocket;
 
 import java.io.IOException;
 
-import static com.nematjon.edd_client_season_two.SmartwatchActivity.TAG;
+import static com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity.TAG;
 
 public class SAPAndroidAgent extends SAAgentV2 {
     private static final int CHANNEL_ID = 110;

@@ -1,12 +1,10 @@
-package com.nematjon.edd_client_season_two;
+package com.nematjon.edd_client_season_two.smartwatch;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +21,14 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.nematjon.edd_client_season_two.CapturedPhotosActivity;
+import com.nematjon.edd_client_season_two.DbMgr;
+import com.nematjon.edd_client_season_two.InstagramLoggedInActivity;
+import com.nematjon.edd_client_season_two.LocationSetActivity;
+import com.nematjon.edd_client_season_two.MainActivity;
+import com.nematjon.edd_client_season_two.MediaSetActivity;
+import com.nematjon.edd_client_season_two.R;
+import com.nematjon.edd_client_season_two.Tools;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.samsung.android.sdk.accessory.SAAgentV2;
 

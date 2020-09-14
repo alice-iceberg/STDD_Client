@@ -1,13 +1,14 @@
-package com.nematjon.edd_client_season_two;
+package com.nematjon.edd_client_season_two.smartwatch;
 
 import android.util.Log;
 
+import com.nematjon.edd_client_season_two.DbMgr;
 import com.samsung.android.sdk.accessory.SASocket;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static com.nematjon.edd_client_season_two.SmartwatchActivity.TAG;
+import static com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity.TAG;
 
 public class ServiceConnection extends SASocket {
 

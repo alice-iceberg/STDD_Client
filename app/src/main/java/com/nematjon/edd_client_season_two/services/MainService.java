@@ -56,7 +56,7 @@ import com.nematjon.edd_client_season_two.Camera2Capture;
 import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.R;
-import com.nematjon.edd_client_season_two.SAPAndroidAgent;
+import com.nematjon.edd_client_season_two.smartwatch.SAPAndroidAgent;
 import com.nematjon.edd_client_season_two.Tools;
 import com.nematjon.edd_client_season_two.receivers.ActivityTransRcvr;
 import com.nematjon.edd_client_season_two.receivers.CallRcvr;
@@ -81,7 +81,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
-import static com.nematjon.edd_client_season_two.SAPAndroidAgent.mProviderServiceSocket;
+import static com.nematjon.edd_client_season_two.smartwatch.SAPAndroidAgent.mProviderServiceSocket;
 
 
 public class MainService extends Service implements SensorEventListener, LocationListener {

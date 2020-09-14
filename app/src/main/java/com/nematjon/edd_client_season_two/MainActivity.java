@@ -31,9 +31,7 @@ import android.widget.Toast;
 
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.common.io.ByteStreams;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Internal;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 import com.nematjon.edd_client_season_two.services.MainService;
 
@@ -41,8 +39,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -56,6 +52,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import kotlin.text.Charsets;
 
+import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -355,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView.setCheckedItem(R.id.nav_photos);
                 break;
             case R.id.nav_smartwatch:
-                startActivity(new Intent(MainActivity.this,SmartwatchActivity.class));
+                startActivity(new Intent(MainActivity.this, SmartwatchActivity.class));
                 navigationView.setCheckedItem(R.id.nav_smartwatch);
                 break;
             case R.id.nav_restart:

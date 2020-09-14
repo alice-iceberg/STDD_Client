@@ -21,14 +21,11 @@ import android.location.LocationManager;
 
 import androidx.core.app.ActivityCompat;
 
-import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 
-//import com.androidhiddencamera.HiddenCameraUtils;
-//import com.androidhiddencamera.HiddenCameraUtils;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.services.KeyLogger;
 import com.nematjon.edd_client_season_two.services.NotificationService;
@@ -73,6 +70,7 @@ public class Tools {
     public static boolean canOverDrawOtherApps(Context context) {
         return Settings.canDrawOverlays(context);
     }
+
     public static boolean hasPermissions(Context con, String... permissions) {
         Context context = con.getApplicationContext();
         if (context != null && permissions != null)
@@ -144,7 +142,7 @@ public class Tools {
         return true;
     }
 
-    static AlertDialog requestPermissions(final Activity activity) {
+    public static AlertDialog requestPermissions(final Activity activity) {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity)
                 .setTitle(activity.getString(R.string.permissions))
                 .setMessage(activity.getString(R.string.grant_permissions))
@@ -295,7 +293,6 @@ public class Tools {
                             .setCampaignId(Integer.parseInt(con.getString(R.string.campaign_id)))
                             .build();
                     try {
-                        //@SuppressWarnings("unused")
                         EtService.SubmitHeartbeat.Response responseMessage = stub.submitHeartbeat(submitHeartbeatRequest);
                         if (responseMessage.getSuccess()) {
                             Log.d("Tools", "Heartbeat sent successfully");
@@ -320,7 +317,7 @@ public class Tools {
         return 0;
     }
 
-    static void perform_logout(Context con) {
+    public static void perform_logout(Context con) {
 
         SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
         SharedPreferences locationPrefs = con.getSharedPreferences("UserLocations", MODE_PRIVATE);
@@ -373,7 +370,6 @@ public class Tools {
 
         return outputBitmap;
     }
-
 
 
 }
