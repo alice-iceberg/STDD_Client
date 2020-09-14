@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.nematjon.edd_client_season_two.DbMgr;
+import com.nematjon.edd_client_season_two.R;
 import com.samsung.android.sdk.SsdkUnsupportedException;
 import com.samsung.android.sdk.accessory.SA;
 import com.samsung.android.sdk.accessory.SAAgentV2;
@@ -68,14 +69,14 @@ public class SAPAndroidAgent extends SAAgentV2 {
                 mProviderServiceSocket = socket;
                 if (connectionListener != null)
                     connectionListener.run(true);
-                Toast.makeText(getApplicationContext(), "Gear connection is established", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.watch_connection_success, Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Gear S3 connection established");
                 break;
             case CONNECTION_ALREADY_EXIST:
                 mProviderServiceSocket = socket;
                 if (connectionListener != null)
                     connectionListener.run(true);
-                Toast.makeText(getApplicationContext(), "Gear connection already exists", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.watch_connection_exists, Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Gear S3 connection established");
                 break;
             default:

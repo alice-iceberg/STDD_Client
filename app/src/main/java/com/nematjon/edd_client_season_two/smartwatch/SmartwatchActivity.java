@@ -35,7 +35,6 @@ import com.samsung.android.sdk.accessory.SAAgentV2;
 
 public class SmartwatchActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     static final String TAG = "SAPAndroidAgent";
-    static final int RC_OPEN_ET_AUTHENTICATOR = 100;
 
     private SAPAndroidAgent sapAndroidAgent;
     private boolean connectedToWatch = false;
@@ -94,10 +93,10 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
             while (runThreads) {
                 runOnUiThread(() -> {
                     if (ServiceConnection.serviceConnectionAvailable) {
-                        btConnectionTextView.setText("ON");
+                        btConnectionTextView.setText(R.string.ON);
                         btConnectionTextView.setTextColor(Color.GREEN);
                     } else {
-                        btConnectionTextView.setText("OFF");
+                        btConnectionTextView.setText(R.string.OFF);
                         btConnectionTextView.setTextColor(Color.RED);
                     }
 
@@ -110,10 +109,10 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
                     sampleCountTextView.setText(String.valueOf(count));
 
                     if (MainService.uploadingSuccessfully) {
-                        uploadStatusTextView.setText("ON");
+                        uploadStatusTextView.setText(R.string.ON);
                         uploadStatusTextView.setTextColor(Color.GREEN);
                     } else {
-                        uploadStatusTextView.setText("OFF");
+                        uploadStatusTextView.setText(R.string.OFF);
                         uploadStatusTextView.setTextColor(Color.RED);
                     }
                 });
@@ -133,24 +132,24 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
             public void onAgentAvailable(SAAgentV2 agent) {
                 if (agent != null) {
                     sapAndroidAgent = (SAPAndroidAgent) agent;
-                    logTextView.append("Ready to accept connection =)\n");
+                    logTextView.append(R.string.ready_to_accept_connection + "\n");
                     sapAndroidAgent.setConnectionListener((boolean connectedToSmartwatch) -> {
                         SmartwatchActivity.this.connectedToWatch = connectedToSmartwatch;
                         if (connectedToWatch)
                             try {
-                                logTextView.append("Device connected =)\n");
+                                logTextView.append(R.string.device_connected + "\n");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                     });
                 } else {
-                    logTextView.append("Agent unavailable =(\n");
+                    logTextView.append(R.string.agent_unavailable + "\n");
                 }
             }
 
             @Override
             public void onError(int errorCode, String message) {
-                logTextView.append("Failed to get agent =(");
+                logTextView.append(R.string.failed_to_get_agent + "\n");
                 Log.e(TAG, "Failed to get agent : code(" + errorCode + "), message(" + message + ")");
             }
         });

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".SmartwatchActivity">
+    tools:context=".smartwatch.SmartwatchActivity">
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
@@ -21,8 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/white"
-        android:orientation="vertical"
-        tools:ignore="hardcodedtext">
+        android:orientation="vertical">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -30,7 +29,7 @@
             android:layout_height="?android:actionBarSize"
             android:elevation="-4dp"
             android:gravity="center_horizontal"
-            android:title="@string/setting_locations"
+            android:title="@string/smartwatch"
             android:titleTextColor="@color/black" />
 
         <View
@@ -42,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="STATUS :"
+            android:text="@string/status"
             android:textColor="@android:color/black"
             android:textSize="30sp" />
 
@@ -57,7 +56,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
-                    android:text="BT connection\n(watch -> phone)"
+                    android:text="@string/watch_phone"
                     android:textColor="@android:color/black" />
 
                 <TextView
@@ -65,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
-                    android:text="Amount of samples\n(on this device)"
+                    android:text="@string/amount_of_samples"
                     android:textColor="@android:color/black" />
 
                 <TextView
@@ -73,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
-                    android:text="Current upload status\n(phone -> server)"
+                    android:text="@string/phone_server"
                     android:textColor="@android:color/black" />
             </TableRow>
 
@@ -85,7 +84,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
-                    android:text="ON"
+                    android:text="@string/ON"
                     android:textColor="@android:color/holo_green_dark"
                     android:textSize="36sp" />
 
@@ -95,7 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
-                    android:text="12,234"
+                    android:text="@string/dummy"
                     android:textColor="@android:color/black"
                     android:textSize="36sp" />
 
@@ -105,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
-                    android:text="ON"
+                    android:text="@string/ON"
                     android:textColor="@android:color/holo_green_dark"
                     android:textSize="36sp" />
             </TableRow>
@@ -116,7 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:gravity="center_horizontal"
-            android:text="LOG :"
+            android:text="@string/actions_history"
             android:textColor="@android:color/black"
             android:textSize="30sp" />
 
@@ -133,7 +132,7 @@
                 android:id="@+id/logTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Failed to initialize, please re-open it !"
+                android:hint="@string/failed_to_initialize"
                 android:maxLines="20"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"

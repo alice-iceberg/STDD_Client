@@ -91,7 +91,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/status"
+                    android:text="@string/status_today"
                     android:textAllCaps="true"
                     android:textColor="@color/black"
                     android:textSize="14sp"

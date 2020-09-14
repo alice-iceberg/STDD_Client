@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="version">version 1.1.1</string>
-    <string name="status">현재 상태:</string>
+    <string name="status_today">현재 상태:</string>
     <string name="authentication_txt">회원가입</string>
     <string name="authentication_btn">회원가입하기</string>
     <string name="ema_explanation"><b>지난 설문 시점으로부터 현재까지</b> 다음의 문제에 해당하는 정도를 1-5까지 나타내주세요.\n
@@ -80,4 +80,18 @@
     <string name="home_drawer_layout">홈</string>
     <string name="general_drawer_layout">기본</string>
     <string name="smartwatch">Smartwatch</string>
+    <string name="ON">ON</string>
+    <string name="OFF">OFF</string>
+    <string name="ready_to_accept_connection">Ready to accept connection =)</string>
+    <string name="device_connected">Device connected =)</string>
+    <string name="agent_unavailable">Agent unavailable</string>
+    <string name="failed_to_get_agent">Failed to get agent</string>
+    <string name="watch_phone">Watch -> Phone</string>
+    <string name="amount_of_samples">Amount of samples</string>
+    <string name="phone_server">Phone -> Server</string>
+    <string name="status">STATUS: </string>
+    <string name="actions_history">Actions history</string>
+    <string name="failed_to_initialize">Failed to initialize, please re-open!</string>
+    <string name="watch_connection_success">Smartwatch connection established</string>
+    <string name="watch_connection_exists">Smartwatchy connection already exists</string>
 </resources>

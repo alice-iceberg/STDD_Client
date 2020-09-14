@@ -6,7 +6,7 @@
     <string name="app_name" translatable="false">YouNoOne</string>
     <string name="dummy" translatable="false">Dummy</string>
     <string name="version">version 1.1.1</string>
-    <string name="status">Status for today:</string>
+    <string name="status_today">Status for today:</string>
     <string name="authentication_txt">Authentication</string>
     <string name="authentication_btn">Authenticate</string>
     <string name="ema_explanation"><b>From the last survey to the present</b> Please indicate the degree corresponding to the following problem from 1-5.\n
@@ -97,4 +97,23 @@
     <string name="home_drawer_layout">Home</string>
     <string name="general_drawer_layout">General</string>
     <string name="smartwatch">Smartwatch</string>
+    <string name="ON">ON</string>
+    <string name="OFF">OFF</string>
+    <string name="ready_to_accept_connection">Ready to accept connection =)</string>
+    <string name="device_connected">Device connected =)</string>
+    <string name="agent_unavailable">Agent unavailable</string>
+    <string name="failed_to_get_agent">Failed to get agent</string>
+    <string name="watch_phone">Watch -> Phone</string>
+    <string name="amount_of_samples">Amount of samples</string>
+    <string name="phone_server">Phone -> Server</string>
+    <string name="status">STATUS: </string>
+    <string name="actions_history">Actions history</string>
+    <string name="failed_to_initialize">Failed to initialize, please re-open!</string>
+    <string name="watch_connection_success">Smartwatch connection established</string>
+    <string name="watch_connection_exists">Smartwatchy connection already exists</string>
+
+
+
+
+
 </resources>
