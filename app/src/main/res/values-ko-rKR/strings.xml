@@ -79,19 +79,19 @@
     <string name="saved_images">사진</string>
     <string name="home_drawer_layout">홈</string>
     <string name="general_drawer_layout">기본</string>
-    <string name="smartwatch">Smartwatch</string>
+    <string name="smartwatch">스마트워치</string>
     <string name="ON">ON</string>
     <string name="OFF">OFF</string>
-    <string name="ready_to_accept_connection">Ready to accept connection =)</string>
-    <string name="device_connected">Device connected =)</string>
-    <string name="agent_unavailable">Agent unavailable</string>
-    <string name="failed_to_get_agent">Failed to get agent</string>
-    <string name="watch_phone">Watch -> Phone</string>
-    <string name="amount_of_samples">Amount of samples</string>
-    <string name="phone_server">Phone -> Server</string>
-    <string name="status">STATUS: </string>
-    <string name="actions_history">Actions history</string>
-    <string name="failed_to_initialize">Failed to initialize, please re-open!</string>
-    <string name="watch_connection_success">Smartwatch connection established</string>
-    <string name="watch_connection_exists">Smartwatchy connection already exists</string>
+    <string name="ready_to_accept_connection">연결 준비 완료</string>
+    <string name="device_connected">연결 완료 =)</string>
+    <string name="agent_unavailable">에이전트 접속 불가능</string>
+    <string name="failed_to_get_agent">에이전트 접속 실패</string>
+    <string name="watch_phone">워치 -> 휴대폰</string>
+    <string name="amount_of_samples">샘플 수 </string>
+    <string name="phone_server">휴대폰 -> 서버</string>
+    <string name="status">상태: </string>
+    <string name="actions_history">연결 내역</string>
+    <string name="failed_to_initialize">시작 실패 :( 다시 시도해주세요!</string>
+    <string name="watch_connection_success">스마트워치 연결 완료</string>
+    <string name="watch_connection_exists">스마트워치 연결이 이미 있음</string>
 </resources>

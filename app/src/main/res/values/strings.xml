@@ -99,7 +99,7 @@
     <string name="smartwatch">Smartwatch</string>
     <string name="ON">ON</string>
     <string name="OFF">OFF</string>
-    <string name="ready_to_accept_connection">Ready to accept connection =)</string>
+    <string name="ready_to_accept_connection">Ready to accept connection</string>
     <string name="device_connected">Device connected =)</string>
     <string name="agent_unavailable">Agent unavailable</string>
     <string name="failed_to_get_agent">Failed to get agent</string>
@@ -110,7 +110,7 @@
     <string name="actions_history">Actions history</string>
     <string name="failed_to_initialize">Failed to initialize, please re-open!</string>
     <string name="watch_connection_success">Smartwatch connection established</string>
-    <string name="watch_connection_exists">Smartwatchy connection already exists</string>
+    <string name="watch_connection_exists">Smartwatch connection already exists</string>
 
 
 
