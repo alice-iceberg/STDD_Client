@@ -5,7 +5,7 @@
             name="SAPAndroidClient"
             id="/org/example/myapp/my_message"
             role="provider"
-            serviceImpl="com.nematjon.edd_client_season_two.SAPAndroidAgent"
+            serviceImpl="com.nematjon.edd_client_season_two.smartwatch.SAPAndroidAgent"
             serviceLimit="ANY"
             serviceTimeout="10"
             version="1.0">
