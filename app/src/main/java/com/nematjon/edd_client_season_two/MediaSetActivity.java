@@ -28,6 +28,7 @@ import com.github.instagram4j.instagram4j.IGClient;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.nematjon.edd_client_season_two.services.MainService;
+import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
 import java.io.IOException;
 
@@ -234,6 +235,10 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                 finish();
                 startActivity(new Intent(MediaSetActivity.this, CapturedPhotosActivity.class));
                 navigationView.setCheckedItem(R.id.nav_photos);
+                break;
+            case R.id.nav_smartwatch:
+                startActivity(new Intent(MediaSetActivity.this, SmartwatchActivity.class));
+                navigationView.setCheckedItem(R.id.nav_smartwatch);
                 break;
             case R.id.nav_restart:
                 finish();

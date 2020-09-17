@@ -61,7 +61,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         Log.e(TAG, "onReceive: EMA order" + intent.getIntExtra("ema_order", -1));
         if (intent.getIntExtra("ema_order", -1) != 10) {
             sendNotification(context, intent.getIntExtra("ema_order", -1));
-          //  setAlarams(context, intent.getIntExtra("ema_order", -1));
+            setAlarams(context, intent.getIntExtra("ema_order", -1));
         } else if (intent.getIntExtra("ema_order", -1) == 10) {
             SharedPreferences.Editor ema_editor = rewardPrefs.edit();
             ema_editor.putBoolean("ema1_answered", false);
@@ -284,16 +284,16 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
 
 
 
-//        if (ema_order == 1)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
-//        else if (ema_order == 2)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
-//        else if (ema_order == 3)
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
-//        else if (ema_order == 4) {
-//            firingCal1.add(Calendar.DAY_OF_YEAR, 1);
-//            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
-//        }
+        if (ema_order == 1)
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
+        else if (ema_order == 2)
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
+        else if (ema_order == 3)
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
+        else if (ema_order == 4) {
+            firingCal1.add(Calendar.DAY_OF_YEAR, 1);
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
+        }
     }
 }
 

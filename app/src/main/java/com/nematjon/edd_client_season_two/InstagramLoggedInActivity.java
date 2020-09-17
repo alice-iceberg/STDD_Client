@@ -20,6 +20,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 import com.nematjon.edd_client_season_two.services.MainService;
+import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
 public class InstagramLoggedInActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -91,6 +92,10 @@ public class InstagramLoggedInActivity extends AppCompatActivity implements Navi
                 finish();
                 startActivity(new Intent(InstagramLoggedInActivity.this, CapturedPhotosActivity.class));
                 navigationView.setCheckedItem(R.id.nav_photos);
+                break;
+            case R.id.nav_smartwatch:
+                startActivity(new Intent(InstagramLoggedInActivity.this, SmartwatchActivity.class));
+                navigationView.setCheckedItem(R.id.nav_smartwatch);
                 break;
             case R.id.nav_restart:
                 navigationView.setCheckedItem(R.id.nav_restart);

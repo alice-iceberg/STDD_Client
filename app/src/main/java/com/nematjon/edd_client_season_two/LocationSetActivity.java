@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
 import com.nematjon.edd_client_season_two.services.MainService;
+import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
 import java.util.Objects;
 
@@ -415,6 +416,10 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
                 finish();
                 startActivity(new Intent(LocationSetActivity.this, CapturedPhotosActivity.class));
                 navigationView.setCheckedItem(R.id.nav_photos);
+                break;
+            case R.id.nav_smartwatch:
+                startActivity(new Intent(LocationSetActivity.this, SmartwatchActivity.class));
+                navigationView.setCheckedItem(R.id.nav_smartwatch);
                 break;
             case R.id.nav_restart:
                 navigationView.setCheckedItem(R.id.nav_restart);
