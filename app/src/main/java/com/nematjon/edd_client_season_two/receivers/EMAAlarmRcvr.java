@@ -128,6 +128,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             int networkDataSourceId = confPrefs.getInt("NETWORK_USAGE", -1);
             assert networkDataSourceId != -1;
             DbMgr.saveMixedData(networkDataSourceId, nowTime, 1.0f, time_start, nowTime, rxBytes, usage_tx_type);
+            nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(networkDataSourceId, nowTime, 1.0f, time_start, nowTime, txBytes, usage_rx_type);
 
             SharedPreferences.Editor editor = networkPrefs.edit();
@@ -151,8 +152,11 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             totalNumOfMusic = storedMedia.totalNumOfMusic(cr);
             int storedMediaSourceId = confPrefs.getInt("STORED_MEDIA", -1);
             assert storedMediaSourceId != -1;
+            nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
+            nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
+            nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfMusic, music_media_type);
 
             //endregion
@@ -165,6 +169,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             int total_number_of_events = calendarCursor.getCount();
             int calendarSourceId = confPrefs.getInt("CALENDAR", -1);
             assert calendarSourceId != -1;
+            nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(calendarSourceId, nowTime, 1.0f, nowTime, total_number_of_events, calendar_type);
             calendarCursor.close();
             //endregion
@@ -193,6 +198,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
 
             nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_device_model, deviceModelType);
+            nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_api_level, apiLevelType);
             // endregion
             return "Success";

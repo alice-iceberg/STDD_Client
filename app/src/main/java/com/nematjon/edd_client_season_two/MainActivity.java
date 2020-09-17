@@ -604,10 +604,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //region Submit bonus points to easytrack
         String bonus_type = "BONUS";
-        long timestamp = System.currentTimeMillis();
+        long currentTime = System.currentTimeMillis();
         int rewardDataSourceId= configPrefs.getInt("REWARD_POINTS", -1);
         assert rewardDataSourceId != -1;
-        DbMgr.saveMixedData(rewardDataSourceId, timestamp, 1.0f, timestamp, total_bonus, bonus_type);
+        DbMgr.saveMixedData(rewardDataSourceId, currentTime, 1.0f, currentTime, total_bonus, bonus_type);
         //endregion
 
         return total_bonus;

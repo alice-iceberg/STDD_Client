@@ -62,16 +62,19 @@ public class ScreenAndUnlockRcvr extends BroadcastReceiver {
                     SharedPreferences.Editor editor = phoneUsageVariablesPrefs.edit();
                     editor.putBoolean("unlocked", false);
                     editor.apply();
+                    nowTime = System.currentTimeMillis();
                     DbMgr.saveMixedData(dataSourceLockUnlock, nowTime, 1.0f, nowTime, "LOCK");
                 }
                 //endregion
 
                 //region Handling screen OFF state
+                nowTime = System.currentTimeMillis();
                 DbMgr.saveMixedData(dataSourceScreenOnOff, nowTime, 1.0f, nowTime, "OFF");
                 //endregion
 
             } else if (Objects.equals(intent.getAction(), Intent.ACTION_SCREEN_ON)) {
                 Log.e(TAG, "Screen ON");
+                nowTime = System.currentTimeMillis();
                 DbMgr.saveMixedData(dataSourceScreenOnOff, nowTime, 1.0f, nowTime, "ON");
             }
             return "Success";

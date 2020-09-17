@@ -62,6 +62,7 @@ class AudioFeatureRecorder {
                 }
 
                 float[] mfccs = mfccProcessor.getMFCC();
+                nowTime = System.currentTimeMillis();
                 DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, Arrays.toString(mfccs).replace(" ", ""), sound_feature_type_mfcc);
                 return true;
             }
@@ -72,49 +73,44 @@ class AudioFeatureRecorder {
         };
 
         //region Pitch extraction
-        PitchDetectionHandler pitchHandler = new PitchDetectionHandler() {
-            @Override
-            public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
+        PitchDetectionHandler pitchHandler = (pitchDetectionResult, audioEvent) -> {
 
+            currentPitch = pitchDetectionResult.getPitch();
+            long nowTime = System.currentTimeMillis();
 
-                currentPitch = pitchDetectionResult.getPitch();
-                long nowTime = System.currentTimeMillis();
+            if (currentPitch > -1.0f && currentPitch != 918.75f) {
+                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, currentPitch, sound_feature_type_pitch);
+            }
 
+            //speaking duration
+            /*prevTimeDuringCall = currentTimeDuringCall;
+            if (CallRcvr.AudioRunningForCall) {
+                Log.e(TAG, "ENTERED AUDIORUNNINGFORCALL ");
+                Log.e(TAG, "handlePitch: " + pitchDetectionResult.getPitch() );
 
                 if (currentPitch > -1.0f && currentPitch != 918.75f) {
-                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, currentPitch, sound_feature_type_pitch);
-                }
+                    Log.e(TAG, "CURRENT PITCH " + currentPitch );
+                    currentTimeDuringCall = nowTime;
+                    if ((currentTimeDuringCall - prevTimeDuringCall) > 2000) { // if the time difference between two consecutive pitches is more than 2 seconds, the speaker is changed
+                        Log.e(TAG, "Number of speaker turns: " + numberOfSpeakingTurns);
+                        numberOfSpeakingTurns += 1;
 
-                //speaking duration
-                /*prevTimeDuringCall = currentTimeDuringCall;
-                if (CallRcvr.AudioRunningForCall) {
-                    Log.e(TAG, "ENTERED AUDIORUNNINGFORCALL ");
-                    Log.e(TAG, "handlePitch: " + pitchDetectionResult.getPitch() );
-
-                    if (currentPitch > -1.0f && currentPitch != 918.75f) {
-                        Log.e(TAG, "CURRENT PITCH " + currentPitch );
-                        currentTimeDuringCall = nowTime;
-                        if ((currentTimeDuringCall - prevTimeDuringCall) > 2000) { // if the time difference between two consecutive pitches is more than 2 seconds, the speaker is changed
-                            Log.e(TAG, "Number of speaker turns: " + numberOfSpeakingTurns);
-                            numberOfSpeakingTurns += 1;
-
-                        } else { // the speaker is same
-                            speakingTurnDuration += (currentTimeDuringCall - prevTimeDuringCall);
-                            Log.e(TAG, "Speaking turn duration in millis" + speakingTurnDuration );
-                        }
+                    } else { // the speaker is same
+                        speakingTurnDuration += (currentTimeDuringCall - prevTimeDuringCall);
+                        Log.e(TAG, "Speaking turn duration in millis" + speakingTurnDuration );
                     }
-                }*/
-                /*else if (numberOfSpeakingTurns > 0 && speakingTurnDuration > 0) { //the call is ended
-                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, numberOfSpeakingTurns, sound_feature_type_speaking_turns);
-                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, speakingTurnDuration, sound_feature_type_speaking_turn_duration);
-                    numberOfSpeakingTurns = 0;
-                    speakingTurnDuration = 0;
-                    currentTimeDuringCall = 0;
-                    prevTimeDuringCall = 0;
-                }*/
+                }
+            }*/
+            /*else if (numberOfSpeakingTurns > 0 && speakingTurnDuration > 0) { //the call is ended
+                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, numberOfSpeakingTurns, sound_feature_type_speaking_turns);
+                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, speakingTurnDuration, sound_feature_type_speaking_turn_duration);
+                numberOfSpeakingTurns = 0;
+                speakingTurnDuration = 0;
+                currentTimeDuringCall = 0;
+                prevTimeDuringCall = 0;
+            }*/
 
 
-            }
         };
         PitchProcessor pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.AMDF, SAMPLING_RATE, AUDIO_BUFFER_SIZE, pitchHandler);
         //endregion

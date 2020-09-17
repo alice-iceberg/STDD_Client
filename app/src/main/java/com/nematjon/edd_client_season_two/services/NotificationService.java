@@ -70,6 +70,7 @@ public class NotificationService extends NotificationListenerService {
             if (musicPlayingDataSrcId != -1) {
                 if (songName != null && artist != null) {
                     DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, artist, musicPlayingArtistDataType, melonMusicPlayingDataType);
+                    currentTime = System.currentTimeMillis();
                     DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, melonMusicPlayingDataType);
                 }
             }
@@ -136,6 +137,7 @@ public class NotificationService extends NotificationListenerService {
         if (reason == NotificationService.REASON_CLICK) {
             int dataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
             assert dataSourceId != -1;
+            nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, pckgName, NOTIF_TYPE_CLICKED);
         }
     }

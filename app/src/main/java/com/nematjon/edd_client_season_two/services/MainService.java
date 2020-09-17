@@ -167,10 +167,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static float y_value_gravity = 0f;
     public static float z_value_gravity = 0f;
 
-    String x_value_type = "X";
-    String y_value_type = "Y";
-    String z_value_type = "Z";
-
     int direct_unseen_dialogs_count = 0;
     int direct_pending_requests_dialogs_count = 0;
     int story_viewers_count = 0;
@@ -267,6 +263,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     }
                     prevWifiScanStartTime = currentTime;
                     DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(BSSIDs.toArray()).replace(" ", ""), data_type_bssid);
+                    currentTime = System.currentTimeMillis();
                     DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(SSIDs.toArray()).replace(" ", ""), data_type_ssid);
                 }
             }
@@ -666,6 +663,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 canPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_PERIOD * 1000);
                 stopPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_DURATION * 1000 + PRESSURE_SENSOR_PERIOD * 1000);
                 if (canPressureSense) {
+                    timestamp = System.currentTimeMillis();
                     DbMgr.saveMixedData(pressureDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
                 }
                 if (stopPressureSense) {
@@ -676,6 +674,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             long nowTime = System.currentTimeMillis();
             boolean canLightSense = (nowTime > prevLightStartTime + LIGHT_SENSOR_PERIOD * 1000);
             if (canLightSense) {
+                timestamp = System.currentTimeMillis();
                 DbMgr.saveMixedData(lightDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
                 prevLightStartTime = nowTime;
             }
@@ -691,10 +690,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 editor.putFloat("y_value_gravity", y_value_gravity);
                 editor.apply();
 
-
-                DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, x_value_gravity, x_value_type);
-                DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, y_value_gravity, y_value_type);
-                DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, z_value_gravity, z_value_type);
+                DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, x_value_gravity, y_value_gravity, z_value_gravity);
                 prevGravityStopTime = nowTime;
             }
         }
@@ -839,9 +835,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 userfeed_items_count++;
 
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_taken_at_timestamp, userfeed_taken_at_timestamp_type);
+                                nowTime = System.currentTimeMillis();
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_likes_photo_himself, userfeed_likes_photo_himself_type);
+                                nowTime = System.currentTimeMillis();
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_like_count, userfeed_like_count_type);
+                                nowTime = System.currentTimeMillis();
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_comment_count, userfeed_comment_count_type);
+                                nowTime = System.currentTimeMillis();
                             } else {
                                 DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_items_count, userfeed_items_count_type);
                                 userfeed_items_count = 0;
@@ -855,20 +855,35 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         nowTime = System.currentTimeMillis();
 
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_media_count, userinfo_total_media_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_followers_count, userinfo_followers_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_count, userinfo_following_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_usertags_count, userinfo_usertags_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_igtv_videos, userinfo_total_igtv_videos_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_besties_count, userinfo_besties_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_tag_count, userinfo_following_tag_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_recently_bestied_by_count, userinfo_recently_bestied_by_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_has_highlight_reels, userinfo_has_highlight_reels_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_clips_count, userinfo_total_clips_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_unseen_dialogs_count, direct_unseen_dialogs_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_pending_requests_dialogs_count, direct_pending_requests_dialogs_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_total_count, story_total_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_viewers_count, story_viewers_count_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_taken_at_timestamp, story_taken_at_timestamp_type);
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_expires_timestamp, story_expires_timestamp_type);
 
                         Log.e(TAG, "run: Instagram data submitted");

@@ -33,7 +33,7 @@ public class KeyLogger extends AccessibilityService {
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());
 
-        long nowTime = System.currentTimeMillis();
+        long nowTime;
         //DateFormat df = new SimpleDateFormat("MM/dd/yyyy, HH:mm:ss z", Locale.US);
         //String time = df.format(Calendar.getInstance().getTime());
 
@@ -45,11 +45,11 @@ public class KeyLogger extends AccessibilityService {
 
             //case when backspace pressed (length of prev text is more than length of current text)
             if (beforeText.length() > (text.length() - 2)) {
-                // Log.e(TAG, "Backspace pressed! Time: " + nowTime);
+                nowTime = System.currentTimeMillis();
                 DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, event.getPackageName(), KEYPRESS_TYPE_BACKSPACE);
             } else {
                 //case when any key is pressed
-                // Log.e(TAG, "Key pressed! Time: " + nowTime);
+                nowTime = System.currentTimeMillis();
                 DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, event.getPackageName(), KEYPRESS_TYPE_OTHER);
 
                 String cleanText = text.substring(1, text.length() - 1);
@@ -59,10 +59,10 @@ public class KeyLogger extends AccessibilityService {
                         cleanText.endsWith("!") ||
                         cleanText.endsWith("?")) {
                     if (!prevText.equals(cleanText.substring(0, cleanText.length() - 1))) { // compare the text without punctuation mark to prev text
-                        // Log.e(TAG, "Auto-correction: YES");
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, "YES", event.getPackageName(), KEYPRESS_TYPE_AUTOCORRECT);
                     } else {
-                        // Log.e(TAG, "Auto-correction: NO");
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, "NO", event.getPackageName(), KEYPRESS_TYPE_AUTOCORRECT);
                     }
                 } else {
@@ -79,6 +79,7 @@ public class KeyLogger extends AccessibilityService {
                         Log.e(TAG, "Previous typing end! Time: " + lastKeyPressTime);
                         dataSourceId = confPrefs.getInt("TYPING", -1);
                         assert dataSourceId != -1;
+                        nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, prevTypingStartTime, lastKeyPressTime, event.getPackageName());
                     }
                     SharedPreferences.Editor editor = keyLogPrefs.edit();
