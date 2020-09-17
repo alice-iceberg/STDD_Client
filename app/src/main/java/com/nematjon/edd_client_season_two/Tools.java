@@ -21,6 +21,8 @@ import android.location.LocationManager;
 
 import androidx.core.app.ActivityCompat;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.WindowManager;
@@ -369,6 +371,16 @@ public class Tools {
         outputBitmap = Bitmap.createBitmap(inputBitmap, 0, 0, inputBitmap.getWidth(), inputBitmap.getHeight(), matrix, true);
 
         return outputBitmap;
+    }
+
+    public static boolean isConnectedToWifi(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            if (activeNetwork != null && activeNetwork.getTypeName() != null && activeNetwork.getTypeName().toLowerCase().equals("wifi"))
+                return activeNetwork.isConnected();
+        }
+        return false;
     }
 
 

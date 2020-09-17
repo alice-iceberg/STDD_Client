@@ -280,7 +280,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             Log.e(TAG, "Data submission Runnable run()");
             new Thread(() -> {
                 Log.e(TAG, "Data submission Runnable run() -> Thread run()");
-                if (Tools.isNetworkAvailable()) {
+                if (Tools.isConnectedToWifi(getApplicationContext())) {
                     Log.e(TAG, "Data submission Runnable run() -> Thread run() -> Network available condition (True)");
                     uploadingSuccessfully = true;
                     Cursor cursor = DbMgr.getSensorData();
