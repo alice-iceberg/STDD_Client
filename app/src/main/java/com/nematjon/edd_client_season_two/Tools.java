@@ -352,7 +352,6 @@ public class Tools {
             else {
                 int h = minutes / 60;
                 float dif = (float) minutes / 60 - h;
-                //Toast.makeText(MainActivity.this, dif + "", Toast.LENGTH_SHORT).show();
                 int m = (int) (dif * 60);
                 return h + "h " + m + "m";
             }

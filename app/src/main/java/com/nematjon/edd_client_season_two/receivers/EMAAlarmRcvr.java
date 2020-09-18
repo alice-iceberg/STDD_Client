@@ -1,11 +1,6 @@
 package com.nematjon.edd_client_season_two.receivers;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -18,22 +13,13 @@ import android.os.Build;
 import android.provider.CalendarContract;
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
 
 import com.nematjon.edd_client_season_two.AppUseDb;
 import com.nematjon.edd_client_season_two.DbMgr;
-import com.nematjon.edd_client_season_two.EMAActivity;
-import com.nematjon.edd_client_season_two.R;
 import com.nematjon.edd_client_season_two.StoredMedia;
 import com.nematjon.edd_client_season_two.Tools;
 
-import java.util.Calendar;
-
-import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
-import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
-import static com.nematjon.edd_client_season_two.services.MainService.EMA_NOTIFICATION_ID;
-import static com.nematjon.edd_client_season_two.services.MainService.EMA_RESPONSE_EXPIRE_TIME;
 import static com.nematjon.edd_client_season_two.services.MainService.SERVICE_START_X_MIN_BEFORE_EMA;
 
 public class EMAAlarmRcvr extends BroadcastReceiver {
@@ -46,23 +32,27 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         SharedPreferences loginPrefs = context.getSharedPreferences("UserLogin", MODE_PRIVATE);
         SharedPreferences rewardPrefs = context.getSharedPreferences("Rewards", MODE_PRIVATE);
         ContentResolver CR = context.getContentResolver();
+
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
             DbMgr.init(context);
 
-        SharedPreferences.Editor editor = loginPrefs.edit();
-        editor.putBoolean("ema_btn_make_visible", true);
-        editor.apply();
+        //if EMA notification comes
+        if(intent.getBooleanExtra("ema_notif", false)) {
+            SharedPreferences.Editor editor = loginPrefs.edit();
+            editor.putBoolean("ema_btn_make_visible", true);
+            editor.apply();
 
-        PendingResult pendingResult = goAsync();
-        Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
-        task.execute();
+            //context.startActivity(new Intent(context, EMAActivity.class));
 
-        Log.e(TAG, "onReceive: EMA order" + intent.getIntExtra("ema_order", -1));
-        if (intent.getIntExtra("ema_order", -1) != 10) {
-            sendNotification(context, intent.getIntExtra("ema_order", -1));
-            setAlarams(context, intent.getIntExtra("ema_order", -1));
-        } else if (intent.getIntExtra("ema_order", -1) == 10) {
+
+            PendingResult pendingResult = goAsync();
+            Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
+            task.execute();
+
+        }
+        //if it is 23:59 pm
+        if (intent.getBooleanExtra("ema_reset", false)) {
             SharedPreferences.Editor ema_editor = rewardPrefs.edit();
             ema_editor.putBoolean("ema1_answered", false);
             ema_editor.putBoolean("ema2_answered", false);
@@ -70,6 +60,10 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             ema_editor.putBoolean("ema4_answered", false);
             ema_editor.putInt("ema_answered_count", 0);
             ema_editor.apply();
+
+            SharedPreferences.Editor loginEditor = loginPrefs.edit();
+            loginEditor.putBoolean("ema_btn_make_visible", false);
+            loginEditor.apply();
         }
     }
 
@@ -212,94 +206,5 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         }
     }
 
-    private void sendNotification(Context context, int ema_order) {
-        final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        Intent notificationIntent = new Intent(context, EMAActivity.class);
-        notificationIntent.putExtra("ema_order", ema_order);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        String channelId = context.getString(R.string.notif_channel_id);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext(), channelId);
-        builder.setContentTitle(context.getString(R.string.app_name))
-                .setTimeoutAfter(1000 * EMA_RESPONSE_EXPIRE_TIME)
-                .setContentText(context.getString(R.string.daily_notif_text))
-                .setTicker("New Message Alert!")
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent)
-                .setSmallIcon(R.mipmap.ic_launcher_no_bg)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(Notification.DEFAULT_ALL);
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
-
-        final Notification notification = builder.build();
-        if (notificationManager != null) {
-            notificationManager.notify(EMA_NOTIFICATION_ID, notification);
-        }
-    }
-
-    public void setAlarams(Context context, int ema_order) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-
-        Intent intent1 = new Intent(context, EMAAlarmRcvr.class);
-        intent1.putExtra("ema_order", 1);
-        Intent intent2 = new Intent(context, EMAAlarmRcvr.class);
-        intent2.putExtra("ema_order", 2);
-        Intent intent3 = new Intent(context, EMAAlarmRcvr.class);
-        intent3.putExtra("ema_order", 3);
-        Intent intent4 = new Intent(context, EMAAlarmRcvr.class);
-        intent4.putExtra("ema_order", 4);
-
-        PendingIntent pendingIntent1 = PendingIntent.getBroadcast(context, 1, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(context, 2, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent pendingIntent3 = PendingIntent.getBroadcast(context, 3, intent3, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent pendingIntent4 = PendingIntent.getBroadcast(context, 4, intent4, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (alarmManager == null)
-            return;
-
-        Calendar firingCal1 = Calendar.getInstance();
-        firingCal1.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[0]); // at 10am
-        firingCal1.set(Calendar.MINUTE, 0); // Particular minute
-        firingCal1.set(Calendar.SECOND, 0); // particular second
-        firingCal1.set(Calendar.MILLISECOND, 0); // particular second
-
-        Calendar firingCal2 = Calendar.getInstance();
-        firingCal2.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[1]); // at 2pm
-        firingCal2.set(Calendar.MINUTE, 0); // Particular minute
-        firingCal2.set(Calendar.SECOND, 0); // particular second
-        firingCal2.set(Calendar.MILLISECOND, 0); // particular second
-
-        Calendar firingCal3 = Calendar.getInstance();
-        firingCal3.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[2]); // at 6pm
-        firingCal3.set(Calendar.MINUTE, 0); // Particular minute
-        firingCal3.set(Calendar.SECOND, 0); // particular second
-        firingCal3.set(Calendar.MILLISECOND, 0); // particular second
-
-        Calendar firingCal4 = Calendar.getInstance();
-        firingCal4.set(Calendar.HOUR_OF_DAY, EMA_NOTIF_HOURS[3]); // at 10pm
-        firingCal4.set(Calendar.MINUTE, 0); // Particular minute
-        firingCal4.set(Calendar.SECOND, 0); // particular second
-        firingCal4.set(Calendar.MILLISECOND, 0); // particular second
-
-
-
-        if (ema_order == 1)
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal2.getTimeInMillis(), 30000, pendingIntent2); //set from today
-        else if (ema_order == 2)
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal3.getTimeInMillis(), 30000, pendingIntent3); //set from today
-        else if (ema_order == 3)
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal4.getTimeInMillis(), 30000, pendingIntent4); //set from today
-        else if (ema_order == 4) {
-            firingCal1.add(Calendar.DAY_OF_YEAR, 1);
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, firingCal1.getTimeInMillis(), 30000, pendingIntent1); //set from today
-        }
-    }
 }
 

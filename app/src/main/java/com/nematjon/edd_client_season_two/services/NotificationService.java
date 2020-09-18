@@ -2,13 +2,18 @@ package com.nematjon.edd_client_season_two.services;
 
 import android.app.Notification;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import com.nematjon.edd_client_season_two.CapturedPhotosActivity;
 import com.nematjon.edd_client_season_two.DbMgr;
+import com.nematjon.edd_client_season_two.EMAActivity;
+import com.nematjon.edd_client_season_two.MediaSetActivity;
+import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 
 import java.util.HashMap;
 
@@ -117,6 +122,10 @@ public class NotificationService extends NotificationListenerService {
 
         else if (packageName.equals("com.nematjon.edd_client_season_two")){
             Log.e("TAG", "Notif service firebase");
+
+            //sending intent when EMA is received
+            Intent intent = new Intent(NotificationService.this, EMAAlarmRcvr.class);
+            intent.putExtra("ema_notif", true);
         }
 
         //endregion
@@ -130,6 +139,7 @@ public class NotificationService extends NotificationListenerService {
         String pckgName = sbn.getPackageName();
         Log.e("Notification Removed", "Reason: " + reason);
         // any code is decision
+
         if (notifKeys.containsKey(sbn.getKey())) {
             int dataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
             assert dataSourceId != -1;
