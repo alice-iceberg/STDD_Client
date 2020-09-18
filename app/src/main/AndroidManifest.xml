@@ -66,6 +66,13 @@
         android:supportsRtl="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher_no_bg" />
+
         <activity
             android:name=".AuthActivity"
             android:label="@string/app_name"
@@ -134,6 +141,13 @@
             android:name=".services.MainService"
             android:foregroundServiceType="location" />
         <service
+            android:name=".FirebaseNotifications"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
             android:name=".smartwatch.SAPAndroidAgent"
             android:enabled="true"
             android:exported="true"
@@ -142,6 +156,7 @@
             android:name="com.samsung.android.sdk.accessory.SAJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service android:name="com.samsung.android.sdk.accessory.SAService" />
+
 
 
         <receiver android:name=".receivers.EMAAlarmRcvr" />

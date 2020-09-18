@@ -115,6 +115,10 @@ public class NotificationService extends NotificationListenerService {
             }
         }
 
+        else if (packageName.equals("com.nematjon.edd_client_season_two")){
+            Log.e("TAG", "Notif service firebase");
+        }
+
         //endregion
     }
 
