@@ -19,6 +19,8 @@ import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.StoredMedia;
 import com.nematjon.edd_client_season_two.Tools;
 
+import java.util.Calendar;
+
 import static android.content.Context.MODE_PRIVATE;
 import static com.nematjon.edd_client_season_two.services.MainService.SERVICE_START_X_MIN_BEFORE_EMA;
 
@@ -38,17 +40,18 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             DbMgr.init(context);
 
         //if EMA notification comes
-        if(intent.getBooleanExtra("ema_notif", false)) {
-            SharedPreferences.Editor editor = loginPrefs.edit();
-            editor.putBoolean("ema_btn_make_visible", true);
-            editor.apply();
+        if (intent.getBooleanExtra("ema_notif", false)) {
+            int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
+            if (ema_order != 0) {
+                SharedPreferences.Editor editor = loginPrefs.edit();
+                editor.putBoolean("ema_btn_make_visible", true);
+                editor.apply();
 
-            //context.startActivity(new Intent(context, EMAActivity.class));
 
-
-            PendingResult pendingResult = goAsync();
-            Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
-            task.execute();
+                PendingResult pendingResult = goAsync();
+                Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
+                task.execute();
+            }
 
         }
         //if it is 23:59 pm

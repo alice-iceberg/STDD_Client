@@ -13,8 +13,10 @@ import com.nematjon.edd_client_season_two.CapturedPhotosActivity;
 import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.EMAActivity;
 import com.nematjon.edd_client_season_two.MediaSetActivity;
+import com.nematjon.edd_client_season_two.Tools;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 
+import java.util.Calendar;
 import java.util.HashMap;
 
 public class NotificationService extends NotificationListenerService {
@@ -118,14 +120,18 @@ public class NotificationService extends NotificationListenerService {
                     DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, vibeMusicPlayingDataType);
                 }
             }
-        }
-
-        else if (packageName.equals("com.nematjon.edd_client_season_two")){
+        } else if (packageName.equals("com.nematjon.edd_client_season_two")) {
             Log.e("TAG", "Notif service firebase");
 
             //sending intent when EMA is received
-            Intent intent = new Intent(NotificationService.this, EMAAlarmRcvr.class);
-            intent.putExtra("ema_notif", true);
+            Intent intent_notif = new Intent(NotificationService.this, EMAAlarmRcvr.class);
+            intent_notif.putExtra("ema_notif", true);
+
+            Intent intent_ema = new Intent(NotificationService.this, EMAActivity.class);
+            int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
+            if (ema_order != 0) {
+                intent_ema.putExtra("ema_order", ema_order);
+            }
         }
 
         //endregion
