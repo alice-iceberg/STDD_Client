@@ -39,7 +39,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         if (DbMgr.getDB() == null)
             DbMgr.init(context);
 
-        //if EMA notification comes
+        //if EMA notification comes, collect some data
         if (intent.getBooleanExtra("ema_notif", false)) {
             int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
             if (ema_order != 0) {

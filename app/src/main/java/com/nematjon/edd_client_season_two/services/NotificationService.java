@@ -12,6 +12,7 @@ import android.util.Log;
 import com.nematjon.edd_client_season_two.CapturedPhotosActivity;
 import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.EMAActivity;
+import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.MediaSetActivity;
 import com.nematjon.edd_client_season_two.Tools;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
@@ -122,16 +123,14 @@ public class NotificationService extends NotificationListenerService {
             }
         } else if (packageName.equals("com.nematjon.edd_client_season_two")) {
             Log.e("TAG", "Notif service firebase");
+            //EMA is received
+            SharedPreferences loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
+            SharedPreferences.Editor editor = loginPrefs.edit();
+            editor.putBoolean("ema_btn_make_visible", true);
+            editor.apply();
+            Intent intent_ema_alarm_rcvr = new Intent(NotificationService.this, EMAAlarmRcvr.class);
+            intent_ema_alarm_rcvr.putExtra("ema_notif", true);
 
-            //sending intent when EMA is received
-            Intent intent_notif = new Intent(NotificationService.this, EMAAlarmRcvr.class);
-            intent_notif.putExtra("ema_notif", true);
-
-            Intent intent_ema = new Intent(NotificationService.this, EMAActivity.class);
-            int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
-            if (ema_order != 0) {
-                intent_ema.putExtra("ema_order", ema_order);
-            }
         }
 
         //endregion

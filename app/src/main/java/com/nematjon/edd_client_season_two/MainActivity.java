@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
 
         setEmaResetAlarm();
+
     }
 
     @Override
