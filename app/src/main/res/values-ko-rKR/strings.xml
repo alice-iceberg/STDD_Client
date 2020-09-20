@@ -94,4 +94,8 @@
     <string name="failed_to_initialize">시작 실패 :( 다시 시도해주세요!</string>
     <string name="watch_connection_success">스마트워치 연결 완료</string>
     <string name="watch_connection_exists">스마트워치 연결이 이미 있음</string>
+    <string name="answer">Answer</string>
+    <string name="ema_message">Hey there! Please, fill in the survey :)</string>
+    <string name="ema_title">Time to answer EMA!</string>
+    <string name="time_is_up">Sorry, you only have 1 hour to answer. Time is up!</string>
 </resources>

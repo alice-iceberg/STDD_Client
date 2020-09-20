@@ -26,8 +26,8 @@
 
     <color name="transparent">#00FFFFFF</color>
 
-    <color name="pastel1">#f4eeff</color>
-    <color name="pastel2">#dcd6f7</color>
-    <color name="pastel3">#a6b1e1</color>
-    <color name="pastel4">#424874</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorGreen">#4BB543</color>
+    <color name="colorGray">#434343</color>
+    <color name="colorTextPrimary">#212121</color>
 </resources>

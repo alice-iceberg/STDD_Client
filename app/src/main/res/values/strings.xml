@@ -112,6 +112,10 @@
     <string name="failed_to_initialize">Failed to initialize, please re-open!</string>
     <string name="watch_connection_success">Smartwatch connection established</string>
     <string name="watch_connection_exists">Smartwatch connection already exists</string>
+    <string name="answer">Answer</string>
+    <string name="ema_message">Hey there! Please, fill in the survey :)</string>
+    <string name="ema_title">Time to answer EMA!</string>
+    <string name="time_is_up">Sorry, you only have 1 hour to answer. Time is up!</string>
 
 
 
