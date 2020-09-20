@@ -132,24 +132,24 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
             public void onAgentAvailable(SAAgentV2 agent) {
                 if (agent != null) {
                     sapAndroidAgent = (SAPAndroidAgent) agent;
-                    logTextView.append(R.string.ready_to_accept_connection + "\n");
+                    logTextView.append(getResources().getString(R.string.ready_to_accept_connection) + "\n");
                     sapAndroidAgent.setConnectionListener((boolean connectedToSmartwatch) -> {
                         SmartwatchActivity.this.connectedToWatch = connectedToSmartwatch;
                         if (connectedToWatch)
                             try {
-                                logTextView.append(R.string.device_connected + "\n");
+                                logTextView.append(getResources().getString(R.string.device_connected) + "\n");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                     });
                 } else {
-                    logTextView.append(R.string.agent_unavailable + "\n");
+                    logTextView.append(getResources().getString(R.string.agent_unavailable) + "\n");
                 }
             }
 
             @Override
             public void onError(int errorCode, String message) {
-                logTextView.append(R.string.failed_to_get_agent + "\n");
+                logTextView.append(getResources().getString(R.string.failed_to_get_agent) + "\n");
                 Log.e(TAG, "Failed to get agent : code(" + errorCode + "), message(" + message + ")");
             }
         });
