@@ -53,6 +53,7 @@ import io.grpc.StatusRuntimeException;
 import kotlin.text.Charsets;
 
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
+
 import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -476,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                             //check for duplicates and get only unique ones
                             List<String> uniqueValues = new ArrayList<>();
-                            for (ByteString item : responseMessage.getValueList()){
+                            for (ByteString item : responseMessage.getValueList()) {
                                 String strItem = item.toString(Charsets.UTF_8);
                                 if (!uniqueValues.contains(strItem))
                                     uniqueValues.add(strItem);
@@ -486,12 +487,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             int bonus = calculateBonusPoints(uniqueValues);
 
                             // saving results to Shared Preferences
-                              SharedPreferences.Editor editor = rewardPrefs.edit();
-                              editor.putInt("rewardPoints", rewardPoints);
-                              editor.putInt("bonus", bonus);
-                              editor.apply();
+                            SharedPreferences.Editor editor = rewardPrefs.edit();
+                            editor.putInt("rewardPoints", rewardPoints);
+                            editor.putInt("bonus", bonus);
+                            editor.apply();
 
-                       }
+                        }
                     });
                 }
             } catch (StatusRuntimeException e) {
@@ -552,7 +553,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //region Submit bonus points to easytrack
         String bonus_type = "BONUS";
         long currentTime = System.currentTimeMillis();
-        int rewardDataSourceId= configPrefs.getInt("REWARD_POINTS", -1);
+        int rewardDataSourceId = configPrefs.getInt("REWARD_POINTS", -1);
         assert rewardDataSourceId != -1;
         DbMgr.saveMixedData(rewardDataSourceId, currentTime, 1.0f, currentTime, total_bonus, bonus_type);
         //endregion
@@ -562,7 +563,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void lateEMAClick(View view) {
         int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
-        if (ema_order != 0) {
+        if (ema_order != 0 && ema_order != -1) {
             Intent intent = new Intent(this, EMAActivity.class);
             intent.putExtra("ema_order", ema_order);
             startActivity(intent);

@@ -41,7 +41,7 @@ public class AuthActivity extends Activity {
 
 
         if (authAppIsNotInstalled()) {
-            Toast.makeText(this, "Please install the EasyTrack Authenticator and reopen the application!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getResources().getString(R.string.install_et), Toast.LENGTH_LONG).show();
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=inha.nsl.easytrack"));
             intent.setPackage("com.android.vending");
@@ -100,7 +100,7 @@ public class AuthActivity extends Activity {
                             final EtService.BindUserToCampaign.Response responseMessage = stub.bindUserToCampaign(requestMessage);
                             if (responseMessage.getSuccess())
                                 runOnUiThread(() -> {
-                                    Toast.makeText(AuthActivity.this, "Successfully authorized and connected to the EasyTrack campaign!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(AuthActivity.this, getResources().getString(R.string.successfully_authorized), Toast.LENGTH_SHORT).show();
                                     loginPrefs = getApplicationContext().getSharedPreferences("UserLogin", MODE_PRIVATE);
                                     SharedPreferences.Editor editor = loginPrefs.edit();
                                     editor.putString(name, fullName);
@@ -116,12 +116,12 @@ public class AuthActivity extends Activity {
                                 runOnUiThread(() -> {
                                     Calendar cal = Calendar.getInstance();
                                     cal.setTimeInMillis(responseMessage.getCampaignStartTimestamp());
-                                    String txt = String.format(Locale.getDefault(), "EasyTrack campaign hasn't started. Campaign start time is: %s",
+                                    String txt = String.format(Locale.getDefault(), getResources().getString(R.string.et_not_started) + "%s",
                                             SimpleDateFormat.getDateTimeInstance().format(cal.getTime()));
                                     Toast.makeText(AuthActivity.this, txt, Toast.LENGTH_LONG).show();
                                 });
                         } catch (StatusRuntimeException e) {
-                            runOnUiThread(() -> Toast.makeText(AuthActivity.this, "An error occurred when connecting to the EasyTrack campaign. Please try again later!", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> Toast.makeText(AuthActivity.this, getResources().getString(R.string.et_error), Toast.LENGTH_SHORT).show());
                             Log.e(TAG, "onCreate: gRPC server unavailable");
                         } finally {
                             channel.shutdown();
@@ -129,9 +129,9 @@ public class AuthActivity extends Activity {
                     }).start();
                 }
             } else if (resultCode == Activity.RESULT_FIRST_USER)
-                Toast.makeText(this, "Canceled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getResources().getString(R.string.canceled), Toast.LENGTH_SHORT).show();
             else if (resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(this, "Technical issue. Please check your internet connectivity and try again!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getResources().getString(R.string.technical_issue), Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == RC_OPEN_MAIN_ACTIVITY) {
             finish();
@@ -144,7 +144,7 @@ public class AuthActivity extends Activity {
     public void authenticateClick(View view) {
 
         if (authAppIsNotInstalled())
-            Toast.makeText(this, "Please install the EasyTrack Authenticator and reopen the application!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.install_et), Toast.LENGTH_SHORT).show();
         else {
             Intent launchIntent = getPackageManager().getLaunchIntentForPackage("inha.nsl.easytrack");
             if (launchIntent != null) {

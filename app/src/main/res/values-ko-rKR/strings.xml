@@ -98,4 +98,10 @@
     <string name="ema_message">설문 시간입니다. 클릭하시어 설문에 응답해주세요 :)</string>
     <string name="ema_title">Time to answer EMA!</string>
     <string name="time_is_up">Sorry, you only have 1 hour to answer. Time is up!</string>
+    <string name="successfully_authorized">Successfully authorized and connected to the EasyTrack campaign!</string>
+    <string name="et_not_started">EasyTrack campaign has not started. Campaign start time is: </string>
+    <string name="et_error">An error occurred when connecting to the EasyTrack campaign. Please try again later!</string>
+    <string name="canceled">Canceled</string>
+    <string name="technical_issue">Technical issue. Please check your internet connectivity and try again!</string>
+    <string name="install_et">Please install the EasyTrack Authenticator and reopen the application!</string>
 </resources>
