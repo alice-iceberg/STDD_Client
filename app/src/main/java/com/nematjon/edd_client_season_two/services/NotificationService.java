@@ -130,7 +130,6 @@ public class NotificationService extends NotificationListenerService {
             editor.apply();
             Intent intent_ema_alarm_rcvr = new Intent(NotificationService.this, EMAAlarmRcvr.class);
             intent_ema_alarm_rcvr.putExtra("ema_notif", true);
-
             //show ema alert dialog
             startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
 

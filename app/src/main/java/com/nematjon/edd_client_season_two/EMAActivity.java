@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -79,6 +80,7 @@ public class EMAActivity extends AppCompatActivity {
     }
 
     public void init() {
+        Log.e(TAG, "init()");
         question1 = findViewById(R.id.question1);
         question2 = findViewById(R.id.question2);
         question3 = findViewById(R.id.question3);
@@ -101,7 +103,7 @@ public class EMAActivity extends AppCompatActivity {
 
         btnSubmit = findViewById(R.id.btn_submit);
 
-        emaOrder = getIntent().getIntExtra("ema_order", -1);
+        emaOrder = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
 
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
@@ -109,6 +111,7 @@ public class EMAActivity extends AppCompatActivity {
     }
 
     public void clickSubmit(View view) {
+        Log.e(TAG, "clickSubmit: ");
 
         long timestamp = System.currentTimeMillis();
 
@@ -134,6 +137,7 @@ public class EMAActivity extends AppCompatActivity {
         editor.putBoolean("ema_btn_make_visible", false);
         editor.apply();
 
+        Log.e(TAG, "clickSubmit: " + emaOrder);
         int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
         SharedPreferences.Editor reward_editor = rewardPrefs.edit();
         if (emaOrder == 1) {
