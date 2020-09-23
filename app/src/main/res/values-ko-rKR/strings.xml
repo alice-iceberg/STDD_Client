@@ -64,7 +64,7 @@
     <string name="currently_earned_points">현재 총 포인트</string>
     <string name="bonus_points">보너스 %1$d ₩</string>
     <string name="btn_tittle_capture_image">Capture image</string>
-    <string name="set_social_media">설정</string>
+    <string name="set_social_media">SNS</string>
     <string name="submitSNS">제출하기</string>
     <string name="username">아이디</string>
     <string name="password">패스워드</string>
@@ -94,14 +94,14 @@
     <string name="failed_to_initialize">시작 실패 :( 다시 시도해주세요!</string>
     <string name="watch_connection_success">스마트워치 연결 완료</string>
     <string name="watch_connection_exists">스마트워치 연결이 이미 있음</string>
-    <string name="answer">Answer</string>
+    <string name="answer">응답해주세요</string>
     <string name="ema_message">설문 시간입니다. 클릭하시어 설문에 응답해주세요 :)</string>
-    <string name="ema_title">Time to answer EMA!</string>
-    <string name="time_is_up">Sorry, you only have 1 hour to answer. Time is up!</string>
-    <string name="successfully_authorized">Successfully authorized and connected to the EasyTrack campaign!</string>
-    <string name="et_not_started">EasyTrack campaign has not started. Campaign start time is: </string>
-    <string name="et_error">An error occurred when connecting to the EasyTrack campaign. Please try again later!</string>
-    <string name="canceled">Canceled</string>
-    <string name="technical_issue">Technical issue. Please check your internet connectivity and try again!</string>
-    <string name="install_et">Please install the EasyTrack Authenticator and reopen the application!</string>
+    <string name="ema_title">응답할 시간입니다 !</string>
+    <string name="time_is_up">1시간 내에 EMA에 응답해주셔야 합니다. 서둘러 응답 부탁드립니다.</string>
+    <string name="successfully_authorized">EasyTrack campaign에 성공적으로 연결되었습니다.</string>
+    <string name="et_not_started">EasyTrack campaign이 아직 시작되지 않았습니다. 시작 시점은 다음과 같습니다 : </string>
+    <string name="et_error">EasyTrack campaign을 연결할 때 문제가 발생했습니다. 이후에 다시 시도해주세요 !</string>
+    <string name="canceled">취소되었습니다</string>
+    <string name="technical_issue">기술적 문제가 발생했습니다. 기기 연동 여부를 확인하고 다시 시도해주세요!</string>
+    <string name="install_et">EasyTrack Authenticator을 설치하고 어플리케이션을 다시 실시해주세요.</string>
 </resources>
