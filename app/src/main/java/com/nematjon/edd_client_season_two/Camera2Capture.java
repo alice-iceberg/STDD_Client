@@ -68,7 +68,7 @@ public class Camera2Capture {
     private CameraCaptureSession cameraCaptureSession;
     private Context mContext;
 
-    private static final int HOURS24 = 10 * 60; //in sec
+    private static final int HOURS24 = 24 * 60 * 60; //in sec
     private static long prevCapturetime = 0;
     private static long prevCapturetimeCropped = 0;
 
