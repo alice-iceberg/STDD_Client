@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.location.LocationManager;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import android.net.ConnectivityManager;
@@ -345,18 +346,18 @@ public class Tools {
         editorInstagram.apply();
     }
 
-    static String formatMinutes(int minutes) {
+    static String formatMinutes(int minutes, Context context) {
         if (minutes > 60) {
             if (minutes > 1440)
-                return minutes / 60 / 24 + "days";
+                return minutes / 60 / 24 + context.getResources().getString(R.string.days);
             else {
                 int h = minutes / 60;
                 float dif = (float) minutes / 60 - h;
                 int m = (int) (dif * 60);
-                return h + "h " + m + "m";
+                return h + context.getResources().getString(R.string.hour) + " " + m + context.getResources().getString(R.string.min);
             }
         } else
-            return minutes + "m";
+            return minutes + context.getResources().getString(R.string.min);
     }
 
     public static boolean inRange(long value, long start, long end) {

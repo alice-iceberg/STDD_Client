@@ -107,4 +107,7 @@
     <string name="ago">전</string>
     <string name="younoone_notif_channel">YouNoOne 알림 채널</string>
     <string name="channel_description">이 채널은 YouNoOne 어플리케이션에서 알림을 전송하기 위해 사용됩니다.</string>
+    <string name="min">분</string>
+    <string name="hour">시간</string>
+    <string name="days">일</string>
 </resources>
