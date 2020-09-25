@@ -331,6 +331,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable appUsageSaveRunnable = new Runnable() {
         public void run() {
             Tools.checkAndSaveUsageAccessStats(getApplicationContext());
+            Log.e(TAG, "run: Sending app stats");
             appUsageSaveHandler.postDelayed(this, APP_USAGE_SEND_PERIOD * 1000);
         }
     };

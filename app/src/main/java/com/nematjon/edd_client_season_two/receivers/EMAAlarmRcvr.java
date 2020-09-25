@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.CalendarContract;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import com.nematjon.edd_client_season_two.AppUseDb;
@@ -39,23 +40,39 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
         if (DbMgr.getDB() == null)
             DbMgr.init(context);
 
-        //if EMA notification comes, collect some data
-        if (intent.getBooleanExtra("ema_notif", false)) {
-            int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
-            if (ema_order != 0) {
-                SharedPreferences.Editor editor = loginPrefs.edit();
-                editor.putBoolean("ema_btn_make_visible", true);
-                editor.apply();
+        int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
+        if (ema_order != 0  && ema_order != -1) {
+            SharedPreferences.Editor editor = loginPrefs.edit();
+            editor.putBoolean("ema_btn_make_visible", true);
+            editor.apply();
+            Toast.makeText(context, "EMA INTENT not 0", Toast.LENGTH_LONG).show();
 
 
                 PendingResult pendingResult = goAsync();
                 Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
                 task.execute();
-            }
-
         }
+
+        //if EMA notification comes, collect some data
+//        if (intent.getBooleanExtra("ema_notif", false)) {
+//            Toast.makeText(context, "EMA INTENT RECEIVED", Toast.LENGTH_LONG).show();
+//            int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
+//            if (ema_order != 0) {
+//                SharedPreferences.Editor editor = loginPrefs.edit();
+//                editor.putBoolean("ema_btn_make_visible", true);
+//                editor.apply();
+//                Toast.makeText(context, "EMA INTENT not 0", Toast.LENGTH_LONG).show();
+//
+//
+////                PendingResult pendingResult = goAsync();
+////                Task task = new Task(pendingResult, configPrefs, networkPrefs, loginPrefs, CR);
+////                task.execute();
+//            }
+//
+//        }
         //if it is 23:59 pm
         if (intent.getBooleanExtra("ema_reset", false)) {
+            Toast.makeText(context, "EMA reset", Toast.LENGTH_LONG).show();
             SharedPreferences.Editor ema_editor = rewardPrefs.edit();
             ema_editor.putBoolean("ema1_answered", false);
             ema_editor.putBoolean("ema2_answered", false);
@@ -97,6 +114,7 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             Cursor cursor = AppUseDb.getAppUsage();
             if (cursor.moveToFirst()) {
                 do {
+                    Log.e(TAG, "doInBackground: submitting app usage");
                     String package_name = cursor.getString(1);
                     long start_time = cursor.getLong(2);
                     long end_time = cursor.getLong(3);

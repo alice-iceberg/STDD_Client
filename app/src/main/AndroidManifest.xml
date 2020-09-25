@@ -163,7 +163,11 @@
 
 
 
-        <receiver android:name=".receivers.EMAAlarmRcvr" />
+        <receiver android:name=".receivers.EMAAlarmRcvr">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".receivers.ActivityTransRcvr" />
         <receiver android:name=".receivers.ScreenAndUnlockRcvr" />
         <receiver android:name=".receivers.ConnectionRcvr">
