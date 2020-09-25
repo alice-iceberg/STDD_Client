@@ -104,4 +104,7 @@
     <string name="canceled">취소되었습니다</string>
     <string name="technical_issue">기술적 문제가 발생했습니다. 기기 연동 여부를 확인하고 다시 시도해주세요!</string>
     <string name="install_et">EasyTrack Authenticator을 설치하고 어플리케이션을 다시 실시해주세요.</string>
+    <string name="ago">전</string>
+    <string name="younoone_notif_channel">YouNoOne 알림 채널</string>
+    <string name="channel_description">이 채널은 YouNoOne 어플리케이션에서 알림을 전송하기 위해 사용됩니다.</string>
 </resources>

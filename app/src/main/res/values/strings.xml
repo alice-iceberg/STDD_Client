@@ -122,4 +122,7 @@
     <string name="canceled">Canceled</string>
     <string name="technical_issue">Technical issue. Please check your internet connectivity and try again!</string>
     <string name="install_et">Please install the EasyTrack Authenticator and reopen the application!</string>
+    <string name="ago">ago</string>
+    <string name="younoone_notif_channel">YouNoOne notification channel</string>
+    <string name="channel_description">This channel is used to deliver notifications from YouNoOne application</string>
 </resources>

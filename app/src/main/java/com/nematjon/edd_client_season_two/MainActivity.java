@@ -427,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             tvHBPhone.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
                         tvDayNum.setText(getString(R.string.day_num, dayNum));
                         tvDataLoadedPhone.setText(getString(R.string.data_loaded, String.valueOf(samples_amount)));
-                        String last_active_text = hb_phone == 0 ? "just now" : Tools.formatMinutes(heart_beat) + " ago";
+                        String last_active_text = hb_phone == 0 ? "just now" : Tools.formatMinutes(heart_beat) + " " + getResources().getString(R.string.ago);
                         tvHBPhone.setText(getString(R.string.last_active, last_active_text));
                     });
                 }

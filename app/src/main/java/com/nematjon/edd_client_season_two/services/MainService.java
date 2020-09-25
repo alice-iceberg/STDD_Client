@@ -538,8 +538,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
     @RequiresApi(Build.VERSION_CODES.O)
     public String createNotificationChannel() {
         String id = "YouNoOne_channel_id";
-        String name = "You no one channel id";
-        String description = "This is description";
+        String name = getResources().getString(R.string.younoone_notif_channel);
+        String description = getResources().getString(R.string.channel_description);
         NotificationChannel mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW);
         mChannel.setDescription(description);
         mChannel.enableLights(true);
