@@ -335,10 +335,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView.setCheckedItem(R.id.nav_home);
                 break;
             case R.id.nav_location:
+                finish();
                 startActivity(new Intent(MainActivity.this, LocationSetActivity.class));
                 navigationView.setCheckedItem(R.id.nav_location);
                 break;
             case R.id.nav_sns:
+                finish();
                 navigationView.setCheckedItem(R.id.nav_sns);
                 SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
                 boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);
@@ -350,10 +352,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 break;
             case R.id.nav_photos:
+                finish();
                 startActivity(new Intent(MainActivity.this, CapturedPhotosActivity.class));
                 navigationView.setCheckedItem(R.id.nav_photos);
                 break;
             case R.id.nav_smartwatch:
+                finish();
                 startActivity(new Intent(MainActivity.this, SmartwatchActivity.class));
                 navigationView.setCheckedItem(R.id.nav_smartwatch);
                 break;
