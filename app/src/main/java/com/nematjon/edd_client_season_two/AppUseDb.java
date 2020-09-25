@@ -3,6 +3,7 @@ package com.nematjon.edd_client_season_two;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class AppUseDb {
     static void saveAppUsageStat(String packageName, long endTimestamp, long totalTimeInForeground) {
         AppUsageRecord lastRecord = getLastRecord(packageName);
         if (lastRecord == null) {
-            //Log.e(TAG, "saveAppUsageStat: Inserted 1 -> " + packageName + "; " + totalTimeInForeground);
+            Log.e(TAG, "saveAppUsageStat: Inserted 1 -> " + packageName + "; " + totalTimeInForeground);
             db.execSQL(String.format(
                     Locale.getDefault(),
                     "insert into AppUse(package_name, start_timestamp, end_timestamp, total_time_in_foreground) values(?, %d, %d, %d);",
@@ -88,11 +89,10 @@ public class AppUseDb {
                     totalTimeInForeground
             ), new String[]{packageName});
         } else {
-            // the interesting part
             long startTimestamp = endTimestamp - (totalTimeInForeground - lastRecord.totalTimeInForeground);
             if (startTimestamp != endTimestamp) {
                 if (startTimestamp == lastRecord.endTimestamp) {
-                    //Log.e(TAG, "saveAppUsageStat: Updated 2 -> " + packageName + "; " + totalTimeInForeground);
+                    Log.e(TAG, "saveAppUsageStat: Updated 2 -> " + packageName + "; " + totalTimeInForeground);
                     db.execSQL(String.format(
                             Locale.getDefault(),
                             "update AppUse set end_timestamp = %d and total_time_in_foreground = %d where id=%d;",
@@ -103,7 +103,7 @@ public class AppUseDb {
                 } else if (isUniqueRecord(packageName, startTimestamp)) {
                     List<AppUsageRecord> overlappingElements = getOverlappingRecords(packageName, startTimestamp, endTimestamp);
                     if (overlappingElements.isEmpty()) {
-                        //Log.e(TAG, "saveAppUsageStat: Inserted 2 -> " + packageName + "; " + totalTimeInForeground);
+                        Log.e(TAG, "saveAppUsageStat: Inserted 2 -> " + packageName + "; " + totalTimeInForeground);
                         db.execSQL(String.format(
                                 Locale.getDefault(),
                                 "insert into AppUse(package_name, start_timestamp, end_timestamp, total_time_in_foreground) values(?, %d, %d, %d);",
@@ -122,14 +122,14 @@ public class AppUseDb {
                                 maxEndTimestamp = appUse.endTimestamp;
                             if (appUse.totalTimeInForeground > maxTotalTimeInForeground)
                                 maxTotalTimeInForeground = appUse.totalTimeInForeground;
-                            // Log.e(TAG, "saveAppUsageStat: Deleted 2 -> " + packageName + "; " + totalTimeInForeground);
+                            Log.e(TAG, "saveAppUsageStat: Deleted 2 -> " + packageName + "; " + totalTimeInForeground);
                             db.execSQL(String.format(
                                     Locale.getDefault(),
                                     "delete from AppUse where id=%d;",
                                     appUse.id
                             ));
                         }
-                        //Log.e(TAG, "saveAppUsageStat: Inserted 3 -> " + packageName + "; " + totalTimeInForeground);
+                        Log.e(TAG, "saveAppUsageStat: Inserted 3 -> " + packageName + "; " + totalTimeInForeground);
                         db.execSQL(String.format(Locale.getDefault(),
                                 "insert into AppUse(package_name, start_timestamp, end_timestamp, total_time_in_foreground) values(?,%d,%d,%d);",
                                 minStartTimestamp,

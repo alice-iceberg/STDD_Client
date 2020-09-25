@@ -121,9 +121,15 @@ public class NotificationService extends NotificationListenerService {
                     DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, vibeMusicPlayingDataType);
                 }
             }
-        } else if (packageName.equals("com.nematjon.edd_client_season_two")) {
+        }
+
+        //endregion
+
+        //region EMA received
+        else if (packageName.equals("com.nematjon.edd_client_season_two")) {
             Log.e("TAG", "Notif service firebase");
             //EMA is received
+            SharedPreferences rewardPrefs = getSharedPreferences("Rewards", MODE_PRIVATE);
             SharedPreferences loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
             SharedPreferences.Editor editor = loginPrefs.edit();
             editor.putBoolean("ema_btn_make_visible", true);
@@ -133,10 +139,26 @@ public class NotificationService extends NotificationListenerService {
             //show ema alert dialog
             int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
             if (ema_order != 0 && ema_order != -1) {
-                startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                //check whether the EMA was already answered
+                if (ema_order == 1) {
+                    boolean ema1_answered = rewardPrefs.getBoolean("ema1_answered", false);
+                    if (!ema1_answered)
+                        startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                } else if (ema_order == 2) {
+                    boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
+                    if (!ema2_answered)
+                        startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                } else if (ema_order == 3) {
+                    boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+                    if (!ema3_answered)
+                        startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                } else if (ema_order == 4) {
+                    boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
+                    if (!ema4_answered)
+                        startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                }
             }
         }
-
         //endregion
     }
 
