@@ -70,7 +70,7 @@ public class Camera2Capture {
     private Context mContext;
 
     //todo: change 24 hours
-    private static final int HOURS24 = 30; //in sec
+    private static final int HOURS24 = 24 * 60 * 60; //in sec
     private static long prevCapturetime = 0;
     private static long prevCapturetimeCropped = 0;
 
@@ -155,11 +155,11 @@ public class Camera2Capture {
             requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, 270); //get proper rotation
 
             //region Android 9 and below
-              Range<Integer> my_range = new Range<>(15, 15);
-              requestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, my_range);
+             // Range<Integer> my_range = new Range<>(15, 15);
+             // requestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, my_range);
 
 
-            cameraCaptureSession.setRepeatingRequest(requestBuilder.build(), null,null);
+            //cameraCaptureSession.setRepeatingRequest(requestBuilder.build(), null,null);
             cameraCaptureSession.capture(requestBuilder.build(), null, null);
 
         } catch (CameraAccessException e) {
@@ -201,7 +201,7 @@ public class Camera2Capture {
             ByteBuffer buffer;
             byte[] bytes;
 
-            Image image = mImageReader.acquireLatestImage();
+            Image image = mImageReader.acquireNextImage();
             buffer = image.getPlanes()[0].getBuffer();
             bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
             buffer.get(bytes); // copies image from buffer to byte array

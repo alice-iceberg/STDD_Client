@@ -8,9 +8,9 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -41,8 +41,8 @@ public class EMAOverlayShowingService extends Service {
             LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
             WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                    1000,
-                    500,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     PixelFormat.TRANSLUCENT);

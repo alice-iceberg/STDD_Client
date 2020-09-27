@@ -156,8 +156,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static long prevPressureStopTime = 0;
     private static long prevAudioRecordStartTime = 0;
     private static long prevWifiScanStartTime = 0;
-    private static long prevAppUsageStartTime = 0;
-    private static long prevNetworkUsageStartTime = 0;
+    private static long prevAppUsageStartTime = System.currentTimeMillis(); //at the beginning app usage db is empty  
+    private static long prevNetworkUsageStartTime = System.currentTimeMillis();
     private static long prevCalendarEventsStartTime = 0;
     private static long prevStoredMediaStartTime = 0;
     private static long prevDeviceInfoStartTime = 0;
