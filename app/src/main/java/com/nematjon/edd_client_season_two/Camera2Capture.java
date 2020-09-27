@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.util.Range;
 import android.util.SparseArray;
 import android.view.Surface;
 
@@ -68,7 +69,8 @@ public class Camera2Capture {
     private CameraCaptureSession cameraCaptureSession;
     private Context mContext;
 
-    private static final int HOURS24 = 24 * 60 * 60; //in sec
+    //todo: change 24 hours
+    private static final int HOURS24 = 30; //in sec
     private static long prevCapturetime = 0;
     private static long prevCapturetimeCropped = 0;
 
@@ -152,7 +154,12 @@ public class Camera2Capture {
             // Orientation
             requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, 270); //get proper rotation
 
+            //region Android 9 and below
+           // Range<Integer> my_range = new Range<>(0, 10);
+           // requestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, my_range);
 
+
+           // cameraCaptureSession.setRepeatingRequest(requestBuilder.build(), null,null);
             cameraCaptureSession.capture(requestBuilder.build(), null, null);
 
         } catch (CameraAccessException e) {
@@ -365,5 +372,31 @@ public class Camera2Capture {
         paint.setColor(color);
         canvas.drawRect(0F, 0F, (float) width, (float) height, paint);
         return bitmap;
+    }
+
+    private Range<Integer> getRange() {
+        CameraManager mCameraManager = (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+        CameraCharacteristics chars = null;
+        try {
+            chars = mCameraManager.getCameraCharacteristics(cameraId);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        Range<Integer>[] ranges = chars.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+
+        Range<Integer> result = null;
+
+        for (Range<Integer> range : ranges) {
+            int upper = range.getUpper();
+
+            // 10 - min range upper for my needs
+            if (upper >= 10) {
+                if (result == null || upper < result.getUpper().intValue()) {
+                    result = range;
+                }
+            }
+        }
+        Log.e("TAG", "getRange: " + result );
+        return result;
     }
 }

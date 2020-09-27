@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.TrafficStats;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -28,6 +29,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.CalendarContract;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -51,11 +53,13 @@ import com.google.android.gms.location.ActivityTransition;
 import com.google.android.gms.location.ActivityTransitionRequest;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.protobuf.ByteString;
+import com.nematjon.edd_client_season_two.AppUseDb;
 import com.nematjon.edd_client_season_two.AuthActivity;
 import com.nematjon.edd_client_season_two.Camera2Capture;
 import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.R;
+import com.nematjon.edd_client_season_two.StoredMedia;
 import com.nematjon.edd_client_season_two.smartwatch.SAPAndroidAgent;
 import com.nematjon.edd_client_season_two.Tools;
 import com.nematjon.edd_client_season_two.receivers.ActivityTransRcvr;
@@ -106,6 +110,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int TAKE_PHOTO_PERIOD = 15; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int SMARTWATCH_PERIOD = 90; // in sec
+    private static final int APP_USAGE_PERIOD = 4 * 60 * 60; // in sec
+    private static final int NETWORK_USAGE_PERIOD = 4 * 60 * 60; // in sec
+    private static final int STORED_MEDIA_PERIOD = 4 * 60 * 60; // in sec
+    private static final int CALENDAR_EVENTS_PERIOD = 4 * 60 * 60; // in sec
+    private static final int DEVICE_INFO_PERIOD = 24 * 60 * 60; // in sec
     private static final int INSTAGRAM_POSTS_NUMBER = 5;
     private static final int HOURS24 = 24 * 60 * 60; // in sec
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
@@ -133,6 +142,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static SharedPreferences confPrefs;
     static SharedPreferences phoneUsageVariablesPrefs;
     static SharedPreferences instagramPrefs;
+    static SharedPreferences networkPrefs;
 
     static int stepDetectorDataSrcId;
     static int pressureDataSrcId;
@@ -146,6 +156,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static long prevPressureStopTime = 0;
     private static long prevAudioRecordStartTime = 0;
     private static long prevWifiScanStartTime = 0;
+    private static long prevAppUsageStartTime = 0;
+    private static long prevNetworkUsageStartTime = 0;
+    private static long prevCalendarEventsStartTime = 0;
+    private static long prevStoredMediaStartTime = 0;
+    private static long prevDeviceInfoStartTime = 0;
 
     static NotificationManager mNotificationManager;
     static Boolean permissionNotificationPosted;
@@ -268,6 +283,145 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 }
             }
             //endregion
+
+            // region checking and updating device information
+            currentTime = System.currentTimeMillis();
+            boolean canDeviceInfoCheck = (currentTime > prevDeviceInfoStartTime + DEVICE_INFO_PERIOD * 1000);
+            String current_device_model = Build.MODEL;
+            int current_api_level = Build.VERSION.SDK_INT;
+            boolean deviceInfoChanged = false;
+
+            int deviceInfoSourceId = confPrefs.getInt("ANDROID_DEVICE_INFO", -1);
+            String deviceModelType = "DEVICE MODEL";
+            String apiLevelType = "API";
+
+            if(canDeviceInfoCheck) {
+                String stored_device_model = loginPrefs.getString("deviceModel", null);
+                int stored_api_level = loginPrefs.getInt("apiLevel", 0);
+
+
+                if (!current_device_model.equals(stored_device_model) || (current_api_level != stored_api_level)) {
+                    SharedPreferences.Editor editorLogin = loginPrefs.edit();
+                    editorLogin.putString("deviceModel", current_device_model);
+                    editorLogin.putInt("apiLevel", current_api_level);
+                    editorLogin.apply();
+                }
+
+                String updated_device_model = loginPrefs.getString("deviceModel", null);
+                int updated_api_level = loginPrefs.getInt("apiLevel", 0);
+
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_device_model, deviceModelType);
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_api_level, apiLevelType);
+
+                prevDeviceInfoStartTime = currentTime;
+            }
+            // endregion
+
+            //region saving the total number of Calendar Events
+            Cursor calendarCursor;
+            String calendar_type = "EVENT";
+            currentTime = System.currentTimeMillis();
+            boolean canCalendarEventsScan = (currentTime > prevCalendarEventsStartTime + CALENDAR_EVENTS_PERIOD * 1000);
+            if(canCalendarEventsScan) {
+                calendarCursor = getApplicationContext().getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, null, null, null);
+                assert calendarCursor != null;
+                int total_number_of_events = calendarCursor.getCount();
+                int calendarSourceId = confPrefs.getInt("CALENDAR", -1);
+                assert calendarSourceId != -1;
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(calendarSourceId, nowTime, 1.0f, nowTime, total_number_of_events, calendar_type);
+                calendarCursor.close();
+
+                prevCalendarEventsStartTime = currentTime;
+            }
+            //endregion
+
+            //region saving the total number of Images, Music and Video Files stored
+            currentTime = System.currentTimeMillis();
+            boolean canStoredMediaCheck = (currentTime > prevStoredMediaStartTime + STORED_MEDIA_PERIOD * 1000);
+            StoredMedia storedMedia = new StoredMedia();
+            String image_media_type = "IMAGE";
+            String video_media_type = "VIDEO";
+            String music_media_type = "MUSIC";
+            int totalNumOfImages = 0;
+            int totalNumOfVideoFiles = 0;
+            int totalNumOfMusic = 0;
+            if(canStoredMediaCheck) {
+                totalNumOfImages = storedMedia.totalNumberOfImages(getApplicationContext().getContentResolver());
+                totalNumOfVideoFiles = storedMedia.totalNumberOfVideoFiles(getApplicationContext().getContentResolver());
+                totalNumOfMusic = storedMedia.totalNumOfMusic(getApplicationContext().getContentResolver());
+                int storedMediaSourceId = confPrefs.getInt("STORED_MEDIA", -1);
+                assert storedMediaSourceId != -1;
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfMusic, music_media_type);
+
+                prevStoredMediaStartTime = currentTime;
+            }
+            //endregion
+
+            //region saving transmitted & received network data
+            currentTime = System.currentTimeMillis();
+            boolean canNetworkUsageCheck = (currentTime > prevNetworkUsageStartTime + NETWORK_USAGE_PERIOD * 1000);
+            networkPrefs = getSharedPreferences("NetworkVariables", MODE_PRIVATE);
+            String usage_tx_type = "TX";
+            String usage_rx_type = "RX";
+
+            if(canNetworkUsageCheck) {
+
+                long prevRx = networkPrefs.getLong("prev_rx_network_data", 0);
+                long prevTx = networkPrefs.getLong("prev_tx_network_data", 0);
+
+                long rxBytes = TrafficStats.getTotalRxBytes() - prevRx;
+                long txBytes = TrafficStats.getTotalTxBytes() - prevTx;
+
+                final long time_start = (nowTime - SERVICE_START_X_MIN_BEFORE_EMA * 60 * 1000) + 1000; // add one second to start time
+                int networkDataSourceId = confPrefs.getInt("NETWORK_USAGE", -1);
+                assert networkDataSourceId != -1;
+                DbMgr.saveMixedData(networkDataSourceId, nowTime, 1.0f, time_start, nowTime, rxBytes, usage_tx_type);
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(networkDataSourceId, nowTime, 1.0f, time_start, nowTime, txBytes, usage_rx_type);
+
+                SharedPreferences.Editor editor = networkPrefs.edit();
+                editor.putLong("prev_rx_network_data", rxBytes);
+                editor.putLong("prev_tx_network_data", txBytes);
+                editor.apply();
+                //endregion
+
+                // saving app usage data
+                currentTime = System.currentTimeMillis();
+                boolean canAppUsageUpload = (currentTime > prevAppUsageStartTime + APP_USAGE_PERIOD * 1000);
+                if(canAppUsageUpload) {
+                    final long app_usage_time_end = System.currentTimeMillis();
+                    final long app_usage_time_start = (app_usage_time_end - SERVICE_START_X_MIN_BEFORE_EMA * 60 * 1000) + 1000; // add one second to start time
+                    int appUseDataSourceId = confPrefs.getInt("APPLICATION_USAGE", -1);
+                    assert appUseDataSourceId != -1;
+                    Cursor cursor = AppUseDb.getAppUsage();
+                    if (cursor.moveToFirst()) {
+                        do {
+                            Log.e(TAG, "doInBackground: submitting app usage");
+                            String package_name = cursor.getString(1);
+                            long start_time = cursor.getLong(2);
+                            long end_time = cursor.getLong(3);
+                            if (Tools.inRange(start_time, app_usage_time_start, app_usage_time_end) && Tools.inRange(end_time, app_usage_time_start, app_usage_time_end))
+                                if (start_time < end_time) {
+                                    DbMgr.saveMixedData(appUseDataSourceId, start_time, 1.0f, start_time, end_time, package_name);
+                                }
+                        }
+                        while (cursor.moveToNext());
+                    }
+                    cursor.close();
+
+                    prevAppUsageStartTime = currentTime;
+                }
+                //endregion
+
+            }
 
             mainHandler.postDelayed(mainRunnable, 5 * 1000);
         }
