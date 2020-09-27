@@ -10,10 +10,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.nematjon.edd_client_season_two.EMAActivity;
 import com.nematjon.edd_client_season_two.R;
@@ -24,7 +24,7 @@ import java.util.Calendar;
 public class EMAOverlayShowingService extends Service {
 
     private WindowManager windowManager;
-    private ConstraintLayout emaAlertDialogView;
+    private LinearLayout emaAlertDialogView;
     private Button buttonAnswer;
     private Button buttonCancel;
     private int ema_order;
@@ -47,7 +47,7 @@ public class EMAOverlayShowingService extends Service {
                     PixelFormat.TRANSLUCENT);
 
             params.gravity = Gravity.TOP | Gravity.CENTER;
-            emaAlertDialogView = (ConstraintLayout) inflater.inflate(R.layout.ema_alert_dialog, null);
+            emaAlertDialogView = (LinearLayout) inflater.inflate(R.layout.ema_alert_dialog, null);
             buttonAnswer = (Button) emaAlertDialogView.findViewById(R.id.emaAlertButtonAnswer);
             buttonCancel = (Button) emaAlertDialogView.findViewById(R.id.emaAlertButtonCancel);
 
