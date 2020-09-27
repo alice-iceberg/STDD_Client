@@ -404,7 +404,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     Cursor cursor = AppUseDb.getAppUsage();
                     if (cursor.moveToFirst()) {
                         do {
-                            Log.e(TAG, "doInBackground: submitting app usage");
                             String package_name = cursor.getString(1);
                             long start_time = cursor.getLong(2);
                             long end_time = cursor.getLong(3);
@@ -485,7 +484,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable appUsageSaveRunnable = new Runnable() {
         public void run() {
             Tools.checkAndSaveUsageAccessStats(getApplicationContext());
-            Log.e(TAG, "run: Sending app stats");
             appUsageSaveHandler.postDelayed(this, APP_USAGE_SEND_PERIOD * 1000);
         }
     };

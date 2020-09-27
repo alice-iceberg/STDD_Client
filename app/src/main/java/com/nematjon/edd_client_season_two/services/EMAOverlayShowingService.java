@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -24,7 +25,7 @@ import java.util.Calendar;
 public class EMAOverlayShowingService extends Service {
 
     private WindowManager windowManager;
-    private LinearLayout emaAlertDialogView;
+    private RelativeLayout emaAlertDialogView;
     private Button buttonAnswer;
     private Button buttonCancel;
     private int ema_order;
@@ -47,7 +48,7 @@ public class EMAOverlayShowingService extends Service {
                     PixelFormat.TRANSLUCENT);
 
             params.gravity = Gravity.TOP | Gravity.CENTER;
-            emaAlertDialogView = (LinearLayout) inflater.inflate(R.layout.ema_alert_dialog, null);
+            emaAlertDialogView = (RelativeLayout) inflater.inflate(R.layout.ema_alert_dialog, null);
             buttonAnswer = (Button) emaAlertDialogView.findViewById(R.id.emaAlertButtonAnswer);
             buttonCancel = (Button) emaAlertDialogView.findViewById(R.id.emaAlertButtonCancel);
 
