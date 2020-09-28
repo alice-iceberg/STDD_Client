@@ -137,7 +137,8 @@
         </service>
         <service
             android:name=".services.MainService"
-            android:foregroundServiceType="location" />
+            android:foregroundServiceType="location"
+            />
         <service
             android:name=".FirebaseNotifications"
             android:exported="false">

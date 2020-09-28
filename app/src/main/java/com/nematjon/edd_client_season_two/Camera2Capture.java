@@ -70,7 +70,9 @@ public class Camera2Capture {
     private Context mContext;
 
     //todo: change 24 hours
-    private static final int HOURS24 = 24 * 60 * 60; //in sec
+    private static final int HOURS24 = 30; //in sec
+    protected static final int CAMERA_CALIBRATION_DELAY = 1000; //in miliseconds
+    protected static long cameraCaptureStartTime;
     private static long prevCapturetime = 0;
     private static long prevCapturetimeCropped = 0;
 
@@ -152,16 +154,18 @@ public class Camera2Capture {
             // Focus
             requestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
             // Orientation
-            requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, 270); //get proper rotation
+            requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, 270); //get vertical rotation
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                cameraCaptureSession.capture(requestBuilder.build(), null, null);
+            }
             //region Android 9 and below
-             // Range<Integer> my_range = new Range<>(15, 15);
-             // requestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, my_range);
-
-
-            //cameraCaptureSession.setRepeatingRequest(requestBuilder.build(), null,null);
-            cameraCaptureSession.capture(requestBuilder.build(), null, null);
-
+            else {
+                requestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, getRange());
+                cameraCaptureSession.setRepeatingRequest(requestBuilder.build(), null, null);
+                cameraCaptureStartTime = System.currentTimeMillis();
+            }
+            //endregion
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -192,40 +196,16 @@ public class Camera2Capture {
     }
 
 
-    private final ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+    private final ImageReader.OnImageAvailableListener onImageAvailableListener = mImageReader -> {
 
-        @Override
-        public void onImageAvailable(ImageReader mImageReader) {
 
-            Log.e("TAG", "processImage: ONIMAGEAVAILABLE");
-            ByteBuffer buffer;
-            byte[] bytes;
-
-            Image image = mImageReader.acquireNextImage();
-            buffer = image.getPlanes()[0].getBuffer();
-            bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
-            buffer.get(bytes); // copies image from buffer to byte array
-
-            try {
-                image.close();
-            } catch (Exception e) {
-                Log.e("TAG", "onImageAvailable: image could not be closed");
-            }
-
-            if (cameraDevice != null) {
-                image.close();
-                cameraDevice.close();
-                cameraDevice = null;
-            }
-
-            try {
-                cropFace(bytes, mContext);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            processImageAndroidQandMore(mImageReader);
+            Log.e("TAG", "processImage: ONIMAGEAVAILABLE10");
+        }else{
+            processImageAndroidQandLess(mImageReader);
+            Log.e("TAG", "processImage: ONIMAGEAVAILABLE9");
         }
-
-
     };
 
 
@@ -396,7 +376,69 @@ public class Camera2Capture {
                 }
             }
         }
-        Log.e("TAG", "getRange: " + result );
+        Log.e("TAG", "getRange: " + result);
         return result;
     }
+
+    private void processImageAndroidQandMore(ImageReader mImageReader) {
+        ByteBuffer buffer;
+        byte[] bytes;
+
+        Image image = mImageReader.acquireNextImage();
+        if (image != null) {
+            buffer = image.getPlanes()[0].getBuffer();
+            bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
+            buffer.get(bytes); // copies image from buffer to byte array
+            try {
+                image.close();
+            } catch (Exception e) {
+                Log.e("TAG", "onImageAvailable: image could not be closed");
+            }
+
+
+            try {
+                cropFace(bytes, mContext);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (cameraDevice != null) {
+            image.close();
+            cameraDevice.close();
+            cameraDevice = null;
+        }
+    }
+
+    private void processImageAndroidQandLess(ImageReader mImageReader) {
+        ByteBuffer buffer;
+        byte[] bytes;
+
+        Image image = mImageReader.acquireLatestImage();
+        if (image != null) {
+            if (System.currentTimeMillis() > cameraCaptureStartTime + CAMERA_CALIBRATION_DELAY) {
+                buffer = image.getPlanes()[0].getBuffer();
+                bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
+                buffer.get(bytes); // copies image from buffer to byte array
+                try {
+                    image.close();
+                } catch (Exception e) {
+                    Log.e("TAG", "onImageAvailable: image could not be closed");
+                }
+
+
+                try {
+                    cropFace(bytes, mContext);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (cameraDevice != null) {
+                image.close();
+                cameraDevice.close();
+                cameraDevice = null;
+            }
+        }
+    }
+
+
 }
