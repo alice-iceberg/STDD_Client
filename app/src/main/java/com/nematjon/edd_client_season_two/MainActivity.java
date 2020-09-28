@@ -54,8 +54,6 @@ import kotlin.text.Charsets;
 
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
-import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
-
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -81,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvBonus;
     private TextView tvTotalReward;
     private NavigationView navigationView;
+    private AlertDialog dialog;
     //endregion
 
     private Intent customSensorsService;
@@ -89,12 +88,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SharedPreferences configPrefs;
     private SharedPreferences rewardPrefs;
 
-    private AlertDialog dialog;
+    private static List<String> uniqueValues = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.e(TAG, "onCreate: ONCREATE____________________");
 
         init();
 
@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
 
+
         setEmaResetAlarm();
 
     }
@@ -174,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
+        Log.e(TAG, "onResume: ONRESUME_______________________" );
         navigationView.setCheckedItem(R.id.nav_home);
 
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
@@ -315,6 +317,65 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         }, 500);
+    }
+
+    public void updateEMAresponses(List<String> uniqueValues){
+
+        Log.e(TAG, "updateEMAresponses: Unique values size" + uniqueValues.size() );
+        Calendar fromCal = Calendar.getInstance();
+        fromCal.set(Calendar.HOUR_OF_DAY, 0);
+        fromCal.set(Calendar.MINUTE, 0);
+        fromCal.set(Calendar.SECOND, 0);
+        fromCal.set(Calendar.MILLISECOND, 0);
+
+        Calendar tillCal = (Calendar) fromCal.clone();
+        tillCal.set(Calendar.HOUR_OF_DAY, 23);
+        tillCal.set(Calendar.MINUTE, 59);
+        tillCal.set(Calendar.SECOND, 59);
+
+        if(uniqueValues.size() > 0) {
+
+            int ema_answered_count = 0;
+            SharedPreferences.Editor editor = rewardPrefs.edit();
+
+            for (String val : uniqueValues) {
+                if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal.getTimeInMillis())) {
+                    ema_answered_count++;
+                    switch (Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1])) {
+                        case 1:
+                            editor.putBoolean("ema1_answered", true);
+                            editor.apply();
+                            break;
+                        case 2:
+                            editor.putBoolean("ema2_answered", true);
+                            editor.apply();
+                            break;
+                        case 3:
+                            editor.putBoolean("ema3_answered", true);
+                            editor.apply();
+                            break;
+                        case 4:
+                            editor.putBoolean("ema4_answered", true);
+                            editor.apply();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            editor.putInt("ema_answered_count", ema_answered_count);
+            editor.apply();
+
+            if (ema_answered_count == 0) {
+                editor.putBoolean("ema1_answered", false);
+                editor.putBoolean("ema2_answered", false);
+                editor.putBoolean("ema3_answered", false);
+                editor.putBoolean("ema4_answered", false);
+                editor.apply();
+            }
+        }
+
     }
 
     @Override
@@ -480,12 +541,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             tillCal1.set(Calendar.SECOND, 59);
 
                             //check for duplicates and get only unique ones
-                            List<String> uniqueValues = new ArrayList<>();
+                            // List<String> uniqueValues = new ArrayList<>();
                             for (ByteString item : responseMessage.getValueList()) {
                                 String strItem = item.toString(Charsets.UTF_8);
                                 if (!uniqueValues.contains(strItem))
                                     uniqueValues.add(strItem);
                             }
+
+                           updateEMAresponses(uniqueValues);
 
                             int rewardPoints = uniqueValues.size() * 250;
                             int bonus = calculateBonusPoints(uniqueValues);
@@ -594,7 +657,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
-
 
     public void setEmaResetAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);

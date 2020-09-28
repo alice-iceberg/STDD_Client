@@ -110,7 +110,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int TAKE_PHOTO_PERIOD = 15; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int SMARTWATCH_PERIOD = 90; // in sec
-    private static final int APP_USAGE_PERIOD = 4 * 60 * 60; // in sec
+    private static final int APP_USAGE_PERIOD = 60 * 60; // in sec
     private static final int NETWORK_USAGE_PERIOD = 4 * 60 * 60; // in sec
     private static final int STORED_MEDIA_PERIOD = 4 * 60 * 60; // in sec
     private static final int CALENDAR_EVENTS_PERIOD = 4 * 60 * 60; // in sec
@@ -156,7 +156,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static long prevPressureStopTime = 0;
     private static long prevAudioRecordStartTime = 0;
     private static long prevWifiScanStartTime = 0;
-    private static long prevAppUsageStartTime = System.currentTimeMillis(); //at the beginning app usage db is empty  
+    private static long prevAppUsageStartTime = System.currentTimeMillis(); //at the beginning app usage db is empty
     private static long prevNetworkUsageStartTime = System.currentTimeMillis();
     private static long prevCalendarEventsStartTime = 0;
     private static long prevStoredMediaStartTime = 0;

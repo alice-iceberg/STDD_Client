@@ -325,10 +325,31 @@ public class Tools {
         SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
         SharedPreferences locationPrefs = con.getSharedPreferences("UserLocations", MODE_PRIVATE);
         SharedPreferences instagramPrefs = con.getSharedPreferences("InstagramPrefs", MODE_PRIVATE);
+        SharedPreferences rewardPrefs = con.getSharedPreferences("Rewards", MODE_PRIVATE);
+        SharedPreferences networkPrefs = con.getSharedPreferences("NetworkVariables", MODE_PRIVATE);
+        SharedPreferences phoneUsageVariablesPrefs = con.getSharedPreferences("PhoneUsageVariablesPrefs", MODE_PRIVATE);
+        SharedPreferences keylogVariablesPrefs = con.getSharedPreferences("KeyLogVariables", MODE_PRIVATE);
 
         SharedPreferences.Editor editorLocation = locationPrefs.edit();
         editorLocation.clear();
         editorLocation.apply();
+
+        SharedPreferences.Editor editorRewards = rewardPrefs.edit();
+        editorRewards.clear();
+        editorRewards.apply();
+
+        SharedPreferences.Editor editorNetwork = networkPrefs.edit();
+        editorNetwork.clear();
+        editorNetwork.apply();
+
+        SharedPreferences.Editor editorPhoneUsage = phoneUsageVariablesPrefs.edit();
+        editorPhoneUsage.clear();
+        editorPhoneUsage.apply();
+
+        SharedPreferences.Editor editorKeylog = keylogVariablesPrefs.edit();
+        editorKeylog.clear();
+        editorKeylog.apply();
+
 
         SharedPreferences.Editor editorLogin = loginPrefs.edit();
         editorLogin.remove("username");
