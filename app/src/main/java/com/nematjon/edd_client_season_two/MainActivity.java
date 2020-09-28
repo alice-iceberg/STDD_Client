@@ -167,9 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
 
-
         setEmaResetAlarm();
-
     }
 
     @Override
@@ -239,21 +237,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvRewards.setText(getString(R.string.earned_points, rewardPoints));
         tvBonus.setText(getString(R.string.bonus_points, bonus));
         tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
+
+        emaButtonVisibilityCheck();
     }
 
     public void updateUI() {
 
-        int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
-        if (ema_order == 0) {
-            btnEMA.setVisibility(View.GONE);
-        } else {
-            boolean ema_btn_make_visible = loginPrefs.getBoolean("ema_btn_make_visible", true);
-            if (!ema_btn_make_visible) {
-                btnEMA.setVisibility(View.GONE);
-            } else {
-                btnEMA.setVisibility(View.VISIBLE);
-            }
-        }
+        emaButtonVisibilityCheck();
+
+//        else {
+//            boolean ema_btn_make_visible = loginPrefs.getBoolean("ema_btn_make_visible", true);
+//            if (!ema_btn_make_visible) {
+//                btnEMA.setVisibility(View.GONE);
+//            } else {
+//                btnEMA.setVisibility(View.VISIBLE);
+//            }
+//        }
 
         if (Tools.isNetworkAvailable()) {
             tvInternetStatus.setTextColor(ContextCompat.getColor(this, R.color.colorAccent));
@@ -376,6 +375,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
+    }
+
+    public void emaButtonVisibilityCheck(){
+        boolean ema_1_answered = rewardPrefs.getBoolean("ema1_answered", false);
+        boolean ema_2_answered = rewardPrefs.getBoolean("ema2_answered", false);
+        boolean ema_3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+        boolean ema_4_answered = rewardPrefs.getBoolean("ema4_answered", false);
+
+        int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
+        if (ema_order == 0) {
+            btnEMA.setVisibility(View.GONE);
+        } else if (ema_order == 1) {
+            if(ema_1_answered){
+                btnEMA.setVisibility(View.GONE);
+            }else{
+                btnEMA.setVisibility(View.VISIBLE);
+            }
+        } else if (ema_order == 2) {
+            if(ema_2_answered){
+                btnEMA.setVisibility(View.GONE);
+            }else{
+                btnEMA.setVisibility(View.VISIBLE);
+            }
+        } else if (ema_order == 3) {
+            if(ema_3_answered){
+                btnEMA.setVisibility(View.GONE);
+            }else{
+                btnEMA.setVisibility(View.VISIBLE);
+            }
+        } else if (ema_order == 4) {
+            if(ema_4_answered){
+                btnEMA.setVisibility(View.GONE);
+            }else{
+                btnEMA.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     @Override

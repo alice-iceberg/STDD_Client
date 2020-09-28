@@ -158,6 +158,7 @@
 
             <Button
                 android:id="@+id/btn_late_ema"
+                android:visibility="gone"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
