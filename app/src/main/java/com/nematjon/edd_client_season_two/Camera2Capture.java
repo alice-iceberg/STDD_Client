@@ -201,10 +201,8 @@ public class Camera2Capture {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             processImageAndroidQandMore(mImageReader);
-            Log.e("TAG", "processImage: ONIMAGEAVAILABLE10");
         }else{
             processImageAndroidQandLess(mImageReader);
-            Log.e("TAG", "processImage: ONIMAGEAVAILABLE9");
         }
     };
 

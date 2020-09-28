@@ -33,6 +33,7 @@ import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.services.KeyLogger;
 import com.nematjon.edd_client_season_two.services.NotificationService;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.util.Calendar;
 import java.util.Date;
@@ -365,6 +366,11 @@ public class Tools {
         editorInstagram.putBoolean("is_logged_in", false);
         editorInstagram.clear();
         editorInstagram.apply();
+        
+        //removing taken photos
+        File file = new File(con.getExternalFilesDir("Taken photos")+"");
+        deleteDir(file);
+        
     }
 
     static String formatMinutes(int minutes, Context context) {
@@ -404,5 +410,20 @@ public class Tools {
         return false;
     }
 
+    // For to Delete the directory inside list of files and inner Directory
+    public static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+        // The directory is now empty so delete it
+        return dir.delete();
+    }
 
 }
