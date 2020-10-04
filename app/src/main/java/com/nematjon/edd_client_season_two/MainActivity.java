@@ -436,7 +436,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView.setCheckedItem(R.id.nav_location);
                 break;
             case R.id.nav_sns:
-                finish();
                 navigationView.setCheckedItem(R.id.nav_sns);
                 SharedPreferences instagramPrefs = getSharedPreferences("InstagramPrefs", Context.MODE_PRIVATE);
                 boolean isLoggedIn = instagramPrefs.getBoolean("is_logged_in", false);

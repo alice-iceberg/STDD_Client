@@ -36,7 +36,9 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import com.github.instagram4j.instagram4j.IGAndroidDevice;
 import com.github.instagram4j.instagram4j.IGClient;
+import com.github.instagram4j.instagram4j.IGConstants;
 import com.github.instagram4j.instagram4j.models.media.reel.ReelMedia;
 import com.github.instagram4j.instagram4j.models.media.timeline.TimelineMedia;
 import com.github.instagram4j.instagram4j.requests.direct.DirectInboxRequest;
@@ -904,6 +906,21 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 .password(instagramPassword)
                                 .login();
 
+                        //region setting the user's device
+                        final String androidVersion = Build.VERSION.SDK_INT + "";
+                        final String androidRelease = Build.VERSION.RELEASE + "";
+                        final String dpi = getResources().getDisplayMetrics().densityDpi + "";
+                        final String displayResolution = getResources().getDisplayMetrics().widthPixels + "x" + getResources().getDisplayMetrics().heightPixels;
+                        final String manufacturer = Build.MANUFACTURER + "";
+                        final String model = Build.MODEL + "";
+                        final String device = Build.DEVICE + "";
+                        final String cpu = Build.BOARD + "";
+
+                        final String androidDeviceInfo = androidVersion + "/" + androidRelease + "; " + dpi + "dpi; " + displayResolution + "; " + manufacturer + "; " + model + "; " + device + "; " + cpu;
+                        IGAndroidDevice igAndroidDevice = new IGAndroidDevice(androidDeviceInfo);
+                        client.setDevice(igAndroidDevice);
+
+                        //endregion
                         DbMgr.saveMixedData(instagramDataSrcId, System.currentTimeMillis(), 1.0f, System.currentTimeMillis(), instagramUsername, instagram_username_type);
                         //region user info
                         UsersInfoRequest usersInfoRequest = new UsersInfoRequest((client.getSelfProfile().getPk()));
