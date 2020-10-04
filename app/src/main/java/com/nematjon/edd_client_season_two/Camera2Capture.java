@@ -69,8 +69,7 @@ public class Camera2Capture {
     private CameraCaptureSession cameraCaptureSession;
     private Context mContext;
 
-    //todo: change 24 hours
-    private static final int HOURS24 = 15; //in sec
+    private static final int HOURS24 = 24 * 60 * 60; //in sec
     protected static final int CAMERA_CALIBRATION_DELAY = 1000; //in miliseconds
     protected static long cameraCaptureStartTime;
     private static long prevCapturetime = 0;
