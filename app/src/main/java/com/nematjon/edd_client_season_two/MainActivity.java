@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.e(TAG, "onCreate: ONCREATE____________________");
 
         init();
 
@@ -173,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(TAG, "onResume: ONRESUME_______________________" );
         navigationView.setCheckedItem(R.id.nav_home);
 
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
@@ -204,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
         } else {
-            Toast.makeText(this, "Please connect to the Internet for the first launch!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.connect_internet_first_launch), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -318,9 +316,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }, 500);
     }
 
-    public void updateEMAresponses(List<String> uniqueValues){
+    public void updateEMAresponses(List<String> uniqueValues) {
 
-        Log.e(TAG, "updateEMAresponses: Unique values size" + uniqueValues.size() );
         Calendar fromCal = Calendar.getInstance();
         fromCal.set(Calendar.HOUR_OF_DAY, 0);
         fromCal.set(Calendar.MINUTE, 0);
@@ -332,14 +329,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tillCal.set(Calendar.MINUTE, 59);
         tillCal.set(Calendar.SECOND, 59);
 
-        if(uniqueValues.size() > 0) {
+        if (uniqueValues.size() > 0) {
 
-            int ema_answered_count = 0;
+            int emaAnsweredCountFromET = 0;
+            int emaAnsweredCountFromSharedPrefs = rewardPrefs.getInt("ema_answered_count", 0);
+
             SharedPreferences.Editor editor = rewardPrefs.edit();
 
             for (String val : uniqueValues) {
                 if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal.getTimeInMillis())) {
-                    ema_answered_count++;
+                    emaAnsweredCountFromET++;
                     switch (Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1])) {
                         case 1:
                             editor.putBoolean("ema1_answered", true);
@@ -363,10 +362,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
 
-            editor.putInt("ema_answered_count", ema_answered_count);
-            editor.apply();
+            if(emaAnsweredCountFromET > emaAnsweredCountFromSharedPrefs) {
+                editor.putInt("ema_answered_count", emaAnsweredCountFromET);
+                editor.apply();
+            }
 
-            if (ema_answered_count == 0) {
+            if (emaAnsweredCountFromSharedPrefs == 0 && emaAnsweredCountFromET == 0) {
                 editor.putBoolean("ema1_answered", false);
                 editor.putBoolean("ema2_answered", false);
                 editor.putBoolean("ema3_answered", false);
@@ -377,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public void emaButtonVisibilityCheck(){
+    public void emaButtonVisibilityCheck() {
         boolean ema_1_answered = rewardPrefs.getBoolean("ema1_answered", false);
         boolean ema_2_answered = rewardPrefs.getBoolean("ema2_answered", false);
         boolean ema_3_answered = rewardPrefs.getBoolean("ema3_answered", false);
@@ -387,27 +388,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (ema_order == 0) {
             btnEMA.setVisibility(View.GONE);
         } else if (ema_order == 1) {
-            if(ema_1_answered){
+            if (ema_1_answered) {
                 btnEMA.setVisibility(View.GONE);
-            }else{
+            } else {
                 btnEMA.setVisibility(View.VISIBLE);
             }
         } else if (ema_order == 2) {
-            if(ema_2_answered){
+            if (ema_2_answered) {
                 btnEMA.setVisibility(View.GONE);
-            }else{
+            } else {
                 btnEMA.setVisibility(View.VISIBLE);
             }
         } else if (ema_order == 3) {
-            if(ema_3_answered){
+            if (ema_3_answered) {
                 btnEMA.setVisibility(View.GONE);
-            }else{
+            } else {
                 btnEMA.setVisibility(View.VISIBLE);
             }
         } else if (ema_order == 4) {
-            if(ema_4_answered){
+            if (ema_4_answered) {
                 btnEMA.setVisibility(View.GONE);
-            }else{
+            } else {
                 btnEMA.setVisibility(View.VISIBLE);
             }
         }
@@ -582,16 +583,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     uniqueValues.add(strItem);
                             }
 
-                           updateEMAresponses(uniqueValues);
+                            updateEMAresponses(uniqueValues);
 
-                            int rewardPoints = uniqueValues.size() * 250;
+                            int rewardPointsFromSharedPrefs = rewardPrefs.getInt("rewardPoints", 0);
+                            int rewardPointsFromET = uniqueValues.size() * 250;
+
                             int bonus = calculateBonusPoints(uniqueValues);
-
-                            // saving results to Shared Preferences
                             SharedPreferences.Editor editor = rewardPrefs.edit();
-                            editor.putInt("rewardPoints", rewardPoints);
+
+                            if (rewardPointsFromSharedPrefs > rewardPointsFromET) {
+                                //send more updated reward value to ET
+                                String reward_from_sharedPrefs_no_bonus_type = "TOTAL REWARD FROM SHARED PREFS WITHOUT BONUS";
+                                long nowTime = System.currentTimeMillis();
+                                int dataSourceId = configPrefs.getInt("REWARD_POINTS", -1);
+                                assert dataSourceId != -1;
+                                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, rewardPointsFromSharedPrefs, reward_from_sharedPrefs_no_bonus_type);
+
+                            } else if (rewardPointsFromSharedPrefs < rewardPointsFromET) {
+                                // save more updated reward to Shared Preferences
+                                editor.putInt("rewardPoints", rewardPointsFromET);
+                            }
+
                             editor.putInt("bonus", bonus);
                             editor.apply();
+
 
                         }
                     });

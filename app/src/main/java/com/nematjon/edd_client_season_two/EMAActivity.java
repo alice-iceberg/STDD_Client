@@ -35,6 +35,7 @@ public class EMAActivity extends AppCompatActivity {
     //region Constants
     private static final String TAG = EMAActivity.class.getSimpleName();
     public static final Short[] EMA_NOTIF_HOURS = {10, 14, 18, 22};  //in hours of day
+    public static final int ONE_EMA_REWARD = 250;
     //endregion
 
     //region UI  variables
@@ -111,8 +112,6 @@ public class EMAActivity extends AppCompatActivity {
     }
 
     public void clickSubmit(View view) {
-        Log.e(TAG, "clickSubmit: ");
-
         long timestamp = System.currentTimeMillis();
 
         String answers = String.format(Locale.US, "%d %d %d %d %d %d %d %d %d",
@@ -137,29 +136,37 @@ public class EMAActivity extends AppCompatActivity {
         editor.putBoolean("ema_btn_make_visible", false);
         editor.apply();
 
-        Log.e(TAG, "clickSubmit: " + emaOrder);
         int ema_answered_counter = rewardPrefs.getInt("ema_answered_count", 0);
+        int rewardPoints = rewardPrefs.getInt("rewardPoints", 0);
+
         SharedPreferences.Editor reward_editor = rewardPrefs.edit();
         if (emaOrder == 1) {
             reward_editor.putBoolean("ema1_answered", true);
             ema_answered_counter++;
+            rewardPoints+=ONE_EMA_REWARD;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
+            reward_editor.putInt("rewardPoints", rewardPoints);
             reward_editor.apply();
-
         } else if (emaOrder == 2) {
             reward_editor.putBoolean("ema2_answered", true);
             ema_answered_counter++;
+            rewardPoints+=ONE_EMA_REWARD;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
+            reward_editor.putInt("rewardPoints", rewardPoints);
             reward_editor.apply();
         } else if (emaOrder == 3) {
             reward_editor.putBoolean("ema3_answered", true);
             ema_answered_counter++;
+            rewardPoints+=ONE_EMA_REWARD;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
+            reward_editor.putInt("rewardPoints", rewardPoints);
             reward_editor.apply();
         } else if (emaOrder == 4) {
             reward_editor.putBoolean("ema4_answered", true);
             ema_answered_counter++;
+            rewardPoints+=ONE_EMA_REWARD;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
+            reward_editor.putInt("rewardPoints", rewardPoints);
             reward_editor.apply();
         }
 
@@ -170,18 +177,20 @@ public class EMAActivity extends AppCompatActivity {
 
         Toast.makeText(this, R.string.response_saved, Toast.LENGTH_SHORT).show();
         rewardDialog = new Dialog(this);
-        sendRewardsData(250);
-        showRewardPopup(250);
+        sendRewardsData(rewardPoints);
+        showRewardPopup(ONE_EMA_REWARD);
     }
 
     private void sendRewardsData(int points) {
         String reward_type = "REWARD";
+        String total_reward_without_bonus_type = "TOTAL REWARD WITHOUT BONUS";
         long nowTime = System.currentTimeMillis();
         SharedPreferences prefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = prefs.getInt("REWARD_POINTS", -1);
         assert dataSourceId != -1;
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HH:mm:ss", Locale.KOREA).format(Calendar.getInstance().getTime());
-        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, timeStamp, points, reward_type);
+        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, ONE_EMA_REWARD, reward_type);
+        nowTime = System.currentTimeMillis();
+        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, points, total_reward_without_bonus_type);
     }
 
     Dialog rewardDialog;

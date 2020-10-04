@@ -29,11 +29,9 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             SharedPreferences.Editor editor = loginPrefs.edit();
             editor.putBoolean("ema_btn_make_visible", true);
             editor.apply();
-            Toast.makeText(context, "EMA INTENT not 0", Toast.LENGTH_LONG).show();
         }
         //if it is 23:59 pm
         if (intent.getBooleanExtra("ema_reset", false)) {
-            Toast.makeText(context, "EMA reset", Toast.LENGTH_LONG).show();
             SharedPreferences.Editor ema_editor = rewardPrefs.edit();
             ema_editor.putBoolean("ema1_answered", false);
             ema_editor.putBoolean("ema2_answered", false);

@@ -110,4 +110,5 @@
     <string name="min">분</string>
     <string name="hour">시간</string>
     <string name="days">일</string>
+    <string name="connect_internet_first_launch">"Please connect to the Internet for the first launch!"</string>
 </resources>

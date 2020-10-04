@@ -128,4 +128,5 @@
     <string name="min">min</string>
     <string name="hour">h</string>
     <string name="days">days</string>
+    <string name="connect_internet_first_launch">"Please connect to the Internet for the first launch!"</string>
 </resources>
