@@ -38,7 +38,6 @@ import androidx.core.app.NotificationCompat;
 
 import com.github.instagram4j.instagram4j.IGAndroidDevice;
 import com.github.instagram4j.instagram4j.IGClient;
-import com.github.instagram4j.instagram4j.IGConstants;
 import com.github.instagram4j.instagram4j.models.media.reel.ReelMedia;
 import com.github.instagram4j.instagram4j.models.media.timeline.TimelineMedia;
 import com.github.instagram4j.instagram4j.requests.direct.DirectInboxRequest;
@@ -101,7 +100,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; // min
     public static final short HEARTBEAT_PERIOD = 30;  // in sec
     public static final short DATA_SUBMIT_PERIOD = 60;  // in sec
-    private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  // in sec
+    private static final short AUDIO_RECORDING_PERIOD = 2 * 60;  // in sec
     private static final short LIGHT_SENSOR_PERIOD = 5 * 60;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
     private static final short GRAVITY_SENSOR_PERIOD = 3; // in sec
@@ -113,7 +112,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int SMARTWATCH_PERIOD = 90; // in sec
     private static final int APP_USAGE_PERIOD = 60 * 60; // in sec
-    private static final int NETWORK_USAGE_PERIOD = 4 * 60 * 60; // in sec
+    private static final int NETWORK_USAGE_PERIOD = 20 * 60; // in sec
     private static final int STORED_MEDIA_PERIOD = 4 * 60 * 60; // in sec
     private static final int CALENDAR_EVENTS_PERIOD = 4 * 60 * 60; // in sec
     private static final int DEVICE_INFO_PERIOD = 24 * 60 * 60; // in sec
@@ -686,8 +685,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         Notification notification = builder.build();
         startForeground(ID_SERVICE, notification);
         //endregion
-
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
