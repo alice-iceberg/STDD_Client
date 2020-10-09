@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Manifest.permission.CHANGE_WIFI_STATE,
                     Manifest.permission.READ_CALENDAR,
                     Manifest.permission.READ_SMS,
+                    Manifest.permission.RECEIVE_SMS,
                     Manifest.permission.CAMERA,
             };
         }
