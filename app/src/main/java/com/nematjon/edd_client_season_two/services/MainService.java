@@ -392,6 +392,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 editor.putLong("prev_rx_network_data", rxBytes);
                 editor.putLong("prev_tx_network_data", txBytes);
                 editor.apply();
+                prevNetworkUsageStartTime = nowTime;
                 //endregion
 
                 // saving app usage data
