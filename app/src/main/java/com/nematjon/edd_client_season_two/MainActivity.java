@@ -2,7 +2,10 @@ package com.nematjon.edd_client_season_two;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.PendingIntent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 
 
@@ -33,6 +36,7 @@ import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
 import com.google.protobuf.ByteString;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
+import com.nematjon.edd_client_season_two.services.EMAOverlayShowingService;
 import com.nematjon.edd_client_season_two.services.MainService;
 
 import org.json.JSONArray;
@@ -80,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvTotalReward;
     private NavigationView navigationView;
     private AlertDialog dialog;
+    Dialog permissionsPopUp;
     //endregion
 
     private Intent customSensorsService;
@@ -159,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Manifest.permission.CAMERA,
             };
         }
+
+
 
         DbMgr.init(getApplicationContext());
 
@@ -466,9 +473,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
                     runOnUiThread(() -> dialog = Tools.requestPermissions(MainActivity.this));
                 } else {
-                    Log.e(TAG, "restartServiceClick: 3");
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
-                        Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             startForegroundService(customSensorsService);
                         } else {
@@ -714,18 +719,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent_reset = new Intent(MainActivity.this, EMAAlarmRcvr.class);
         intent_reset.putExtra("ema_reset", true); //time to reset EMA to 0
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 10, intent_reset, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent_remove = new Intent(MainActivity.this, EMAOverlayShowingService.class);
+        intent_remove.setAction("EMA_POP_UP_REMOVE");
+        intent_remove.putExtra("ema_pop_up_remove", true); // time to remove EMA pop up
+
+
+        PendingIntent pendingIntentReset = PendingIntent.getBroadcast(MainActivity.this, 10, intent_reset, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentRemove = PendingIntent.getBroadcast(MainActivity.this, 11, intent_remove, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (alarmManager == null)
             return;
 
-        Calendar firingCal = Calendar.getInstance();
-        firingCal.set(Calendar.HOUR_OF_DAY, 23); // at 11:59pm
-        firingCal.set(Calendar.MINUTE, 59); // Particular minute
-        firingCal.set(Calendar.SECOND, 0); // particular second
-        firingCal.set(Calendar.MILLISECOND, 0); // particular second
+        Calendar firingCalReset = Calendar.getInstance();
+        firingCalReset.set(Calendar.HOUR_OF_DAY, 23); // at 11:59pm
+        firingCalReset.set(Calendar.MINUTE, 59); // Particular minute
+        firingCalReset.set(Calendar.SECOND, 0); // particular second
+        firingCalReset.set(Calendar.MILLISECOND, 0); // particular second
 
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent); //repeat every day
+        Calendar firingCalRemove11 = Calendar.getInstance();
+        firingCalRemove11.set(Calendar.HOUR_OF_DAY, 11); // at 11:01am
+        firingCalRemove11.set(Calendar.MINUTE, 1); // Particular minute
+        firingCalRemove11.set(Calendar.SECOND, 0); // particular second
+        firingCalRemove11.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCalRemove15 = Calendar.getInstance();
+        firingCalRemove15.set(Calendar.HOUR_OF_DAY, 15); // at 3:01pm
+        firingCalRemove15.set(Calendar.MINUTE, 1); // Particular minute
+        firingCalRemove15.set(Calendar.SECOND, 0); // particular second
+        firingCalRemove15.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCalRemove19 = Calendar.getInstance();
+        firingCalRemove19.set(Calendar.HOUR_OF_DAY, 19); // at 7:01pm
+        firingCalRemove19.set(Calendar.MINUTE, 1); // Particular minute
+        firingCalRemove19.set(Calendar.SECOND, 0); // particular second
+        firingCalRemove19.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCalRemove23 = Calendar.getInstance();
+        firingCalRemove23.set(Calendar.HOUR_OF_DAY, 23); // at 11:01pm
+        firingCalRemove23.set(Calendar.MINUTE, 1); // Particular minute
+        firingCalRemove23.set(Calendar.SECOND, 0); // particular second
+        firingCalRemove23.set(Calendar.MILLISECOND, 0); // particular second
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalReset.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentReset); //repeat every day
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove11.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove15.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove19.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove23.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
     }
 
     private void loadCampaign() {
@@ -793,6 +832,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             sb.replace(sb.length() - 1, sb.length(), "");
         editor.putString("dataSourceNames", sb.toString());
         editor.apply();
+    }
+
+    public void showAboutPermissionsPopUp(){
+        permissionsPopUp.setContentView(R.layout.popup_about_permissions);
+        Button okBtn = permissionsPopUp.findViewById(R.id.okBtnId);
+        okBtn.setOnClickListener(v -> permissionsPopUp.dismiss());
+
+        Objects.requireNonNull(permissionsPopUp.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        permissionsPopUp.setCanceledOnTouchOutside(false);
+        permissionsPopUp.show();
     }
 
     @Override

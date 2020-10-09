@@ -562,6 +562,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
         }
     };
 
+    private Handler emaPopUpCheckHandler = new Handler();
+    private Runnable emaPopUpCheckRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+        }
+    };
 
     @Override
     public void onCreate() {

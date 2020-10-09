@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/ema_alertdialog_background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ema_alertdialog_title_background"
+        android:padding="10dp"
+        android:text="Please give permissions :)"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/colorWhite"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
+        android:text="We kindly ask you to give permissions. \nPlease, allow all!"
+        android:textColor="@color/colorTextPrimary"
+        android:textSize="16sp"
+        />
+
+    <Button
+        android:id="@+id/okBtnId"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/button_ema_answer_background"
+        android:text="OK"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        />
+
+</LinearLayout>

@@ -6,10 +6,10 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
+import android.app.Dialog;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -19,7 +19,6 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.location.LocationManager;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import android.net.ConnectivityManager;
@@ -51,9 +50,6 @@ import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 import static com.nematjon.edd_client_season_two.services.MainService.EMA_RESPONSE_EXPIRE_TIME;
 
 public class Tools {
-
-    private static final String TAG = Tools.class.getSimpleName();
-
     static final String DATA_SOURCE_SEPARATOR = " ";
     static int PERMISSION_ALL = 1;
     public static String[] PERMISSIONS = {
@@ -151,11 +147,7 @@ public class Tools {
                 .setTitle(activity.getString(R.string.permissions))
                 .setMessage(activity.getString(R.string.grant_permissions))
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Tools.grantPermissions(activity, PERMISSIONS);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> Tools.grantPermissions(activity, PERMISSIONS))
                 .setNegativeButton(android.R.string.cancel, null);
         return alertDialog.show();
     }
@@ -170,27 +162,21 @@ public class Tools {
 
         if (isAppUsageAccessNotGranted(activity.getApplicationContext())) {
             activity.startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            Log.e(TAG, "grantPermissions: APP usage");
         }
         if (!isGPSLocationOn(activity.getApplicationContext())) {
             activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            Log.e(TAG, "grantPermissions: GPS");
         }
         if (!Settings.canDrawOverlays(activity.getApplicationContext())) {
-            Log.e(TAG, "grantPermissions: OVERLAY");
             activity.startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
         if (isAccessibilityServiceNotEnabled(activity.getApplicationContext())) {
-            Log.e(TAG, "grantPermissions: ACCESSABILITY");
             activity.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
         if (isNotificationServiceNotEnabled(activity.getApplicationContext())) {
-            Log.e(TAG, "grantPermissions: APP NOTIF");
             activity.startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
 
         if (!simple_permissions_granted) {
-            Log.e(TAG, "grantPermissions: SIMPLE");
             ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL);
         }
     }

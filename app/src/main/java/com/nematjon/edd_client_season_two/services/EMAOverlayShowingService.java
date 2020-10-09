@@ -1,8 +1,10 @@
 package com.nematjon.edd_client_season_two.services;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -24,11 +26,12 @@ import java.util.Calendar;
 
 public class EMAOverlayShowingService extends Service {
 
-    private WindowManager windowManager;
-    private RelativeLayout emaAlertDialogView;
-    private Button buttonAnswer;
-    private Button buttonCancel;
-    private int ema_order;
+    BroadcastReceiver mReceiver;
+    public WindowManager windowManager;
+    public RelativeLayout emaAlertDialogView;
+    public Button buttonAnswer;
+    public Button buttonCancel;
+    public int ema_order;
 
 
     @Override
@@ -76,6 +79,12 @@ public class EMAOverlayShowingService extends Service {
             windowManager.addView(emaAlertDialogView, params);
 
         }
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("EMA_POP_UP_REMOVE");
+        mReceiver = new EmaDismissReceiver();
+        registerReceiver(mReceiver, intentFilter);
+
     }
 
 
@@ -85,5 +94,23 @@ public class EMAOverlayShowingService extends Service {
         return null;
     }
 
+    public class EmaDismissReceiver extends BroadcastReceiver {
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getBooleanExtra("ema_popup_remove", false)) {
+                if (windowManager != null) {
+                    windowManager.removeView(emaAlertDialogView);
+                    stopService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
 }
