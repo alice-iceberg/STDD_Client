@@ -4,8 +4,6 @@ import android.Manifest;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.PendingIntent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 
 
@@ -99,6 +97,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
+        boolean firstLaunch = loginPrefs.getBoolean("firstLaunch", true);
+
+        if(firstLaunch){
+            showFirstLaunchActivity();
+        }
 
         init();
 
@@ -834,14 +839,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         editor.apply();
     }
 
-    public void showAboutPermissionsPopUp(){
-        permissionsPopUp.setContentView(R.layout.popup_about_permissions);
-        Button okBtn = permissionsPopUp.findViewById(R.id.okBtnId);
-        okBtn.setOnClickListener(v -> permissionsPopUp.dismiss());
+//    public void showAboutPermissionsPopUp(){
+//        permissionsPopUp.setContentView(R.layout.popup_about_permissions);
+//        Button okBtn = permissionsPopUp.findViewById(R.id.okBtnId);
+//        okBtn.setOnClickListener(v -> permissionsPopUp.dismiss());
+//
+//        Objects.requireNonNull(permissionsPopUp.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//        permissionsPopUp.setCanceledOnTouchOutside(false);
+//        permissionsPopUp.show();
+//    }
 
-        Objects.requireNonNull(permissionsPopUp.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        permissionsPopUp.setCanceledOnTouchOutside(false);
-        permissionsPopUp.show();
+    public void showFirstLaunchActivity(){
+        startActivity(new Intent(MainActivity.this, FirstLaunchActivity.class));
+        SharedPreferences.Editor editor = loginPrefs.edit();
+        editor.putBoolean("firstLaunch", false);
+        editor.apply();
     }
 
     @Override

@@ -92,5 +92,9 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.2'
     implementation 'commons-codec:commons-codec:1.14'
 
+    //Animation library
+    implementation 'com.airbnb.android:lottie:3.4.1'
+
+
 
 }

@@ -110,5 +110,10 @@
     <string name="min">분</string>
     <string name="hour">시간</string>
     <string name="days">일</string>
-    <string name="connect_internet_first_launch">"Please connect to the Internet for the first launch!"</string>
+    <string name="connect_internet_first_launch">"첫 시작을 위해 인터넷에 연결해 주세요"</string>
+    <string name="continue_btn">Continue</string>
+    <string name="welcome">Welcome to YouNoOne</string>
+    <string name="thank_you">Thank you for participating!</string>
+    <string name="ask_for_permissions">YouNoOne will ask you to give permissions</string>
+    <string name="allow_all">Please, allow all =)</string>
 </resources>

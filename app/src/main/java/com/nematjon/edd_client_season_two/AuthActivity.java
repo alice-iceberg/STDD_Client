@@ -100,7 +100,7 @@ public class AuthActivity extends Activity {
                             final EtService.BindUserToCampaign.Response responseMessage = stub.bindUserToCampaign(requestMessage);
                             if (responseMessage.getSuccess())
                                 runOnUiThread(() -> {
-                                    Toast.makeText(AuthActivity.this, getResources().getString(R.string.successfully_authorized), Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(AuthActivity.this, getResources().getString(R.string.successfully_authorized), Toast.LENGTH_SHORT).show();
                                     loginPrefs = getApplicationContext().getSharedPreferences("UserLogin", MODE_PRIVATE);
                                     SharedPreferences.Editor editor = loginPrefs.edit();
                                     editor.putString(name, fullName);
