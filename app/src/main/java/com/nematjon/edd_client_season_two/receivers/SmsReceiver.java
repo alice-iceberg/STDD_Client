@@ -44,7 +44,6 @@ public class SmsReceiver extends BroadcastReceiver {
 
                         // Log and display the SMS message.
                         Log.e(TAG, "onReceive: " + msgs[i].getOriginatingAddress() + " : " + msgs[i].getMessageBody());
-                        Toast.makeText(context, msgs[i].getOriginatingAddress() + " : " + msgs[i].getMessageBody(), Toast.LENGTH_LONG).show();
                         int dataSourceId = confPrefs.getInt("SMS", -1);
                         assert dataSourceId != -1;
                         DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, msgs[i].getOriginatingAddress(), msgs[i].getMessageBody().length());
