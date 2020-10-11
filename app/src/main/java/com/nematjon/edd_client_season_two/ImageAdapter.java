@@ -80,7 +80,6 @@ public class ImageAdapter extends BaseAdapter {
             if(allImages.length > 0) {
                 for (int i = 0; i < allImages.length; i++) {
                     imagesPaths.add(folder.toString() + File.separator + allImages[i].getName());
-                    Log.e("TAG", "getAllImagesPath: Name of the file:" + imagesPaths.get(i));
                 }
             }
         }else {

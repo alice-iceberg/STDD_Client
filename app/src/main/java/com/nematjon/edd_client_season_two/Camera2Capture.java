@@ -221,13 +221,11 @@ public class Camera2Capture {
 
         final FaceDetector detector = getClient(options);
         detector.process(image).addOnSuccessListener(faces -> {
-            Log.e("TAG", "onSuccess: Face detected. Number of faces: " + faces.size());
-
             if (faces.size() == 1) { //when there are more than 1 faces, the app crashes
 
                 //region saving not cropped photo to phone once every 24 hours
-                File fileFull = new File(mContext.getExternalFilesDir("Taken photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
-                //File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+                File fileFull = new File(mContext.getExternalFilesDir("Taken photos") + File.separator + System.currentTimeMillis() + ".jpg");
+                //File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg");
                 FileOutputStream outputFull = null;
 
                 long currentTime = System.currentTimeMillis();
@@ -257,9 +255,7 @@ public class Camera2Capture {
                     float smile = 0f;
                     try {
                         smile = face.getSmilingProbability();
-                        Log.e("FACE", "SMILE: " + smile);
                     } catch (Exception e) {
-                        Log.e("TAG", "Could not find smile");
                         smile = 0f;
                     }
 
@@ -291,7 +287,6 @@ public class Camera2Capture {
                     output.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] faceByteArray = stream.toByteArray();
                     String faceInString = (Base64.getEncoder().encodeToString(faceByteArray));
-                    Log.e("TAG", "cropFace: STRING" + faceInString.length());
                     output.recycle();
 
                     // region save image to phone only every 24hours (once per day)
@@ -300,14 +295,12 @@ public class Camera2Capture {
                         try {
                             ous = new FileOutputStream(file);
                             ous.write(faceByteArray);
-                            Log.e("TAG", "cropFace: Cropped face saved");
                             ous.close();
                             prevCapturetimeCropped = nowtime;
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-
                     //endregion
 
                     //submitting data to server
@@ -373,7 +366,6 @@ public class Camera2Capture {
                 }
             }
         }
-        Log.e("TAG", "getRange: " + result);
         return result;
     }
 

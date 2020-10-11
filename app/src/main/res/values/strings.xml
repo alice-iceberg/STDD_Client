@@ -132,8 +132,7 @@
     <string name="continue_btn">Continue</string>
     <string name="welcome">Welcome to YouNoOne</string>
     <string name="thank_you">Thank you for participating!</string>
-    <string name="ask_for_permissions">YouNoOne will ask you to give permissions</string>
-    <string name="allow_all">Please, allow all =)</string>
+    <string name="ask_for_permissions">Please give all permissions for data collection</string>
 
 
 </resources>

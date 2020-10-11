@@ -513,19 +513,15 @@ public class MainService extends Service implements SensorEventListener, Locatio
             boolean phoneUnlocked = phoneUsageVariablesPrefs.getBoolean("unlocked", false);
             if (phoneUnlocked) {
                 // check position of the phone
-                Log.e("CAMERA", "run: PHONE IS UNLOCKED");
                 if (y_value_gravity > Y_GRAVITY_MIN || y_value_gravity == 0f) { // 0 when the device does not have a gravity sensor
-                    Log.e("CAMERA", "run: VERTICAL POSITION");
                     //check whether camera is in use
                     boolean cameraAvailable = phoneUsageVariablesPrefs.getBoolean("isCameraAvailable", false);
                     if (cameraAvailable) {
                         //take a photo
-                        Log.e("CAMERA", "run: CAMERA AVAILABLE");
                         Camera2Capture camera2Capture = new Camera2Capture(getApplicationContext());
                         camera2Capture.setupCamera2();
-                        Log.e("CAMERA", "run: CHECK GALLERY");
                     } else {
-                        Log.e(TAG, "run: CAMERA NOT AVAILABLE");
+                        Log.e(TAG, "Camera not available");
                     }
                 }
             }
@@ -983,12 +979,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
                             story_total_count = 0;
                         }
 
-                        Log.e(TAG, "run: STORY total count" + story_total_count);
-
                         if (story_total_count != 0) {
                             for (ReelMedia reelMedia : feedUserStoryResponse.get().getReel().getItems()) {
                                 story_viewers_count = reelMedia.getViewer_count();
-                                Log.e(TAG, "run: Story viewers count" + story_viewers_count);
                                 story_taken_at_timestamp = reelMedia.getTaken_at();
                                 story_expires_timestamp = (HOURS24 * 1000) + story_taken_at_timestamp;
                             }
@@ -1061,7 +1054,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         nowTime = System.currentTimeMillis();
                         DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_expires_timestamp, story_expires_timestamp_type);
 
-                        Log.e(TAG, "run: Instagram data submitted");
                         //endregion
                     } catch (IOException | InterruptedException | ExecutionException e) {
                         e.printStackTrace();

@@ -29,7 +29,6 @@ public class FirebaseNotifications extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
-        Log.d(TAG, "onNewToken: " + token);
     }
 
     @Override
@@ -46,7 +45,6 @@ public class FirebaseNotifications extends FirebaseMessagingService {
             Intent notificationIntent = new Intent(this, EMAActivity.class);
             //notificationIntent.putExtra("ema_order", ema_order);
             showNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("message"));
-            Log.e(TAG, "FIREBASE: SENT time" + remoteMessage.getSentTime() );
         }
 
         //handle when receive notification
@@ -55,7 +53,6 @@ public class FirebaseNotifications extends FirebaseMessagingService {
             editor.putBoolean("ema_btn_make_visible", true);
             editor.apply();
             showNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
-            Log.e(TAG, "FIREBASE: SENT time" + remoteMessage.getSentTime() );
         }
 
 

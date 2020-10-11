@@ -34,7 +34,6 @@ public class SignificantMotionDetector extends TriggerEventListener {
             int dataSourceId = prefs.getInt("ANDROID_SIGNIFICANT_MOTION", -1);
             assert dataSourceId != -1;
             DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime);
-            Log.e(TAG, "onTrigger: significant motion detected..........");
             mSensorManager.requestTriggerSensor(this, sensorSM);
         }
     }

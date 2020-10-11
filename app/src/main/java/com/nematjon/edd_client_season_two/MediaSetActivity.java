@@ -266,7 +266,6 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
                     runOnUiThread(() -> dialog = Tools.requestPermissions(MediaSetActivity.this));
                 } else {
-                    Log.e(TAG, "restartServiceClick: 3");
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
                         Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

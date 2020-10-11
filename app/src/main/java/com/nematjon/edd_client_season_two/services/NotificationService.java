@@ -127,7 +127,6 @@ public class NotificationService extends NotificationListenerService {
 
         //region EMA received
         else if (packageName.equals("com.nematjon.edd_client_season_two")) {
-            Log.e("TAG", "Notif service firebase");
             //EMA is received
             SharedPreferences rewardPrefs = getSharedPreferences("Rewards", MODE_PRIVATE);
             SharedPreferences loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
