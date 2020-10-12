@@ -245,7 +245,7 @@
                 android:layout_below="@+id/view_phone"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
-                android:text="@string/ema_responses"
+                android:text="@string/ema_responses_holder"
                 android:textColor="@color/black"
                 android:textSize="@dimen/question_txt_title_size"
                 android:textStyle="bold" />

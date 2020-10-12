@@ -230,11 +230,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvInternetStatus.setTextColor(ContextCompat.getColor(this, R.color.red));
         tvInternetStatus.setText(getString(R.string.internet_off));
 
-        tvDayNum.setText("Duration:");
+        tvDayNum.setText(getResources().getString(R.string.day_num_holder));
         btnEMA.setVisibility(View.GONE);
-        tvHBPhone.setText("Last active:");
-        tvEmaNum.setText("EMA responses:");
-        tvDataLoadedPhone.setText("Data loaded:");
+        tvHBPhone.setText(getResources().getString(R.string.last_active_holder));
+        tvEmaNum.setText(getResources().getString(R.string.ema_responses_holder));
+        tvDataLoadedPhone.setText(getResources().getString(R.string.data_loaded_holder));
 
         ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
         ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);

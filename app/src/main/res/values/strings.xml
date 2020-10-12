@@ -28,10 +28,13 @@
     <string name="uploading">Uploading…</string>
     <string name="noti_service_running">Service is running…</string>
     <string name="day_num">Duration: %1$d day</string>
-    <string name="ema_responses">EMA responses</string>
+    <string name="day_num_holder">Duration: </string>
+    <string name="ema_responses_holder">EMA responses:</string>
     <string name="ema_responses_rate">EMA responses: %1$d/4</string>
     <string name="data_loaded">Data loaded:  %1$s</string>
+    <string name="data_loaded_holder">Data loaded: </string>
     <string name="last_active">Last active:  %1$s</string>
+    <string name="last_active_holder">Last active: </string>
     <string name="restart_data_collection">Restart service</string>
     <string name="set_locations">Set locations</string>
     <string name="service_running">Service: Running :)</string>
