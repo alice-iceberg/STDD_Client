@@ -55,6 +55,15 @@ public class DbMgr {
         }*/
     }
 
+    public static void saveByteData(int dataSourceId, long timestamp, float accuracy, Byte[] bytes) {
+        db.execSQL("insert into Data(dataSourceId, timestamp, accuracy, data) values(?, ?, ?, ?);", new Object[]{
+                dataSourceId,
+                timestamp,
+                accuracy,
+                bytes
+        });
+    }
+
     public static synchronized void cleanDb() {
         db.execSQL("delete from Data;");
     }
