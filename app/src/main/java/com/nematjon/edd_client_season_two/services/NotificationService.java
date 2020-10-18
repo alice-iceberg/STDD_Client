@@ -65,6 +65,10 @@ public class NotificationService extends NotificationListenerService {
         String genieMusicPlayingDataType = "GENIE";
         String floMusicPlayingDataType = "FLO";
         String vibeMusicPlayingDataType = "VIBE";
+        String aimpMusicPlayingDataType = "AIMP";
+        String youtubeMusicPlayingDataType = "YOUTUBE MUSIC";
+        String samsungMusicPlayingDataType = "SAMSUNG PLAYER";
+        String googleMusicPlayingDataType = "GOOGLE PLAYER";
         String musicPlayingArtistDataType = "ARTIST";
         String musicPlayingSongDataType = "SONG";
         String artist = "none";
@@ -120,6 +124,44 @@ public class NotificationService extends NotificationListenerService {
                 if (songName != null) {
                     DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, vibeMusicPlayingDataType);
                 }
+            }
+        }
+        // if "AIMP" music application posts a notification
+        else if (packageName.equals("com.aimp.player")) {
+            long currentTime = System.currentTimeMillis();
+            songName = title;
+            if (musicPlayingDataSrcId != -1) {
+                if (songName != null) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, aimpMusicPlayingDataType);
+                }
+            }
+        }
+        // if "Google player" music application posts a notification
+        else if (packageName.equals("com.google.android.music")) {
+            long currentTime = System.currentTimeMillis();
+            songName = title;
+            if (musicPlayingDataSrcId != -1) {
+                if (songName != null) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, googleMusicPlayingDataType);
+                }
+            }
+        }
+        // if "Youtube player" music application posts a notification
+        else if (packageName.equals("com.google.android.apps.youtube.music")) {
+            long currentTime = System.currentTimeMillis();
+            songName = title;
+            if (musicPlayingDataSrcId != -1) {
+                if (songName != null) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, youtubeMusicPlayingDataType);
+                }
+            }
+        }
+        // if "Samsung player" music application posts a notification
+        else if (packageName.equals("com.sec.android.app.music")) {
+            long currentTime = System.currentTimeMillis();
+            songName = "No title detected";
+            if (musicPlayingDataSrcId != -1) {
+                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, samsungMusicPlayingDataType);
             }
         }
 
