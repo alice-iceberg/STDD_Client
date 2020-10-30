@@ -21,8 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.koushikdutta.ion.Ion;
 
-
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;

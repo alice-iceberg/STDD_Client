@@ -183,16 +183,40 @@ public class NotificationService extends NotificationListenerService {
                 //check whether the EMA was already answered
                 if (ema_order == 1) {
                     boolean ema1_answered = rewardPrefs.getBoolean("ema1_answered", false);
+                    boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
+                    boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+                    boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
                     if (!ema1_answered)
                         startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                    if(ema2_answered || ema3_answered || ema4_answered) {
+                        SharedPreferences.Editor rewardsEditor = rewardPrefs.edit();
+                        rewardsEditor.putBoolean("ema2_answered", false);
+                        rewardsEditor.putBoolean("ema3_answered", false);
+                        rewardsEditor.putBoolean("ema4_answered", false);
+                        rewardsEditor.apply();
+                    }
                 } else if (ema_order == 2) {
                     boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
+                    boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+                    boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
                     if (!ema2_answered)
                         startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                    if(ema3_answered || ema4_answered) {
+                        SharedPreferences.Editor rewardsEditor = rewardPrefs.edit();
+                        rewardsEditor.putBoolean("ema3_answered", false);
+                        rewardsEditor.putBoolean("ema4_answered", false);
+                        rewardsEditor.apply();
+                    }
                 } else if (ema_order == 3) {
                     boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+                    boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
                     if (!ema3_answered)
                         startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
+                    if(ema4_answered) {
+                        SharedPreferences.Editor rewardsEditor = rewardPrefs.edit();
+                        rewardsEditor.putBoolean("ema4_answered", false);
+                        rewardsEditor.apply();
+                    }
                 } else if (ema_order == 4) {
                     boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
                     if (!ema4_answered)
