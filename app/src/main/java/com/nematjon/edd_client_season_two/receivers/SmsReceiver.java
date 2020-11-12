@@ -45,8 +45,9 @@ public class SmsReceiver extends BroadcastReceiver {
                         // Log and display the SMS message.
                         Log.e(TAG, "onReceive: " + msgs[i].getOriginatingAddress() + " : " + msgs[i].getMessageBody());
                         int dataSourceId = confPrefs.getInt("SMS", -1);
-                        assert dataSourceId != -1;
-                        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, msgs[i].getOriginatingAddress(), msgs[i].getMessageBody().length());
+                        if (dataSourceId != -1) {
+                            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, msgs[i].getOriginatingAddress(), msgs[i].getMessageBody().length());
+                        }
                     }
                 }
             }

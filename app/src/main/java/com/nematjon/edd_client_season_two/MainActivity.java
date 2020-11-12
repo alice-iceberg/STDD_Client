@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
         boolean firstLaunch = loginPrefs.getBoolean("firstLaunch", true);
 
-        if(firstLaunch){
+        if (firstLaunch) {
             showFirstLaunchActivity();
         }
 
@@ -169,7 +169,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Manifest.permission.CAMERA,
             };
         }
-
 
 
         DbMgr.init(getApplicationContext());
@@ -375,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
 
-            if(emaAnsweredCountFromET > emaAnsweredCountFromSharedPrefs) {
+            if (emaAnsweredCountFromET > emaAnsweredCountFromSharedPrefs) {
                 editor.putInt("ema_answered_count", emaAnsweredCountFromET);
                 editor.apply();
             }
@@ -607,8 +606,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 String reward_from_sharedPrefs_no_bonus_type = "TOTAL REWARD FROM SHARED PREFS WITHOUT BONUS";
                                 long nowTime = System.currentTimeMillis();
                                 int dataSourceId = configPrefs.getInt("REWARD_POINTS", -1);
-                                assert dataSourceId != -1;
-                                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, rewardPointsFromSharedPrefs, reward_from_sharedPrefs_no_bonus_type);
+                                if (dataSourceId != -1) {
+                                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, rewardPointsFromSharedPrefs, reward_from_sharedPrefs_no_bonus_type);
+                                }
 
                             } else if (rewardPointsFromSharedPrefs < rewardPointsFromET) {
                                 // save more updated reward to Shared Preferences
@@ -849,7 +849,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        permissionsPopUp.show();
 //    }
 
-    public void showFirstLaunchActivity(){
+    public void showFirstLaunchActivity() {
         startActivity(new Intent(MainActivity.this, FirstLaunchActivity.class));
         SharedPreferences.Editor editor = loginPrefs.edit();
         editor.putBoolean("firstLaunch", false);

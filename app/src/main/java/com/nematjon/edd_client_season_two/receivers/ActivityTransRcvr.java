@@ -49,7 +49,6 @@ public class ActivityTransRcvr extends BroadcastReceiver {
                     ActivityTransitionResult result = ActivityTransitionResult.extractResult(intent);
                     long nowTime = System.currentTimeMillis();
                     int dataSourceId = confPrefs.getInt("ACTIVITY_RECOGNITION", -1);
-                    assert dataSourceId != -1;
                     if (result != null)
                         for (ActivityTransitionEvent event : result.getTransitionEvents()) {
                             if (event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_ENTER) {
@@ -73,7 +72,9 @@ public class ActivityTransRcvr extends BroadcastReceiver {
                                     default:
                                         break;
                                 }
-                                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, activity_name, "ENTER");
+                                if (dataSourceId != -1) {
+                                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, activity_name, "ENTER");
+                                }
                             } else if (event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_EXIT) {
                                 String activity_name = "";
                                 switch (event.getActivityType()) {
@@ -95,7 +96,9 @@ public class ActivityTransRcvr extends BroadcastReceiver {
                                     default:
                                         break;
                                 }
-                                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, activity_name, "EXIT");
+                                if (dataSourceId != -1) {
+                                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, activity_name, "EXIT");
+                                }
                             }
                         }
                 }

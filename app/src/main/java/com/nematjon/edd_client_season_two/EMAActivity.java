@@ -125,8 +125,9 @@ public class EMAActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = prefs.getInt("SURVEY_EMA", -1);
-        assert dataSourceId != -1;
-        DbMgr.saveMixedData(dataSourceId, timestamp, 1.0f, timestamp, emaOrder, answers);
+        if (dataSourceId != -1) {
+            DbMgr.saveMixedData(dataSourceId, timestamp, 1.0f, timestamp, emaOrder, answers);
+        }
 
         SharedPreferences rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
 
@@ -141,36 +142,36 @@ public class EMAActivity extends AppCompatActivity {
         if (emaOrder == 1) {
             reward_editor.putBoolean("ema1_answered", true);
             ema_answered_counter++;
-            if(ema_answered_counter > 4)
+            if (ema_answered_counter > 4)
                 ema_answered_counter = 4;
-            rewardPoints+=ONE_EMA_REWARD;
+            rewardPoints += ONE_EMA_REWARD;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
             reward_editor.putInt("rewardPoints", rewardPoints);
             reward_editor.apply();
         } else if (emaOrder == 2) {
             reward_editor.putBoolean("ema2_answered", true);
             ema_answered_counter++;
-            if(ema_answered_counter > 4)
+            if (ema_answered_counter > 4)
                 ema_answered_counter = 4;
-            rewardPoints+=ONE_EMA_REWARD;
+            rewardPoints += ONE_EMA_REWARD;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
             reward_editor.putInt("rewardPoints", rewardPoints);
             reward_editor.apply();
         } else if (emaOrder == 3) {
             reward_editor.putBoolean("ema3_answered", true);
             ema_answered_counter++;
-            if(ema_answered_counter > 4)
+            if (ema_answered_counter > 4)
                 ema_answered_counter = 4;
-            rewardPoints+=ONE_EMA_REWARD;
+            rewardPoints += ONE_EMA_REWARD;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
             reward_editor.putInt("rewardPoints", rewardPoints);
             reward_editor.apply();
         } else if (emaOrder == 4) {
             reward_editor.putBoolean("ema4_answered", true);
             ema_answered_counter++;
-            if(ema_answered_counter > 4)
+            if (ema_answered_counter > 4)
                 ema_answered_counter = 4;
-            rewardPoints+=ONE_EMA_REWARD;
+            rewardPoints += ONE_EMA_REWARD;
             reward_editor.putInt("ema_answered_count", ema_answered_counter);
             reward_editor.putInt("rewardPoints", rewardPoints);
             reward_editor.apply();
@@ -193,10 +194,12 @@ public class EMAActivity extends AppCompatActivity {
         long nowTime = System.currentTimeMillis();
         SharedPreferences prefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = prefs.getInt("REWARD_POINTS", -1);
-        assert dataSourceId != -1;
-        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, ONE_EMA_REWARD, reward_type);
-        nowTime = System.currentTimeMillis();
-        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, points, total_reward_without_bonus_type);
+
+        if (dataSourceId != -1) {
+            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, ONE_EMA_REWARD, reward_type);
+            nowTime = System.currentTimeMillis();
+            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, points, total_reward_without_bonus_type);
+        }
     }
 
     Dialog rewardDialog;

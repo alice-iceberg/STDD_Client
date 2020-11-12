@@ -14,6 +14,12 @@ public class DbMgr {
         db.execSQL("create table if not exists Data(id integer primary key autoincrement, dataSourceId int default(0), timestamp bigint default(0), accuracy float default(0.0), data text default(null));");
     }
 
+    public static void cleanupUselessData(){
+        db.execSQL("delete from Data where dataSourceId=?;", new Object[]{
+                -1,
+        });
+    }
+
     public static SQLiteDatabase getDB(){
         return db;
     }

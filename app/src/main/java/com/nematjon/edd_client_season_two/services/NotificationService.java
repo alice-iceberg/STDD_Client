@@ -36,13 +36,14 @@ public class NotificationService extends NotificationListenerService {
         String notifKey = sbn.getKey();
         notifKeys.put(notifKey, System.currentTimeMillis());
         int dataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
-        assert dataSourceId != -1;
 
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());
 
-        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, packageName, NOTIF_TYPE_ARRIVED);
+        if (dataSourceId != -1) {
+            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, packageName, NOTIF_TYPE_ARRIVED);
+        }
 
         String nTicker = "";
         if (sbn.getNotification().tickerText != null) {
@@ -161,7 +162,7 @@ public class NotificationService extends NotificationListenerService {
             long currentTime = System.currentTimeMillis();
             songName = "No title detected";
             if (musicPlayingDataSrcId != -1) {
-                    DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, samsungMusicPlayingDataType);
+                DbMgr.saveMixedData(musicPlayingDataSrcId, currentTime, 1.0f, currentTime, songName, musicPlayingSongDataType, samsungMusicPlayingDataType);
             }
         }
 
@@ -188,7 +189,7 @@ public class NotificationService extends NotificationListenerService {
                     boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
                     if (!ema1_answered)
                         startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
-                    if(ema2_answered || ema3_answered || ema4_answered) {
+                    if (ema2_answered || ema3_answered || ema4_answered) {
                         SharedPreferences.Editor rewardsEditor = rewardPrefs.edit();
                         rewardsEditor.putBoolean("ema2_answered", false);
                         rewardsEditor.putBoolean("ema3_answered", false);
@@ -201,7 +202,7 @@ public class NotificationService extends NotificationListenerService {
                     boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
                     if (!ema2_answered)
                         startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
-                    if(ema3_answered || ema4_answered) {
+                    if (ema3_answered || ema4_answered) {
                         SharedPreferences.Editor rewardsEditor = rewardPrefs.edit();
                         rewardsEditor.putBoolean("ema3_answered", false);
                         rewardsEditor.putBoolean("ema4_answered", false);
@@ -212,7 +213,7 @@ public class NotificationService extends NotificationListenerService {
                     boolean ema4_answered = rewardPrefs.getBoolean("ema4_answered", false);
                     if (!ema3_answered)
                         startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
-                    if(ema4_answered) {
+                    if (ema4_answered) {
                         SharedPreferences.Editor rewardsEditor = rewardPrefs.edit();
                         rewardsEditor.putBoolean("ema4_answered", false);
                         rewardsEditor.apply();
@@ -238,17 +239,19 @@ public class NotificationService extends NotificationListenerService {
 
         if (notifKeys.containsKey(sbn.getKey())) {
             int dataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
-            assert dataSourceId != -1;
-            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, notifKeys.get(sbn.getKey()), nowTime, pckgName, NOTIF_TYPE_DECISION_TIME);
+            if (dataSourceId != -1) {
+                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, notifKeys.get(sbn.getKey()), nowTime, pckgName, NOTIF_TYPE_DECISION_TIME);
+            }
             notifKeys.remove(sbn.getKey());
         }
 
         // detect click here (reasons: 1);
         if (reason == NotificationService.REASON_CLICK) {
             int dataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
-            assert dataSourceId != -1;
-            nowTime = System.currentTimeMillis();
-            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, pckgName, NOTIF_TYPE_CLICKED);
+            if (dataSourceId != -1) {
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, pckgName, NOTIF_TYPE_CLICKED);
+            }
         }
     }
 }

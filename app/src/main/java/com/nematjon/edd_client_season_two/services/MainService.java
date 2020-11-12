@@ -278,9 +278,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
                     }
                     prevWifiScanStartTime = currentTime;
-                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(BSSIDs.toArray()).replace(" ", ""), data_type_bssid);
-                    currentTime = System.currentTimeMillis();
-                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(SSIDs.toArray()).replace(" ", ""), data_type_ssid);
+                    if (wifiScanDataSrcId != -1) {
+                        DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(BSSIDs.toArray()).replace(" ", ""), data_type_bssid);
+                        currentTime = System.currentTimeMillis();
+                        DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(SSIDs.toArray()).replace(" ", ""), data_type_ssid);
+                    }
                 }
             }
             //endregion
@@ -296,7 +298,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             String deviceModelType = "DEVICE MODEL";
             String apiLevelType = "API";
 
-            if(canDeviceInfoCheck) {
+            if (canDeviceInfoCheck) {
                 String stored_device_model = loginPrefs.getString("deviceModel", null);
                 int stored_api_level = loginPrefs.getInt("apiLevel", 0);
 
@@ -311,10 +313,12 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 String updated_device_model = loginPrefs.getString("deviceModel", null);
                 int updated_api_level = loginPrefs.getInt("apiLevel", 0);
 
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_device_model, deviceModelType);
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_api_level, apiLevelType);
+                if (deviceInfoSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_device_model, deviceModelType);
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_api_level, apiLevelType);
+                }
 
                 prevDeviceInfoStartTime = currentTime;
             }
@@ -322,17 +326,21 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
             //region saving the total number of Calendar Events
             Cursor calendarCursor;
+            int total_number_of_events = 0;
             String calendar_type = "EVENT";
             currentTime = System.currentTimeMillis();
             boolean canCalendarEventsScan = (currentTime > prevCalendarEventsStartTime + CALENDAR_EVENTS_PERIOD * 1000);
-            if(canCalendarEventsScan) {
+            if (canCalendarEventsScan) {
                 calendarCursor = getApplicationContext().getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, null, null, null);
-                assert calendarCursor != null;
-                int total_number_of_events = calendarCursor.getCount();
+                if (calendarCursor != null) {
+                    total_number_of_events = calendarCursor.getCount();
+                }
                 int calendarSourceId = confPrefs.getInt("CALENDAR", -1);
-                assert calendarSourceId != -1;
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(calendarSourceId, nowTime, 1.0f, nowTime, total_number_of_events, calendar_type);
+                if (calendarSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(calendarSourceId, nowTime, 1.0f, nowTime, total_number_of_events, calendar_type);
+                }
+                assert calendarCursor != null;
                 calendarCursor.close();
 
                 prevCalendarEventsStartTime = currentTime;
@@ -349,19 +357,19 @@ public class MainService extends Service implements SensorEventListener, Locatio
             int totalNumOfImages = 0;
             int totalNumOfVideoFiles = 0;
             int totalNumOfMusic = 0;
-            if(canStoredMediaCheck) {
+            if (canStoredMediaCheck) {
                 totalNumOfImages = storedMedia.totalNumberOfImages(getApplicationContext().getContentResolver());
                 totalNumOfVideoFiles = storedMedia.totalNumberOfVideoFiles(getApplicationContext().getContentResolver());
                 totalNumOfMusic = storedMedia.totalNumOfMusic(getApplicationContext().getContentResolver());
                 int storedMediaSourceId = confPrefs.getInt("STORED_MEDIA", -1);
-                assert storedMediaSourceId != -1;
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfMusic, music_media_type);
-
+                if (storedMediaSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfMusic, music_media_type);
+                }
                 prevStoredMediaStartTime = currentTime;
             }
             //endregion
@@ -373,7 +381,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             String usage_tx_type = "TX";
             String usage_rx_type = "RX";
 
-            if(canNetworkUsageCheck) {
+            if (canNetworkUsageCheck) {
 
                 long prevRx = networkPrefs.getLong("prev_rx_network_data", 0);
                 long prevTx = networkPrefs.getLong("prev_tx_network_data", 0);
@@ -398,7 +406,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 // saving app usage data
                 currentTime = System.currentTimeMillis();
                 boolean canAppUsageUpload = (currentTime > prevAppUsageStartTime + APP_USAGE_PERIOD * 1000);
-                if(canAppUsageUpload) {
+                if (canAppUsageUpload) {
                     final long app_usage_time_end = System.currentTimeMillis();
                     final long app_usage_time_start = (app_usage_time_end - SERVICE_START_X_MIN_BEFORE_EMA * 60 * 1000) + 1000; // add one second to start time
                     int appUseDataSourceId = confPrefs.getInt("APPLICATION_USAGE", -1);
@@ -435,6 +443,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             Log.e(TAG, "Data submission Runnable run()");
             new Thread(() -> {
                 Log.e(TAG, "Data submission Runnable run() -> Thread run()");
+                DbMgr.cleanupUselessData();
                 if (Tools.isConnectedToWifi(getApplicationContext())) {
                     Log.e(TAG, "Data submission Runnable run() -> Thread run() -> Network available condition (True)");
                     uploadingSuccessfully = true;
@@ -452,12 +461,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         String email = loginPrefs.getString(AuthActivity.usrEmail, null);
                         try {
                             do {
+                                long timestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
                                 EtService.SubmitDataRecord.Request submitDataRecordRequest = EtService.SubmitDataRecord.Request.newBuilder()
                                         .setUserId(userId)
                                         .setEmail(email)
                                         .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
                                         .setDataSource(cursor.getInt(cursor.getColumnIndex("dataSourceId")))
-                                        .setTimestamp(cursor.getLong(cursor.getColumnIndex("timestamp")))
+                                        .setTimestamp(timestamp)
                                         .setValue(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8))
                                         .build();
 
@@ -465,7 +475,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 if (responseMessage.getSuccess()) {
                                     DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
                                 }
-
                             } while (cursor.moveToNext());
                         } catch (StatusRuntimeException e) {
                             Log.e(TAG, "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
