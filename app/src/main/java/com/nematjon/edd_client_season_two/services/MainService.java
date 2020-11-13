@@ -77,6 +77,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -112,6 +113,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int SMARTWATCH_PERIOD = 90; // in sec
     private static final int APP_USAGE_PERIOD = 60 * 60; // in sec
+    private static final int RUNNING_APPS_CHECK_PERIOD = 2; // in sec
     private static final int NETWORK_USAGE_PERIOD = 20 * 60; // in sec
     private static final int STORED_MEDIA_PERIOD = 4 * 60 * 60; // in sec
     private static final int CALENDAR_EVENTS_PERIOD = 4 * 60 * 60; // in sec
@@ -409,7 +411,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     final long app_usage_time_end = System.currentTimeMillis();
                     final long app_usage_time_start = (app_usage_time_end - SERVICE_START_X_MIN_BEFORE_EMA * 60 * 1000) + 1000; // add one second to start time
                     int appUseDataSourceId = confPrefs.getInt("APPLICATION_USAGE", -1);
-                    assert appUseDataSourceId != -1;
                     Cursor cursor = AppUseDb.getAppUsage();
                     if (cursor.moveToFirst()) {
                         do {
@@ -563,14 +564,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 e.printStackTrace();
             }
             getDataFromSmartwatchHandler.postDelayed(getDataFromSmartWatchRunnable, SMARTWATCH_PERIOD * 1000);
-        }
-    };
-
-    private Handler emaPopUpCheckHandler = new Handler();
-    private Runnable emaPopUpCheckRunnable = new Runnable() {
-        @Override
-        public void run() {
-
         }
     };
 

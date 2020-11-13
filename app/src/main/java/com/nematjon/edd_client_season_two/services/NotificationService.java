@@ -183,6 +183,9 @@ public class NotificationService extends NotificationListenerService {
             if (ema_order != 0 && ema_order != -1) {
                 //check whether the EMA was already answered
                 if (ema_order == 1) {
+                    SharedPreferences.Editor rewardEditor = rewardPrefs.edit();
+                    rewardEditor.putBoolean("ema1_answered", false);
+                    rewardEditor.apply();
                     boolean ema1_answered = rewardPrefs.getBoolean("ema1_answered", false);
                     boolean ema2_answered = rewardPrefs.getBoolean("ema2_answered", false);
                     boolean ema3_answered = rewardPrefs.getBoolean("ema3_answered", false);

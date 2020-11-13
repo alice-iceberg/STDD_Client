@@ -1,9 +1,14 @@
 package com.nematjon.edd_client_season_two;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.PendingIntent;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 
 
@@ -772,6 +777,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove19.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove23.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
     }
+
 
     private void loadCampaign() {
         new Thread(() -> {
