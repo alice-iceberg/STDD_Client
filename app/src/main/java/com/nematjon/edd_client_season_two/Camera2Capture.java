@@ -200,7 +200,7 @@ public class Camera2Capture {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             processImageAndroidQandMore(mImageReader);
-        }else{
+        } else {
             processImageAndroidQandLess(mImageReader);
         }
     };
@@ -329,13 +329,13 @@ public class Camera2Capture {
         float y_value = MainService.y_value_gravity;
         float z_value = MainService.z_value_gravity;
 
-        assert capturedPhotoDataSrcId != -1;
-        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
-        timestamp = System.currentTimeMillis();
-        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo,  photo_byteArray_type);
-        timestamp = System.currentTimeMillis();
-        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, x_value, y_value, z_value, position_type);
-
+        if (capturedPhotoDataSrcId != -1) {
+            DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
+            timestamp = System.currentTimeMillis();
+            DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type);
+            timestamp = System.currentTimeMillis();
+            DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, x_value, y_value, z_value, position_type);
+        }
 
     }
 

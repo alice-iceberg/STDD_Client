@@ -83,10 +83,8 @@ public class KeyLogger extends AccessibilityService {
                     if (lastKeyPressTime != 0) {
                         Log.e(TAG, "Previous typing end! Time: " + lastKeyPressTime);
                         dataSourceId = confPrefs.getInt("TYPING", -1);
-                        if (dataSourceId != -1) {
-                            nowTime = System.currentTimeMillis();
-                            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, prevTypingStartTime, lastKeyPressTime, event.getPackageName());
-                        }
+                        nowTime = System.currentTimeMillis();
+                        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, prevTypingStartTime, lastKeyPressTime, event.getPackageName());
                     }
                     SharedPreferences.Editor editor = keyLogPrefs.edit();
                     editor.putLong("previous_typing_start_time", nowTime);

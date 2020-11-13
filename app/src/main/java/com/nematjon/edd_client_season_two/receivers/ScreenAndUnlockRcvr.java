@@ -47,7 +47,6 @@ public class ScreenAndUnlockRcvr extends BroadcastReceiver {
             int dataSourceLockUnlock = confPrefs.getInt("UNLOCK_STATE", -1);
             int dataSourceScreenOnOff = confPrefs.getInt("SCREEN_STATE", -1);
             assert dataSourceLockUnlock != -1;
-            assert dataSourceScreenOnOff != -1;
 
             if (Objects.equals(intent.getAction(), Intent.ACTION_USER_PRESENT)) {
                 Log.e(TAG, "Phone unlocked");
@@ -68,14 +67,18 @@ public class ScreenAndUnlockRcvr extends BroadcastReceiver {
                 //endregion
 
                 //region Handling screen OFF state
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(dataSourceScreenOnOff, nowTime, 1.0f, nowTime, "OFF");
+                if (dataSourceScreenOnOff != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(dataSourceScreenOnOff, nowTime, 1.0f, nowTime, "OFF");
+                }
                 //endregion
 
             } else if (Objects.equals(intent.getAction(), Intent.ACTION_SCREEN_ON)) {
                 Log.e(TAG, "Screen ON");
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(dataSourceScreenOnOff, nowTime, 1.0f, nowTime, "ON");
+                if (dataSourceScreenOnOff != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(dataSourceScreenOnOff, nowTime, 1.0f, nowTime, "ON");
+                }
             }
             return "Success";
         }

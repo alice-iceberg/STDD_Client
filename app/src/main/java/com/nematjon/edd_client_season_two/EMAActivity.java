@@ -191,11 +191,12 @@ public class EMAActivity extends AppCompatActivity {
     private void sendRewardsData(int points) {
         String reward_type = "REWARD";
         String total_reward_without_bonus_type = "TOTAL REWARD WITHOUT BONUS";
-        long nowTime = System.currentTimeMillis();
+        long nowTime;
         SharedPreferences prefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = prefs.getInt("REWARD_POINTS", -1);
 
         if (dataSourceId != -1) {
+            nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, ONE_EMA_REWARD, reward_type);
             nowTime = System.currentTimeMillis();
             DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, points, total_reward_without_bonus_type);

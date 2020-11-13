@@ -62,8 +62,10 @@ class AudioFeatureRecorder {
                 }
 
                 float[] mfccs = mfccProcessor.getMFCC();
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, Arrays.toString(mfccs).replace(" ", ""), sound_feature_type_mfcc);
+                if (dataSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, Arrays.toString(mfccs).replace(" ", ""), sound_feature_type_mfcc);
+                }
                 return true;
             }
 
@@ -79,7 +81,9 @@ class AudioFeatureRecorder {
             long nowTime = System.currentTimeMillis();
 
             if (currentPitch > -1.0f && currentPitch != 918.75f) {
-                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, currentPitch, sound_feature_type_pitch);
+                if (dataSourceId != -1) {
+                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, currentPitch, sound_feature_type_pitch);
+                }
             }
 
             //speaking duration

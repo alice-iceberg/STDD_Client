@@ -681,8 +681,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String bonus_type = "BONUS";
         long currentTime = System.currentTimeMillis();
         int rewardDataSourceId = configPrefs.getInt("REWARD_POINTS", -1);
-        assert rewardDataSourceId != -1;
-        DbMgr.saveMixedData(rewardDataSourceId, currentTime, 1.0f, currentTime, total_bonus, bonus_type);
+        if (rewardDataSourceId != -1) {
+            DbMgr.saveMixedData(rewardDataSourceId, currentTime, 1.0f, currentTime, total_bonus, bonus_type);
+        }
         //endregion
 
         return total_bonus;
