@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">version 1.1.7</string>
+    <string name="version">version 1.1.8</string>
     <string name="status_today">현재 상태:</string>
     <string name="authentication_txt">회원가입</string>
     <string name="authentication_btn">회원가입하기</string>
@@ -83,6 +83,8 @@
     <string name="home_drawer_layout">홈</string>
     <string name="general_drawer_layout">기본</string>
     <string name="smartwatch">스마트워치</string>
+    <string name="smartwatch_connected">스마트워치 : ON</string>
+    <string name="smartwatch_not_connected">스마트워치 : OFF</string>
     <string name="ON">ON</string>
     <string name="OFF">OFF</string>
     <string name="ready_to_accept_connection">연결 준비 완료</string>

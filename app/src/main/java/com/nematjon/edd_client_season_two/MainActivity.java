@@ -1,14 +1,9 @@
 package com.nematjon.edd_client_season_two;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.PendingIntent;
-import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
-import android.content.pm.PackageManager;
 import android.os.Handler;
 
 
@@ -59,6 +54,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import kotlin.text.Charsets;
 
+import com.nematjon.edd_client_season_two.smartwatch.ServiceConnection;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -74,9 +70,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvInternetStatus;
     public TextView tvFileCount;
     public TextView tvDayNum;
-    public TextView tvEmaNum;
+    // public TextView tvEmaNum;
     public TextView tvHBPhone;
     public TextView tvDataLoadedPhone;
+    public TextView tvWatchConnected;
     private RelativeLayout loadingPanel;
     private TextView ema_tv_1;
     private TextView ema_tv_2;
@@ -134,7 +131,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvFileCount = findViewById(R.id.filesCountTextView);
         loadingPanel = findViewById(R.id.loadingPanel);
         tvDayNum = findViewById(R.id.txt_day_num);
-        tvEmaNum = findViewById(R.id.ema_responses_phone);
+        // tvEmaNum = findViewById(R.id.ema_responses_phone);
+        tvWatchConnected = findViewById(R.id.watch_connected);
         tvHBPhone = findViewById(R.id.heartbeat_phone);
         tvDataLoadedPhone = findViewById(R.id.data_loaded_phone);
         ema_tv_1 = findViewById(R.id.ema_tv_1);
@@ -237,7 +235,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvDayNum.setText(getResources().getString(R.string.day_num_holder));
         btnEMA.setVisibility(View.GONE);
         tvHBPhone.setText(getResources().getString(R.string.last_active_holder));
-        tvEmaNum.setText(getResources().getString(R.string.ema_responses_holder));
+        //tvEmaNum.setText(getResources().getString(R.string.ema_responses_holder));
+        tvWatchConnected.setText(getResources().getString(R.string.smartwatch));
         tvDataLoadedPhone.setText(getResources().getString(R.string.data_loaded_holder));
 
         ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
@@ -325,7 +324,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
             }
 
-            tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+            // tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+            if (ServiceConnection.serviceConnectionAvailable) {
+                tvWatchConnected.setText(getResources().getString(R.string.smartwatch_connected));
+            } else {
+                tvWatchConnected.setText(getResources().getString(R.string.smartwatch_not_connected));
+            }
             tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
             //endregion
 

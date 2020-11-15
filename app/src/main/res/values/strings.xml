@@ -6,7 +6,7 @@
     <string name="app_name" translatable="false">YouNoOne</string>
     <string name="dummy" translatable="false">Dummy</string>
     <string name="default_notification_channel_id" translatable="false">ema_notif_channel_id</string>
-    <string name="version">version 1.1.7</string>
+    <string name="version">version 1.1.8</string>
     <string name="status_today">Status for today:</string>
     <string name="authentication_txt">Authentication</string>
     <string name="authentication_btn">Authenticate</string>
@@ -101,6 +101,8 @@
     <string name="home_drawer_layout">Home</string>
     <string name="general_drawer_layout">General</string>
     <string name="smartwatch">Smartwatch</string>
+    <string name="smartwatch_connected">Smartwatch: ON</string>
+    <string name="smartwatch_not_connected">Smartwatch: OFF</string>
     <string name="ON">ON</string>
     <string name="OFF">OFF</string>
     <string name="ready_to_accept_connection">Ready to accept connection</string>
