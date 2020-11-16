@@ -440,11 +440,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable dataSubmitRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.e(TAG, "Data submission Runnable run()");
             new Thread(() -> {
-                Log.e(TAG, "Data submission Runnable run() -> Thread run()");
+                boolean lteEnabled = loginPrefs.getBoolean("lte_on", false);
                 DbMgr.cleanupUselessData();
-                if (Tools.isConnectedToWifi(getApplicationContext())) {
+                // uses LTE or WiFi if LTE enabled, and only WiFi if LTE disabled
+                if (Tools.isConnectedToWifi(getApplicationContext()) || (Tools.isNetworkAvailable() && lteEnabled)) {
                     Log.e(TAG, "Data submission Runnable run() -> Thread run() -> Network available condition (True)");
                     uploadingSuccessfully = true;
                     Cursor cursor = DbMgr.getSensorData();

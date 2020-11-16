@@ -120,4 +120,7 @@
     <string name="welcome">환영합니다</string>
     <string name="thank_you">YouNoOne에 참여해주셔서 감사합니다</string>
     <string name="ask_for_permissions">데이터 수집을 위해 다음 사항을 모두 허가해주세요</string>
+    <string name="lte">LTE </string>
+    <string name="lte_enabled_toast">LTE로 데이터 전송이 가능합니다.</string>
+    <string name="lte_disabled_toast">LTE로 데이터 전송이 불가능합니다.</string>
 </resources>

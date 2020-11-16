@@ -181,16 +181,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/btn_late_ema"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="20dp"
                 android:orientation="horizontal"
-                android:padding="5dp">
+                android:padding="10dp">
 
                 <ImageView
-                    android:contentDescription="@string/app_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="74dp"
+                    android:layout_height="74dp"
                     android:layout_gravity="center"
+                    android:contentDescription="@string/app_name"
                     android:src="@drawable/smartphone" />
 
                 <LinearLayout
@@ -198,7 +197,8 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="15dp"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    tools:ignore="ExtraText">
 
                     <TextView
                         android:id="@+id/heartbeat_phone"
@@ -209,36 +209,46 @@
                         android:textSize="@dimen/question_txt_size"
                         android:textStyle="bold" />
 
-<!--                    <TextView-->
-<!--                        android:id="@+id/ema_responses_phone"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:visibility="invisible"-->
-<!--                        android:layout_marginTop="10dp"-->
-<!--                        android:text="@string/dummy"-->
-<!--                        android:textColor="@color/black"-->
-<!--                        android:textSize="@dimen/question_txt_size"-->
-<!--                        android:textStyle="bold" />-->
+                    <Switch
+                        android:id="@+id/lte_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:text="@string/lte"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/question_txt_size"
+                        tools:ignore="RtlHardcoded,UseSwitchCompatOrMaterialXml" />
+
+                    <!--                    <TextView-->
+                    <!--                        android:id="@+id/ema_responses_phone"-->
+                    <!--                        android:layout_width="match_parent"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:visibility="invisible"-->
+                    <!--                        android:layout_marginTop="10dp"-->
+                    <!--                        android:text="@string/dummy"-->
+                    <!--                        android:textColor="@color/black"-->
+                    <!--                        android:textSize="@dimen/question_txt_size"-->
+                    <!--                        android:textStyle="bold" />-->
 
                     <TextView
                         android:id="@+id/watch_connected"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
                         android:text="@string/dummy"
                         android:textColor="@color/black"
                         android:textSize="@dimen/question_txt_size"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/data_loaded_phone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/dummy"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/question_txt_size"
-                        android:textStyle="bold" />
+                    <!--                    <TextView-->
+                    <!--                        android:id="@+id/data_loaded_phone"-->
+                    <!--                        android:layout_width="match_parent"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:layout_marginTop="10dp"-->
+                    <!--                        android:text="@string/dummy"-->
+                    <!--                        android:textColor="@color/black"-->
+                    <!--                        android:textSize="@dimen/question_txt_size"-->
+                    <!--                        android:textStyle="bold" />-->
 
                 </LinearLayout>
             </LinearLayout>
@@ -254,7 +264,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/view_phone"
-                android:layout_marginTop="10dp"
+
                 android:gravity="center"
                 android:text="@string/ema_responses_holder"
                 android:textColor="@color/black"

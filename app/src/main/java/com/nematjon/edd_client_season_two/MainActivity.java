@@ -1,6 +1,7 @@
 package com.nematjon.edd_client_season_two;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -27,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public TextView tvDayNum;
     // public TextView tvEmaNum;
     public TextView tvHBPhone;
-    public TextView tvDataLoadedPhone;
+   // public TextView tvDataLoadedPhone;
     public TextView tvWatchConnected;
     private RelativeLayout loadingPanel;
     private TextView ema_tv_1;
@@ -82,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvRewards;
     private TextView tvBonus;
     private TextView tvTotalReward;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private Switch lteSwitch;
     private NavigationView navigationView;
     private AlertDialog dialog;
     Dialog permissionsPopUp;
@@ -109,6 +113,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         init();
 
+        // saving switch button state (use LTE or WiFi only)
+
+        lteSwitch.setChecked(loginPrefs.getBoolean("lte_on", false));
+        lteSwitch.setOnClickListener(view -> {
+            if(lteSwitch.isChecked()){
+                SharedPreferences.Editor editor = getSharedPreferences("UserLogin", MODE_PRIVATE).edit();
+                editor.putBoolean("lte_on", true);
+                editor.apply();
+                lteSwitch.setChecked(true);
+                Toast.makeText(this, R.string.lte_enabled_toast, Toast.LENGTH_SHORT).show();
+            } else{
+                SharedPreferences.Editor editor = getSharedPreferences("UserLogin", MODE_PRIVATE).edit();
+                editor.putBoolean("lte_on", false);
+                editor.apply();
+                lteSwitch.setChecked(false);
+                Toast.makeText(this, R.string.lte_disabled_toast, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(() -> {
             initUI();
@@ -131,10 +154,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvFileCount = findViewById(R.id.filesCountTextView);
         loadingPanel = findViewById(R.id.loadingPanel);
         tvDayNum = findViewById(R.id.txt_day_num);
+        lteSwitch = findViewById(R.id.lte_switch);
         // tvEmaNum = findViewById(R.id.ema_responses_phone);
         tvWatchConnected = findViewById(R.id.watch_connected);
         tvHBPhone = findViewById(R.id.heartbeat_phone);
-        tvDataLoadedPhone = findViewById(R.id.data_loaded_phone);
+        //tvDataLoadedPhone = findViewById(R.id.data_loaded_phone);
         ema_tv_1 = findViewById(R.id.ema_tv_1);
         ema_tv_2 = findViewById(R.id.ema_tv_2);
         ema_tv_3 = findViewById(R.id.ema_tv_3);
@@ -237,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvHBPhone.setText(getResources().getString(R.string.last_active_holder));
         //tvEmaNum.setText(getResources().getString(R.string.ema_responses_holder));
         tvWatchConnected.setText(getResources().getString(R.string.smartwatch));
-        tvDataLoadedPhone.setText(getResources().getString(R.string.data_loaded_holder));
+        // tvDataLoadedPhone.setText(getResources().getString(R.string.data_loaded_holder));
 
         ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
         ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
@@ -545,7 +569,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         else
                             tvHBPhone.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
                         tvDayNum.setText(getString(R.string.day_num, dayNum));
-                        tvDataLoadedPhone.setText(getString(R.string.data_loaded, String.valueOf(samples_amount)));
+                        // tvDataLoadedPhone.setText(getString(R.string.data_loaded, String.valueOf(samples_amount)));
                         String last_active_text = hb_phone == 0 ? "just now" : Tools.formatMinutes(heart_beat, getApplicationContext()) + " " + getResources().getString(R.string.ago);
                         tvHBPhone.setText(getString(R.string.last_active, last_active_text));
                     });
