@@ -100,7 +100,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final long EMA_RESPONSE_EXPIRE_TIME = 60 * 60;  // in sec
     public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; // min
     public static final short HEARTBEAT_PERIOD = 30;  // in sec
-    public static final short DATA_SUBMIT_PERIOD = 60;  // in sec
+    public static final short DATA_SUBMIT_PERIOD = 5 * 60;  // in sec
     private static final short AUDIO_RECORDING_PERIOD = 2 * 60;  // in sec
     private static final short LIGHT_SENSOR_PERIOD = 5 * 60;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
@@ -113,7 +113,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int SMARTWATCH_PERIOD = 90; // in sec
     private static final int APP_USAGE_PERIOD = 60 * 60; // in sec
-    private static final int RUNNING_APPS_CHECK_PERIOD = 2; // in sec
     private static final int NETWORK_USAGE_PERIOD = 20 * 60; // in sec
     private static final int STORED_MEDIA_PERIOD = 4 * 60 * 60; // in sec
     private static final int CALENDAR_EVENTS_PERIOD = 4 * 60 * 60; // in sec
@@ -438,6 +437,12 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
     private Handler dataSubmissionHandler = new Handler();
     private Runnable dataSubmitRunnable = new Runnable() {
+
+        ArrayList<Long> timestampsList = new ArrayList<Long>();
+        ArrayList<Integer>dataSourceIdList = new ArrayList<Integer>();
+        ArrayList<Float>accuracyList = new ArrayList<Float>();
+        ArrayList<ByteString> valueList = new ArrayList<ByteString>();
+
         @Override
         public void run() {
             new Thread(() -> {
@@ -447,44 +452,75 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 if (Tools.isConnectedToWifi(getApplicationContext()) || (Tools.isNetworkAvailable() && lteEnabled)) {
                     Log.e(TAG, "Data submission Runnable run() -> Thread run() -> Network available condition (True)");
                     uploadingSuccessfully = true;
+                    loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
+                    ArrayList<Integer> ids = new ArrayList<>();
                     Cursor cursor = DbMgr.getSensorData();
-                    if (cursor.moveToFirst()) {
-                        ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                                getString(R.string.grpc_host),
-                                Integer.parseInt(getString(R.string.grpc_port))
-                        ).usePlaintext().build();
+                    if (cursor!=null && cursor.moveToFirst()) {
 
-                        ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-
-                        loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
-                        int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
-                        String email = loginPrefs.getString(AuthActivity.usrEmail, null);
-                        try {
+                        Log.e(TAG, "run: Creating the bulk");
+                        boolean stop = false;
                             do {
-                                long timestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
-                                EtService.SubmitDataRecord.Request submitDataRecordRequest = EtService.SubmitDataRecord.Request.newBuilder()
-                                        .setUserId(userId)
-                                        .setEmail(email)
-                                        .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
-                                        .setDataSource(cursor.getInt(cursor.getColumnIndex("dataSourceId")))
-                                        .setTimestamp(timestamp)
-                                        .setValue(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8))
-                                        .build();
+                                ids.add(cursor.getInt(cursor.getColumnIndex("id")));
+                                timestampsList.add(cursor.getLong(cursor.getColumnIndex("timestamp")));
+                                dataSourceIdList.add(cursor.getInt(cursor.getColumnIndex("dataSourceId")));
+                                valueList.add(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8));
 
-                                EtService.SubmitDataRecord.Response responseMessage = stub.submitDataRecord(submitDataRecordRequest);
-                                if (responseMessage.getSuccess()) {
-                                    DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
+                                if(ids.size()==2000){
+                                    Log.e(TAG, "run: Bulk size is 2000");
+                                    stop = true;
                                 }
-                            } while (cursor.moveToNext());
-                        } catch (StatusRuntimeException e) {
+
+                            } while (cursor.moveToNext() && !stop);
+
+                    }
+
+                    if(cursor!=null){
+                        cursor.close();
+                    }
+
+                    int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
+                    String email = loginPrefs.getString(AuthActivity.usrEmail, null);
+                    ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                            getString(R.string.grpc_host),
+                            Integer.parseInt(getString(R.string.grpc_port))
+                    ).usePlaintext().build();
+                    ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
+
+                    try {
+                        Log.e(TAG, "run: Submitting....");
+                        Log.e(TAG, "run: datasourceid" + dataSourceIdList.size() );
+                        Log.e(TAG, "run: timestamp" + timestampsList.size() );
+                        Log.e(TAG, "run: id" + ids.size() );
+                        Log.e(TAG, "run: value" + valueList.size() );
+                        EtService.SubmitDataRecords.Request submitDataRecordsRequest = EtService.SubmitDataRecords.Request.newBuilder()
+                                .setUserId(userId)
+                                .setEmail(email)
+                                .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
+                                .addAllDataSource(dataSourceIdList)
+                                .addAllTimestamp(timestampsList)
+                                .addAllValue(valueList)
+                                .build();
+                        EtService.SubmitDataRecords.Response responseMessage = stub.submitDataRecords(submitDataRecordsRequest);
+                        if (responseMessage.getSuccess()) {
+                            Log.e(TAG, "run: SUCCESS");
+                            for(int id : ids){
+                                try {
+                                    Log.e(TAG, "run: Deleting" );
+                                    DbMgr.deleteRecord(id);
+                                }catch (Exception exception){
+                                    Log.e(TAG, "run: error with deleting the record");
+                                }
+                            }
+                            ids.clear();
+                        }
+                    } catch (StatusRuntimeException e) {
                             Log.e(TAG, "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
                             uploadingSuccessfully = false;
                             e.printStackTrace();
                         } finally {
                             channel.shutdown();
                         }
-                    }
-                    cursor.close();
+
                 }
             }).start();
             dataSubmissionHandler.postDelayed(dataSubmitRunnable, DATA_SUBMIT_PERIOD * 1000);
