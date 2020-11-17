@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">version 1.1.8</string>
+    <string name="version">version 1.1.9</string>
     <string name="status_today">현재 상태:</string>
     <string name="authentication_txt">회원가입</string>
     <string name="authentication_btn">회원가입하기</string>
