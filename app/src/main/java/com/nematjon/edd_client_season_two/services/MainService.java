@@ -298,6 +298,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
             boolean deviceInfoChanged = false;
 
             int deviceInfoSourceId = confPrefs.getInt("ANDROID_DEVICE_INFO", -1);
+            int appVersionDataSourceId = confPrefs.getInt("APP_VERSION", -1);
             String deviceModelType = "DEVICE MODEL";
             String apiLevelType = "API";
 
@@ -321,6 +322,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_device_model, deviceModelType);
                     nowTime = System.currentTimeMillis();
                     DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_api_level, apiLevelType);
+                }
+
+                if(appVersionDataSourceId != -1){
+                    nowTime = System.currentTimeMillis();
+                    String app_version = getResources().getString(R.string.version);
+                    Log.e(TAG, "run: APP version" + app_version);
+                    DbMgr.saveMixedData(appVersionDataSourceId, nowTime, 1.0f, nowTime, app_version);
                 }
 
                 prevDeviceInfoStartTime = currentTime;
