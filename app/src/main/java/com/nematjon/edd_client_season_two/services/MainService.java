@@ -526,10 +526,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                             counter = 0;
                             for (int id : ids) {
                                 try {
-                                    Log.e(TAG, "run: Deleting");
                                     DbMgr.deleteRecord(id);
                                     counter ++;
-                                    Log.e(TAG, "run: COunter" + counter );
                                 } catch (Exception exception) {
                                     Log.e(TAG, "run: error with deleting the record");
                                 }
