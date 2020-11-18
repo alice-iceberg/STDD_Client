@@ -100,7 +100,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final long EMA_RESPONSE_EXPIRE_TIME = 60 * 60;  // in sec
     public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; // min
     public static final short HEARTBEAT_PERIOD = 30;  // in sec
-    public static final short DATA_SUBMIT_PERIOD = 15 * 60;  // in sec
+    public static final short DATA_SUBMIT_PERIOD = 12 * 60;  // in sec
     private static final short AUDIO_RECORDING_PERIOD = 2 * 60;  // in sec
     private static final short LIGHT_SENSOR_PERIOD = 5 * 60;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
@@ -123,6 +123,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
     private static final float Y_GRAVITY_MIN = 7.6f;
     public static final String LOCATIONS_TXT = "locations.txt";
+    public static final int BULK_SIZE_LIMIT = 20000;
     //endregion
 
 
@@ -447,6 +448,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         @Override
         public void run() {
             new Thread(() -> {
+                int counter;
                 boolean lteEnabled = loginPrefs.getBoolean("lte_on", false);
                 DbMgr.cleanupUselessData();
                 // uses LTE or WiFi if LTE enabled, and only WiFi if LTE disabled
@@ -456,9 +458,14 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
                     ArrayList<Integer> ids = new ArrayList<>();
                     bulkSize = confPrefs.getInt("bulkSize", 1000); // default bulksize is 1000
-                    if (bulkSize > 16000){
-                        bulkSize = 16000;
+                    if (bulkSize > BULK_SIZE_LIMIT){
+                        bulkSize = BULK_SIZE_LIMIT;
                     }
+
+                    ids.clear();
+                    dataSourceIdList.clear();
+                    timestampsList.clear();
+                    valueList.clear();
 
                     Cursor cursor = DbMgr.getSensorData();
                     if (cursor != null && cursor.moveToFirst()) {
@@ -508,24 +515,28 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         EtService.SubmitDataRecords.Response responseMessage = stub.submitDataRecords(submitDataRecordsRequest);
                         if (responseMessage.getSuccess()) {
                             Log.e(TAG, "run: SUCCESS");
+                            counter = 0;
                             for (int id : ids) {
                                 try {
                                     Log.e(TAG, "run: Deleting");
                                     DbMgr.deleteRecord(id);
+                                    counter ++;
+                                    Log.e(TAG, "run: COunter" + counter );
                                 } catch (Exception exception) {
                                     Log.e(TAG, "run: error with deleting the record");
                                 }
                             }
 
+                            Log.e(TAG, "run: Counter" + counter );
                             // if finished deleting
-
-                            if (bulkSize < 16000) {
-                                SharedPreferences.Editor editor = confPrefs.edit();
-                                editor.putInt("bulkSize", bulkSize * 2); // double bulk size if success
-                                editor.apply();
+                            if (bulkSize < BULK_SIZE_LIMIT) {
+                                if(counter == ids.size()) {
+                                    SharedPreferences.Editor editor = confPrefs.edit();
+                                    editor.putInt("bulkSize", bulkSize * 2); // double bulk size if success
+                                    editor.apply();
+                                }
                             }
                         } else {
-
                             // if not success
                             if (bulkSize > 1000) {
                                 SharedPreferences.Editor editor = confPrefs.edit();
@@ -545,14 +556,12 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
                     } finally {
                         channel.shutdown();
+                        //clear for the next round
+                        ids.clear();
+                        dataSourceIdList.clear();
+                        timestampsList.clear();
+                        valueList.clear();
                     }
-
-                    //clear for the next round
-                    ids.clear();
-                    dataSourceIdList.clear();
-                    timestampsList.clear();
-                    valueList.clear();
-
                 }
             }).start();
             dataSubmissionHandler.postDelayed(dataSubmitRunnable, DATA_SUBMIT_PERIOD * 1000);
