@@ -456,6 +456,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
                     ArrayList<Integer> ids = new ArrayList<>();
                     bulkSize = confPrefs.getInt("bulkSize", 1000); // default bulksize is 1000
+                    if (bulkSize > 16000){
+                        bulkSize = 16000;
+                    }
 
                     Cursor cursor = DbMgr.getSensorData();
                     if (cursor != null && cursor.moveToFirst()) {
@@ -514,7 +517,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 }
                             }
 
-                            if (bulkSize < 65000) {
+                            // if finished deleting
+
+                            if (bulkSize < 16000) {
                                 SharedPreferences.Editor editor = confPrefs.edit();
                                 editor.putInt("bulkSize", bulkSize * 2); // double bulk size if success
                                 editor.apply();
