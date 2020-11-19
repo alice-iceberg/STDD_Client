@@ -301,7 +301,7 @@ public class Tools {
     public static int getEMAOrderFromRangeAfterEMA(Calendar cal) {
         long t = (cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND)) * 1000;
         for (int i = 0; i < EMA_NOTIF_HOURS.length; i++)
-            if ((EMA_NOTIF_HOURS[i] * 3600 * 1000 - 60000) <= t && t <= (EMA_NOTIF_HOURS[i] * 3600 * 1000) + EMA_RESPONSE_EXPIRE_TIME * 1000) // minus 1 min (60000) for 9.59
+            if ((EMA_NOTIF_HOURS[i] * 3600 * 1000) <= t && t <= (EMA_NOTIF_HOURS[i] * 3600 * 1000) + EMA_RESPONSE_EXPIRE_TIME * 1000)
                 return i + 1;
 
         return 0;

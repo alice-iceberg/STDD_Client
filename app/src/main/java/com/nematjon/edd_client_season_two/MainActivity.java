@@ -754,9 +754,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setEmaResetAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        AlarmManager alarmManagerMorning = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         Intent intent_reset = new Intent(MainActivity.this, EMAAlarmRcvr.class);
         intent_reset.putExtra("ema_reset", true); //time to reset EMA to 0
+
+        Intent intent_reset_morning = new Intent(MainActivity.this, EMAAlarmRcvr.class);
+        intent_reset.putExtra("ema_reset_morning", true); //time to reset EMA to 0
 
         Intent intent_remove = new Intent(MainActivity.this, EMAOverlayShowingService.class);
         intent_remove.setAction("EMA_POP_UP_REMOVE");
@@ -764,10 +768,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         PendingIntent pendingIntentReset = PendingIntent.getBroadcast(MainActivity.this, 10, intent_reset, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentResetMorning = PendingIntent.getBroadcast(MainActivity.this, 8, intent_reset_morning, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent pendingIntentRemove = PendingIntent.getBroadcast(MainActivity.this, 11, intent_remove, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (alarmManager == null)
             return;
+
+        if(alarmManagerMorning == null){
+            return;
+        }
 
         Calendar firingCalReset = Calendar.getInstance();
         firingCalReset.set(Calendar.HOUR_OF_DAY, 23); // at 11:59pm
@@ -775,6 +784,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         firingCalReset.set(Calendar.SECOND, 0); // particular second
         firingCalReset.set(Calendar.MILLISECOND, 0); // particular second
 
+        Calendar firingCalResetMorning = Calendar.getInstance();
+        firingCalResetMorning.set(Calendar.HOUR_OF_DAY, 9); // at 9:30am
+        firingCalResetMorning.set(Calendar.MINUTE, 30); // Particular minute
+        firingCalResetMorning.set(Calendar.SECOND, 0); // particular second
+        firingCalResetMorning.set(Calendar.MILLISECOND, 0); // particular second
+
+        //remove EMA pop up
         Calendar firingCalRemove11 = Calendar.getInstance();
         firingCalRemove11.set(Calendar.HOUR_OF_DAY, 11); // at 11:01am
         firingCalRemove11.set(Calendar.MINUTE, 1); // Particular minute
@@ -800,6 +816,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         firingCalRemove23.set(Calendar.MILLISECOND, 0); // particular second
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalReset.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentReset); //repeat every day
+        alarmManagerMorning.setRepeating(AlarmManager.RTC_WAKEUP, firingCalResetMorning.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentResetMorning); //repeat every day
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove11.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove15.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove19.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day

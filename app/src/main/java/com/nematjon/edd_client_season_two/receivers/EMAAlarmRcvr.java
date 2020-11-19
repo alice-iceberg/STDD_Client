@@ -41,6 +41,18 @@ public class EMAAlarmRcvr extends BroadcastReceiver {
             SharedPreferences.Editor loginEditor = loginPrefs.edit();
             loginEditor.putBoolean("ema_btn_make_visible", false);
             loginEditor.apply();
+        } else if (intent.getBooleanExtra("ema_reset_morning", false)){
+            SharedPreferences.Editor ema_editor = rewardPrefs.edit();
+            ema_editor.putBoolean("ema1_answered", false);
+            ema_editor.putBoolean("ema2_answered", false);
+            ema_editor.putBoolean("ema3_answered", false);
+            ema_editor.putBoolean("ema4_answered", false);
+            ema_editor.putInt("ema_answered_count", 0);
+            ema_editor.apply();
+
+            SharedPreferences.Editor loginEditor = loginPrefs.edit();
+            loginEditor.putBoolean("ema_btn_make_visible", false);
+            loginEditor.apply();
         }
     }
 }
