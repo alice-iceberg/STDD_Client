@@ -17,6 +17,7 @@ import com.nematjon.edd_client_season_two.MediaSetActivity;
 import com.nematjon.edd_client_season_two.Tools;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -35,14 +36,16 @@ public class NotificationService extends NotificationListenerService {
         String packageName = sbn.getPackageName();
         String notifKey = sbn.getKey();
         notifKeys.put(notifKey, System.currentTimeMillis());
-        int dataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
+        int notifDataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
+        int smsDataSourceId = confPrefs.getInt("SMS", -1);
+        String smsFromNotifDataType = "SMS NOTIFICATION";
 
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
             DbMgr.init(getApplicationContext());
 
-        if (dataSourceId != -1) {
-            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, -1, packageName, NOTIF_TYPE_ARRIVED);
+        if (notifDataSourceId != -1) {
+            DbMgr.saveMixedData(notifDataSourceId, nowTime, 1.0f, nowTime, -1, packageName, NOTIF_TYPE_ARRIVED);
         }
 
         String nTicker = "";
@@ -224,6 +227,20 @@ public class NotificationService extends NotificationListenerService {
                         startService(new Intent(getApplicationContext(), EMAOverlayShowingService.class));
                 }
             }
+        } else if (packageName.equals("com.samsung.android.messaging")) {
+            try {
+                String[] senderWithMessage = nTicker.split(":", 2);
+                String sender = senderWithMessage[0];
+                int messageLength = senderWithMessage[1].length();
+                nowTime = System.currentTimeMillis();
+
+                if (smsDataSourceId != -1) {
+                    DbMgr.saveMixedData(smsDataSourceId, nowTime, 1.0f, nowTime, sender, messageLength, smsFromNotifDataType);
+                }
+            } catch (Exception e) {
+                Log.e("SMS", "onNotificationPosted: could not extract message information");
+            }
+
         }
         //endregion
     }
