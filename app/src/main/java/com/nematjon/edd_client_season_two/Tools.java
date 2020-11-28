@@ -265,36 +265,36 @@ public class Tools {
         return false;
     }
 
-    public static synchronized void sendHeartbeat(final Context con) {
-        final SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
+    public static synchronized void sendHeartbeat(Context con) {
+        SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
         if (Tools.isNetworkAvailable()) {
-            new Thread() {
-                @Override
-                public void run() {
-                    super.run();
-                    ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                            con.getString(R.string.grpc_host),
-                            Integer.parseInt(con.getString(R.string.grpc_port))
-                    ).usePlaintext().build();
-                    ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-                    EtService.SubmitHeartbeat.Request submitHeartbeatRequest = EtService.SubmitHeartbeat.Request.newBuilder()
-                            .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
-                            .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
-                            .setCampaignId(Integer.parseInt(con.getString(R.string.campaign_id)))
-                            .build();
-                    try {
-                        EtService.SubmitHeartbeat.Response responseMessage = stub.submitHeartbeat(submitHeartbeatRequest);
-                        if (responseMessage.getSuccess()) {
-                            Log.d("Tools", "Heartbeat sent successfully");
-                        }
-                    } catch (StatusRuntimeException e) {
-                        Log.e("Tools", "DataCollectorService.setUpHeartbeatSubmissionThread() exception: " + e.getMessage());
-                        e.printStackTrace();
-                    } finally {
-                        channel.shutdown();
-                    }
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                    con.getString(R.string.grpc_host),
+                    Integer.parseInt(con.getString(R.string.grpc_port))
+            ).usePlaintext().build();
+            ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
+            EtService.SubmitHeartbeat.Request submitHeartbeatRequest = EtService.SubmitHeartbeat.Request.newBuilder()
+                    .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
+                    .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
+                    .setCampaignId(Integer.parseInt(con.getString(R.string.campaign_id)))
+                    .build();
+
+            try {
+                Log.d("Tools", "Sending heartbeat");
+                EtService.SubmitHeartbeat.Response responseMessage = stub.submitHeartbeat(submitHeartbeatRequest);
+                if (responseMessage.getSuccess()) {
+                    Log.d("Tools", "Heartbeat sent successfully");
+                } else {
+                    Log.d("Tools", "Heartbeat failed");
                 }
-            }.start();
+            } catch (StatusRuntimeException e) {
+                Log.e("Tools", "DataCollectorService.setUpHeartbeatSubmissionThread() exception: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                channel.shutdown();
+            }
+        } else {
+            Log.e("Tools", "");
         }
     }
 
@@ -352,11 +352,11 @@ public class Tools {
         editorInstagram.putBoolean("is_logged_in", false);
         editorInstagram.clear();
         editorInstagram.apply();
-        
+
         //removing taken photos
-        File file = new File(con.getExternalFilesDir("Taken photos")+"");
+        File file = new File(con.getExternalFilesDir("Taken photos") + "");
         deleteDir(file);
-        
+
     }
 
     static String formatMinutes(int minutes, Context context) {
@@ -400,7 +400,7 @@ public class Tools {
     public static boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i=0; i<children.length; i++) {
+            for (int i = 0; i < children.length; i++) {
                 boolean success = deleteDir(new File(dir, children[i]));
                 if (!success) {
                     return false;

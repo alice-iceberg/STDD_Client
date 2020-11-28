@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             initUI();
             updateUI();
 
-            Tools.sendHeartbeat(getApplicationContext());
+            new Thread(() -> Tools.sendHeartbeat(getApplicationContext())).start();
             pullToRefresh.setRefreshing(false);
         });
 
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             dialog = Tools.requestPermissions(MainActivity.this);
         }
 
-        Tools.sendHeartbeat(getApplicationContext());
+        new Thread(() -> Tools.sendHeartbeat(getApplicationContext())).start();
 
         customSensorsService = new Intent(this, MainService.class);
 

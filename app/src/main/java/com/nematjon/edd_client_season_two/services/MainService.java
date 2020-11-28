@@ -591,9 +591,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 permissionNotificationPosted = true;
                 sendNotificationForPermissionSetting(); // send notification if any permission is disabled
             }
-            Tools.sendHeartbeat(MainService.this);
+            new Thread(() -> Tools.sendHeartbeat(getApplicationContext())).start();
             heartBeatHandler.postDelayed(heartBeatSendRunnable, HEARTBEAT_PERIOD * 1000);
-            Log.e(TAG, "run: Heartbeat is sent");
         }
     };
 
