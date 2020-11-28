@@ -100,7 +100,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final long EMA_RESPONSE_EXPIRE_TIME = 60 * 60;  // in sec
     public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; // min
     public static final short HEARTBEAT_PERIOD = 30;  // in sec
-    public static final short DATA_SUBMIT_PERIOD = 12 * 60;  // in sec
+    public static final short DATA_SUBMIT_PERIOD = 60;  // in sec
     private static final short AUDIO_RECORDING_PERIOD = 2 * 60;  // in sec
     private static final short LIGHT_SENSOR_PERIOD = 5 * 60;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
@@ -123,7 +123,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
     private static final float Y_GRAVITY_MIN = 7.6f;
     public static final String LOCATIONS_TXT = "locations.txt";
-    public static final int BULK_SIZE_LIMIT = 20000;
+    public static final int BULK_SIZE_LIMIT = 5000;
     //endregion
 
 
@@ -324,7 +324,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_api_level, apiLevelType);
                 }
 
-                if(appVersionDataSourceId != -1){
+                if (appVersionDataSourceId != -1) {
                     nowTime = System.currentTimeMillis();
                     String app_version = getResources().getString(R.string.version);
                     Log.e(TAG, "run: APP version" + app_version);
@@ -466,7 +466,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
                     ArrayList<Integer> ids = new ArrayList<>();
                     bulkSize = confPrefs.getInt("bulkSize", 1000); // default bulksize is 1000
-                    if (bulkSize > BULK_SIZE_LIMIT){
+                    if (bulkSize > BULK_SIZE_LIMIT) {
                         bulkSize = BULK_SIZE_LIMIT;
                     }
 
@@ -475,6 +475,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                     timestampsList.clear();
                     valueList.clear();
 
+                    // gather the data for submission (ignore the image) todo
+                    // submitDataRecords
                     Cursor cursor = DbMgr.getSensorData();
                     if (cursor != null && cursor.moveToFirst()) {
                         Log.e(TAG, "run: Creating the bulk");
@@ -527,16 +529,16 @@ public class MainService extends Service implements SensorEventListener, Locatio
                             for (int id : ids) {
                                 try {
                                     DbMgr.deleteRecord(id);
-                                    counter ++;
+                                    counter++;
                                 } catch (Exception exception) {
                                     Log.e(TAG, "run: error with deleting the record");
                                 }
                             }
 
-                            Log.e(TAG, "run: Counter" + counter );
+                            Log.e(TAG, "run: Counter" + counter);
                             // if finished deleting
                             if (bulkSize < BULK_SIZE_LIMIT) {
-                                if(counter == ids.size()) {
+                                if (counter == ids.size()) {
                                     SharedPreferences.Editor editor = confPrefs.edit();
                                     editor.putInt("bulkSize", bulkSize * 2); // double bulk size if success
                                     editor.apply();
@@ -567,10 +569,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         dataSourceIdList.clear();
                         timestampsList.clear();
                         valueList.clear();
+                        dataSubmissionHandler.postDelayed(dataSubmitRunnable, DATA_SUBMIT_PERIOD * 1000);
                     }
+
+                    // gather the image part (ignore the sensor data)
+                    // submitDataRecord
                 }
             }).start();
-            dataSubmissionHandler.postDelayed(dataSubmitRunnable, DATA_SUBMIT_PERIOD * 1000);
         }
     };
 

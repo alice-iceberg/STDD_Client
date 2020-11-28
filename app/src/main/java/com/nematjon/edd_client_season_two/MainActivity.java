@@ -222,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         customSensorsService = new Intent(this, MainService.class);
 
         if (Tools.isNetworkAvailable()) {
+
             loadCampaign();
         } else if (configPrefs.getBoolean("campaignLoaded", false)) {
             try {
@@ -827,7 +828,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void loadCampaign() {
         new Thread(() -> {
             ManagedChannel channel = ManagedChannelBuilder.forAddress(getString(R.string.grpc_host), Integer.parseInt(getString(R.string.grpc_port))).usePlaintext().build();
+            Log.e(TAG, "loadCampaign: Channel built");
             try {
+                Log.e(TAG, "loadCampaign: Trying to load");
                 ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
                 EtService.RetrieveCampaign.Request retrieveCampaignRequest = EtService.RetrieveCampaign.Request.newBuilder()
                         .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
@@ -846,6 +849,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             retrieveCampaignResponse.getEndTimestamp(),
                             retrieveCampaignResponse.getParticipantCount()
                     );
+
+                    Log.e(TAG, "loadCampaign: Campaign retrieved");
                     SharedPreferences.Editor editor = configPrefs.edit();
                     editor.putString("name", retrieveCampaignResponse.getName());
                     editor.putString("notes", retrieveCampaignResponse.getNotes());
