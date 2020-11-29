@@ -37,8 +37,7 @@ public class NotificationService extends NotificationListenerService {
         String notifKey = sbn.getKey();
         notifKeys.put(notifKey, System.currentTimeMillis());
         int notifDataSourceId = confPrefs.getInt("NOTIFICATIONS", -1);
-        int smsDataSourceId = confPrefs.getInt("SMS", -1);
-        String smsFromNotifDataType = "SMS NOTIFICATION";
+        int smsDataSourceId = confPrefs.getInt("SMS_FROM_NOTIFICATION", -1);
 
         //init DbMgr if it's null
         if (DbMgr.getDB() == null)
@@ -235,7 +234,7 @@ public class NotificationService extends NotificationListenerService {
                 nowTime = System.currentTimeMillis();
 
                 if (smsDataSourceId != -1) {
-                    DbMgr.saveMixedData(smsDataSourceId, nowTime, 1.0f, nowTime, sender, messageLength, smsFromNotifDataType);
+                    DbMgr.saveMixedData(smsDataSourceId, nowTime, 1.0f, nowTime, sender, messageLength);
                 }
             } catch (Exception e) {
                 Log.e("SMS", "onNotificationPosted: could not extract message information");
