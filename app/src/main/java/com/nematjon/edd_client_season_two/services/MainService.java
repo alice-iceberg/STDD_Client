@@ -100,7 +100,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public static final long EMA_RESPONSE_EXPIRE_TIME = 60 * 60;  // in sec
     public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; // min
     public static final short HEARTBEAT_PERIOD = 30;  // in sec
-    public static final short DATA_SUBMIT_PERIOD = 12 * 60;  // in sec
+    public static final short DATA_SUBMIT_PERIOD = 10 * 60;  // in sec
     private static final short AUDIO_RECORDING_PERIOD = 2 * 60;  // in sec
     private static final short LIGHT_SENSOR_PERIOD = 5 * 60;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
@@ -123,7 +123,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
     private static final float Y_GRAVITY_MIN = 7.6f;
     public static final String LOCATIONS_TXT = "locations.txt";
-    public static final int BULK_SIZE_LIMIT = 12000;
+    public static final int BULK_SIZE_LIMIT = 10000;
     //endregion
 
 
