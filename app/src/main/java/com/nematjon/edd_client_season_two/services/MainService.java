@@ -453,6 +453,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable dataSubmissionRunnable = new Runnable() {
         @Override
         public void run() {
+            new Thread(() -> {
 
             SharedPreferences loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
             SharedPreferences confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
@@ -598,7 +599,10 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 }
                 cursor.close();
             }
+
+            }).start();
         }
+
     };
 
     private Handler appUsageSaveHandler = new Handler();
