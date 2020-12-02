@@ -145,10 +145,6 @@
             android:foregroundServiceType="location"
             />
         <service
-            android:name=".services.DataSubmissionService"
-            android:foregroundServiceType="location"
-            />
-        <service
             android:name=".FirebaseNotifications"
             android:exported="false">
             <intent-filter>

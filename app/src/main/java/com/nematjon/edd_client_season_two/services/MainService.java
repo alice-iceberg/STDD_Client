@@ -56,7 +56,6 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.protobuf.ByteString;
 import com.nematjon.edd_client_season_two.AppUseDb;
 import com.nematjon.edd_client_season_two.AuthActivity;
-import com.nematjon.edd_client_season_two.Camera2Capture;
 import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.R;
@@ -77,7 +76,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -120,8 +118,34 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
     public static final float Y_GRAVITY_MIN = 7.6f;
+    public int BULK_SIZE = 500;
     public static final String LOCATIONS_TXT = "locations.txt";
+
+    String instagram_username_type = "USERNAME";
+    String direct_unseen_dialogs_count_type = "UNSEEN DIALOGS";
+    String direct_pending_requests_dialogs_count_type = "PENDING DIALOGS";
+    String story_viewers_count_type = "STORY VIEWERS";
+    String story_total_count_type = "STORIES";
+    String story_taken_at_timestamp_type = "STORY UPLOADED TIME";
+    String story_expires_timestamp_type = "STORY EXPIRED TIME";
+    String userfeed_taken_at_timestamp_type = "USERFEED UPLOADED TIME";
+    String userfeed_like_count_type = "USERFEED LIKES";
+    String userfeed_comment_count_type = "USERFEED COMMENTS";
+    String userfeed_items_count_type = "USERFEED ITEMS";
+    String userfeed_likes_photo_himself_type = "LIKES HIMSELF";
+    String userinfo_followers_count_type = "FOLLOWERS";
+    String userinfo_following_count_type = "FOLLOWING";
+    String userinfo_total_media_count_type = "TOTAL MEDIA";
+    String userinfo_total_igtv_videos_type = "IGTV VIDEOS";
+    String userinfo_besties_count_type = "BESTIES";
+    String userinfo_usertags_count_type = "USERTAGS";
+    String userinfo_following_tag_count_type = "FOLLOWING TAGS";
+    String userinfo_recently_bestied_by_count_type = "BESTIED BY";
+    String userinfo_has_highlight_reels_type = "HAS HIGHLIGHT REELS";
+    String userinfo_total_clips_count_type = "CLIPS";
+
     //endregion
+
 
 
     //region Variables
@@ -204,28 +228,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
     String userinfo_has_highlight_reels = "false";
     String userinfo_total_clips_count = "0";
 
-    String instagram_username_type = "USERNAME";
-    String direct_unseen_dialogs_count_type = "UNSEEN DIALOGS";
-    String direct_pending_requests_dialogs_count_type = "PENDING DIALOGS";
-    String story_viewers_count_type = "STORY VIEWERS";
-    String story_total_count_type = "STORIES";
-    String story_taken_at_timestamp_type = "STORY UPLOADED TIME";
-    String story_expires_timestamp_type = "STORY EXPIRED TIME";
-    String userfeed_taken_at_timestamp_type = "USERFEED UPLOADED TIME";
-    String userfeed_like_count_type = "USERFEED LIKES";
-    String userfeed_comment_count_type = "USERFEED COMMENTS";
-    String userfeed_items_count_type = "USERFEED ITEMS";
-    String userfeed_likes_photo_himself_type = "LIKES HIMSELF";
-    String userinfo_followers_count_type = "FOLLOWERS";
-    String userinfo_following_count_type = "FOLLOWING";
-    String userinfo_total_media_count_type = "TOTAL MEDIA";
-    String userinfo_total_igtv_videos_type = "IGTV VIDEOS";
-    String userinfo_besties_count_type = "BESTIES";
-    String userinfo_usertags_count_type = "USERTAGS";
-    String userinfo_following_tag_count_type = "FOLLOWING TAGS";
-    String userinfo_recently_bestied_by_count_type = "BESTIED BY";
-    String userinfo_has_highlight_reels_type = "HAS HIGHLIGHT REELS";
-    String userinfo_total_clips_count_type = "CLIPS";
+
+    public int dataSourceIdCheck = -1;
+
+    ArrayList<Integer> ids = new ArrayList<>();
+    ArrayList<Long> timestampsList = new ArrayList<Long>();
+    ArrayList<Integer> dataSourceIdList = new ArrayList<Integer>();
+    ArrayList<ByteString> valueList = new ArrayList<ByteString>();
     //endregion
 
 
@@ -440,6 +449,157 @@ public class MainService extends Service implements SensorEventListener, Locatio
         }
     };
 
+    private Handler dataSubmissionHandler = new Handler();
+    private Runnable dataSubmissionRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+            SharedPreferences loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
+            SharedPreferences confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
+
+            boolean lteEnabled = loginPrefs.getBoolean("lte_on", false);
+            int capturedPhotosDataSourceId = confPrefs.getInt("CAPTURED_PHOTOS", -1);
+
+            //init DbMgr if it's null
+            if (DbMgr.getDB() == null)
+                DbMgr.init(getApplicationContext());
+
+            Log.e("DataSubmissionService", "onCreate: Created Data submission service");
+            DbMgr.cleanupUselessData();
+
+            if (Tools.isConnectedToWifi(getApplicationContext()) || (Tools.isNetworkAvailable() && lteEnabled)) {
+                Log.e("DataSubmissionService", "Data submission service running... Network available");
+                uploadingSuccessfully = true;
+
+                ids.clear();
+                dataSourceIdList.clear();
+                timestampsList.clear();
+                valueList.clear();
+
+                Cursor cursor = DbMgr.getSensorData();
+
+                if (cursor != null && cursor.moveToFirst()) {
+                    boolean stop = false;
+                    do {
+                        dataSourceIdCheck = cursor.getInt(cursor.getColumnIndex("dataSourceId"));
+
+                        if (dataSourceIdCheck!=capturedPhotosDataSourceId) {
+                            ids.add(cursor.getInt(cursor.getColumnIndex("id")));
+                            timestampsList.add(cursor.getLong(cursor.getColumnIndex("timestamp")));
+                            dataSourceIdList.add(cursor.getInt(cursor.getColumnIndex("dataSourceId")));
+                            valueList.add(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8));
+
+                            if (ids.size() == BULK_SIZE) {
+                                stop = true;
+                                Log.e("DataSubmissionService", "Bulk size is 500");
+                            }
+
+                        }
+                    } while (cursor.moveToNext() && !stop);
+                }
+
+                if (cursor != null) {
+                    cursor.close();
+                }
+
+                int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
+                String email = loginPrefs.getString(AuthActivity.usrEmail, null);
+
+                ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                        getString(R.string.grpc_host),
+                        Integer.parseInt(getString(R.string.grpc_port))
+                ).usePlaintext().build();
+                ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
+
+                try{
+                    Log.e("DataSubmissionService", "Submitting data...");
+                    EtService.SubmitDataRecords.Request submitDataRecordsRequest = EtService.SubmitDataRecords.Request.newBuilder()
+                            .setUserId(userId)
+                            .setEmail(email)
+                            .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
+                            .addAllDataSource(dataSourceIdList)
+                            .addAllTimestamp(timestampsList)
+                            .addAllValue(valueList)
+                            .build();
+                    EtService.SubmitDataRecords.Response responseMessage = stub.submitDataRecords(submitDataRecordsRequest);
+
+                    if (responseMessage.getSuccess()) {
+                        Log.e("DataSubmissionService", "SUCCESS");
+                        for (int id : ids) {
+                            try {
+                                DbMgr.deleteRecord(id);
+                            } catch (Exception exception) {
+                                Log.e("DataSubmissionService", "Error with deleting the record");
+                            }
+                        }
+                    }
+
+                }catch (StatusRuntimeException e) {
+                    Log.e("DataSubmissionService", "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
+                    uploadingSuccessfully = false;
+                    e.printStackTrace();
+                } finally {
+                    channel.shutdown();
+                    //clear for the next round
+                    ids.clear();
+                    dataSourceIdList.clear();
+                    timestampsList.clear();
+                    valueList.clear();
+                }
+
+            }
+            if (Tools.isConnectedToWifi(getApplicationContext()) || (Tools.isNetworkAvailable() && lteEnabled)) {
+                Log.e("DataSubmissionService", "Photos submission service running... Network available");
+                uploadingSuccessfully = true;
+
+                Cursor cursor = DbMgr.getSensorData();
+
+                if (cursor.moveToFirst()) {
+                    ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                            getString(R.string.grpc_host),
+                            Integer.parseInt(getString(R.string.grpc_port))
+                    ).usePlaintext().build();
+
+                    ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
+
+                    loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
+                    int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
+                    String email = loginPrefs.getString(AuthActivity.usrEmail, null);
+
+                    try {
+                        do {
+                            dataSourceIdCheck = cursor.getColumnIndex("dataSourceId");
+                            if(dataSourceIdCheck == capturedPhotosDataSourceId) {
+                                long timestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
+                                EtService.SubmitDataRecord.Request submitDataRecordRequest = EtService.SubmitDataRecord.Request.newBuilder()
+                                        .setUserId(userId)
+                                        .setEmail(email)
+                                        .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
+                                        .setDataSource(cursor.getInt(cursor.getColumnIndex("dataSourceId")))
+                                        .setTimestamp(timestamp)
+                                        .setValue(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8))
+                                        .build();
+
+                                EtService.SubmitDataRecord.Response responseMessage = stub.submitDataRecord(submitDataRecordRequest);
+
+                                if (responseMessage.getSuccess()) {
+                                    DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
+                                }
+                            }
+                        } while (cursor.moveToNext());
+                    } catch (StatusRuntimeException e) {
+                        Log.e("DataSubmissionService Photos", "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
+                        uploadingSuccessfully = false;
+                        e.printStackTrace();
+                    } finally {
+                        channel.shutdown();
+                        dataSubmissionHandler.post(dataSubmissionRunnable);
+                    }
+                }
+                cursor.close();
+            }
+        }
+    };
 
     private Handler appUsageSaveHandler = new Handler();
     private Runnable appUsageSaveRunnable = new Runnable() {
@@ -597,6 +757,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
         mainHandler.post(mainRunnable);
         heartBeatHandler.post(heartBeatSendRunnable);
+        dataSubmissionHandler.post(dataSubmissionRunnable);
         appUsageSaveHandler.post(appUsageSaveRunnable);
         instagramHandler.post(instagramRunnable);
         getDataFromSmartwatchHandler.post(getDataFromSmartWatchRunnable);
@@ -655,6 +816,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         unregisterReceiver(mCallReceiver);
         mainHandler.removeCallbacks(mainRunnable);
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
+        dataSubmissionHandler.removeCallbacks(dataSubmissionRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
         instagramHandler.removeCallbacks(instagramRunnable);
         getDataFromSmartwatchHandler.removeCallbacks(getDataFromSmartWatchRunnable);
