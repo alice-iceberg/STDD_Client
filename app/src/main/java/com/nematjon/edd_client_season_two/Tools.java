@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 
+import com.nematjon.edd_client_season_two.services.DataSubmissionService;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.services.KeyLogger;
 import com.nematjon.edd_client_season_two.services.NotificationService;
@@ -264,6 +265,18 @@ public class Tools {
         }
         return false;
     }
+
+    static boolean isDataSubmissionServiceRunning(Context con) {
+        ActivityManager manager = (ActivityManager) con.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : Objects.requireNonNull(manager).getRunningServices(Integer.MAX_VALUE)) {
+            if (DataSubmissionService.class.getName().equals(service.service.getClassName())) {
+                Log.e("Tools", "DataSubmissionServiceRunning");
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public static synchronized void sendHeartbeat(Context con) {
         SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);

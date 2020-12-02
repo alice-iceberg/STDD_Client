@@ -94,13 +94,12 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final String TAG = MainService.class.getSimpleName();
 
     //region Constants
-    private static final int ID_SERVICE = 101;
+    public static final int ID_SERVICE = 101;
     public static final int EMA_NOTIFICATION_ID = 1234; // in sec
     public static final int PERMISSION_REQUEST_NOTIFICATION_ID = 1111; // in sec
     public static final long EMA_RESPONSE_EXPIRE_TIME = 60 * 60;  // in sec
     public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; // min
     public static final short HEARTBEAT_PERIOD = 30;  // in sec
-    public static final short DATA_SUBMIT_PERIOD = 10 * 60;  // in sec
     private static final short AUDIO_RECORDING_PERIOD = 2 * 60;  // in sec
     private static final short LIGHT_SENSOR_PERIOD = 5 * 60;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
@@ -109,7 +108,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
-    private static final int TAKE_PHOTO_PERIOD = 15; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int SMARTWATCH_PERIOD = 90; // in sec
     private static final int APP_USAGE_PERIOD = 60 * 60; // in sec
@@ -121,9 +119,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int HOURS24 = 24 * 60 * 60; // in sec
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
-    private static final float Y_GRAVITY_MIN = 7.6f;
+    public static final float Y_GRAVITY_MIN = 7.6f;
     public static final String LOCATIONS_TXT = "locations.txt";
-    public static final int BULK_SIZE_LIMIT = 10000;
     //endregion
 
 
@@ -153,7 +150,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static int gravityDataSrcId;
     static int wifiScanDataSrcId;
     static int instagramDataSrcId;
-    static int bulkSize = 1000;
 
     private static long prevLightStartTime = 0;
     private static long prevGravityStopTime = 0;
@@ -327,7 +323,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 if (appVersionDataSourceId != -1) {
                     nowTime = System.currentTimeMillis();
                     String app_version = getResources().getString(R.string.version);
-                    Log.e(TAG, "run: APP version" + app_version);
                     DbMgr.saveMixedData(appVersionDataSourceId, nowTime, 1.0f, nowTime, app_version);
                 }
 
@@ -445,135 +440,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         }
     };
 
-    private Handler dataSubmissionHandler = new Handler();
-    private Runnable dataSubmitRunnable = new Runnable() {
-
-        ArrayList<Long> timestampsList = new ArrayList<Long>();
-        ArrayList<Integer> dataSourceIdList = new ArrayList<Integer>();
-        ArrayList<Float> accuracyList = new ArrayList<Float>();
-        ArrayList<ByteString> valueList = new ArrayList<ByteString>();
-
-        @Override
-        public void run() {
-            new Thread(() -> {
-                int counter;
-                boolean lteEnabled = loginPrefs.getBoolean("lte_on", false);
-                DbMgr.cleanupUselessData();
-                // uses LTE or WiFi if LTE enabled, and only WiFi if LTE disabled
-                if (Tools.isConnectedToWifi(getApplicationContext()) || (Tools.isNetworkAvailable() && lteEnabled)) {
-                    Log.e(TAG, "Data submission Runnable run() -> Thread run() -> Network available condition (True)");
-                    uploadingSuccessfully = true;
-                    loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
-                    ArrayList<Integer> ids = new ArrayList<>();
-                    bulkSize = confPrefs.getInt("bulkSize", 1000); // default bulksize is 1000
-                    if (bulkSize > BULK_SIZE_LIMIT) {
-                        bulkSize = BULK_SIZE_LIMIT;
-                    }
-
-                    ids.clear();
-                    dataSourceIdList.clear();
-                    timestampsList.clear();
-                    valueList.clear();
-
-                    // gather the data for submission (ignore the image) todo
-                    // submitDataRecords
-                    Cursor cursor = DbMgr.getSensorData();
-                    if (cursor != null && cursor.moveToFirst()) {
-                        Log.e(TAG, "run: Creating the bulk");
-                        boolean stop = false;
-                        do {
-                            ids.add(cursor.getInt(cursor.getColumnIndex("id")));
-                            timestampsList.add(cursor.getLong(cursor.getColumnIndex("timestamp")));
-                            dataSourceIdList.add(cursor.getInt(cursor.getColumnIndex("dataSourceId")));
-                            valueList.add(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8));
-
-                            if (ids.size() == bulkSize) {
-                                Log.e(TAG, "run: Bulk size is: " + bulkSize);
-                                stop = true;
-                            }
-
-                        } while (cursor.moveToNext() && !stop);
-
-                    }
-
-                    if (cursor != null) {
-                        cursor.close();
-                    }
-
-                    int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
-                    String email = loginPrefs.getString(AuthActivity.usrEmail, null);
-                    ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                            getString(R.string.grpc_host),
-                            Integer.parseInt(getString(R.string.grpc_port))
-                    ).usePlaintext().build();
-                    ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-
-                    try {
-                        Log.e(TAG, "run: Submitting....");
-                        EtService.SubmitDataRecords.Request submitDataRecordsRequest = EtService.SubmitDataRecords.Request.newBuilder()
-                                .setUserId(userId)
-                                .setEmail(email)
-                                .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
-                                .addAllDataSource(dataSourceIdList)
-                                .addAllTimestamp(timestampsList)
-                                .addAllValue(valueList)
-                                .build();
-                        EtService.SubmitDataRecords.Response responseMessage = stub.submitDataRecords(submitDataRecordsRequest);
-                        if (responseMessage.getSuccess()) {
-                            Log.e(TAG, "run: SUCCESS");
-                            counter = 0;
-                            for (int id : ids) {
-                                try {
-                                    DbMgr.deleteRecord(id);
-                                    counter++;
-                                } catch (Exception exception) {
-                                    Log.e(TAG, "run: error with deleting the record");
-                                }
-                            }
-
-                            Log.e(TAG, "run: Counter" + counter);
-                            // if finished deleting
-                            if (bulkSize < BULK_SIZE_LIMIT) {
-                                if (counter == ids.size()) {
-                                    SharedPreferences.Editor editor = confPrefs.edit();
-                                    editor.putInt("bulkSize", bulkSize * 2); // double bulk size if success
-                                    editor.apply();
-                                }
-                            }
-                        } else {
-                            // if not success
-                            if (bulkSize > 1000) {
-                                SharedPreferences.Editor editor = confPrefs.edit();
-                                editor.putInt("bulkSize", bulkSize / 2); // double bulk size if success
-                                editor.apply();
-                            }
-                        }
-                    } catch (StatusRuntimeException e) {
-                        Log.e(TAG, "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
-                        uploadingSuccessfully = false;
-                        e.printStackTrace();
-                        if (bulkSize > 1000) {
-                            SharedPreferences.Editor editor = confPrefs.edit();
-                            editor.putInt("bulkSize", bulkSize / 2); // double bulk size if success
-                            editor.apply();
-                        }
-
-                    } finally {
-                        channel.shutdown();
-                        //clear for the next round
-                        ids.clear();
-                        dataSourceIdList.clear();
-                        timestampsList.clear();
-                        valueList.clear();
-                        dataSubmissionHandler.postDelayed(dataSubmitRunnable, DATA_SUBMIT_PERIOD * 1000);
-                    }
-
-                    // gather the image part (ignore the sensor data)
-                    // submitDataRecord
-                }
-            }).start();
-        }
-    };
 
     private Handler appUsageSaveHandler = new Handler();
     private Runnable appUsageSaveRunnable = new Runnable() {
@@ -597,29 +463,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         }
     };
 
-
-    private Handler takePhotoHandler = new Handler();
-    private Runnable takePhotoRunnable = new Runnable() {
-        @Override
-        public void run() {
-            boolean phoneUnlocked = phoneUsageVariablesPrefs.getBoolean("unlocked", false);
-            if (phoneUnlocked) {
-                // check position of the phone
-                if (y_value_gravity > Y_GRAVITY_MIN || y_value_gravity == 0f) { // 0 when the device does not have a gravity sensor
-                    //check whether camera is in use
-                    boolean cameraAvailable = phoneUsageVariablesPrefs.getBoolean("isCameraAvailable", false);
-                    if (cameraAvailable) {
-                        //take a photo
-                        Camera2Capture camera2Capture = new Camera2Capture(getApplicationContext());
-                        camera2Capture.setupCamera2();
-                    } else {
-                        Log.e(TAG, "Camera not available");
-                    }
-                }
-            }
-            takePhotoHandler.postDelayed(takePhotoRunnable, TAKE_PHOTO_PERIOD * 1000);
-        }
-    };
 
     private Handler instagramHandler = new Handler();
     private Runnable instagramRunnable = new Runnable() {
@@ -755,8 +598,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         mainHandler.post(mainRunnable);
         heartBeatHandler.post(heartBeatSendRunnable);
         appUsageSaveHandler.post(appUsageSaveRunnable);
-        dataSubmissionHandler.post(dataSubmitRunnable);
-        takePhotoHandler.post(takePhotoRunnable);
         instagramHandler.post(instagramRunnable);
         getDataFromSmartwatchHandler.post(getDataFromSmartWatchRunnable);
         permissionNotificationPosted = false;
@@ -815,8 +656,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         mainHandler.removeCallbacks(mainRunnable);
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
-        dataSubmissionHandler.removeCallbacks(dataSubmitRunnable);
-        takePhotoHandler.removeCallbacks(takePhotoRunnable);
         instagramHandler.removeCallbacks(instagramRunnable);
         getDataFromSmartwatchHandler.removeCallbacks(getDataFromSmartWatchRunnable);
         manager.unregisterAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback);
