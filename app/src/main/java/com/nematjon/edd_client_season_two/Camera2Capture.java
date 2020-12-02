@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.util.Range;
 import android.util.SparseArray;
 import android.view.Surface;
 
@@ -69,6 +70,8 @@ public class Camera2Capture {
     private Context mContext;
 
     private static final int HOURS24 = 24 * 60 * 60; //in sec
+    protected static final int CAMERA_CALIBRATION_DELAY = 1000; //in miliseconds
+    protected static long cameraCaptureStartTime;
     private static long prevCapturetime = 0;
     private static long prevCapturetimeCropped = 0;
 
@@ -150,11 +153,18 @@ public class Camera2Capture {
             // Focus
             requestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
             // Orientation
-            requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, 270); //get proper rotation
+            requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, 270); //get vertical rotation
 
-
-            cameraCaptureSession.capture(requestBuilder.build(), null, null);
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                cameraCaptureSession.capture(requestBuilder.build(), null, null);
+            }
+            //region Android 9 and below
+            else {
+                requestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, getRange());
+                cameraCaptureSession.setRepeatingRequest(requestBuilder.build(), null, null);
+                cameraCaptureStartTime = System.currentTimeMillis();
+            }
+            //endregion
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -185,40 +195,14 @@ public class Camera2Capture {
     }
 
 
-    private final ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+    private final ImageReader.OnImageAvailableListener onImageAvailableListener = mImageReader -> {
 
-        @Override
-        public void onImageAvailable(ImageReader mImageReader) {
 
-            Log.e("TAG", "processImage: ONIMAGEAVAILABLE");
-            ByteBuffer buffer;
-            byte[] bytes;
-
-            Image image = mImageReader.acquireNextImage();
-            buffer = image.getPlanes()[0].getBuffer();
-            bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
-            buffer.get(bytes); // copies image from buffer to byte array
-
-            try {
-                image.close();
-            } catch (Exception e) {
-                Log.e("TAG", "onImageAvailable: image could not be closed");
-            }
-
-            if (cameraDevice != null) {
-                image.close();
-                cameraDevice.close();
-                cameraDevice = null;
-            }
-
-            try {
-                cropFace(bytes, mContext);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            processImageAndroidQandMore(mImageReader);
+        } else {
+            processImageAndroidQandLess(mImageReader);
         }
-
-
     };
 
 
@@ -237,13 +221,11 @@ public class Camera2Capture {
 
         final FaceDetector detector = getClient(options);
         detector.process(image).addOnSuccessListener(faces -> {
-            Log.e("TAG", "onSuccess: Face detected. Number of faces: " + faces.size());
-
             if (faces.size() == 1) { //when there are more than 1 faces, the app crashes
 
                 //region saving not cropped photo to phone once every 24 hours
-                File fileFull = new File(mContext.getExternalFilesDir("Taken photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
-                //File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg"); // todo: remove saving images to the app folder
+                File fileFull = new File(mContext.getExternalFilesDir("Taken photos") + File.separator + System.currentTimeMillis() + ".jpg");
+                //File file = new File(mContext.getExternalFilesDir("Photos") + File.separator + System.currentTimeMillis() + ".jpg");
                 FileOutputStream outputFull = null;
 
                 long currentTime = System.currentTimeMillis();
@@ -273,9 +255,7 @@ public class Camera2Capture {
                     float smile = 0f;
                     try {
                         smile = face.getSmilingProbability();
-                        Log.e("FACE", "SMILE: " + smile);
                     } catch (Exception e) {
-                        Log.e("TAG", "Could not find smile");
                         smile = 0f;
                     }
 
@@ -307,7 +287,6 @@ public class Camera2Capture {
                     output.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] faceByteArray = stream.toByteArray();
                     String faceInString = (Base64.getEncoder().encodeToString(faceByteArray));
-                    Log.e("TAG", "cropFace: STRING" + faceInString.length());
                     output.recycle();
 
                     // region save image to phone only every 24hours (once per day)
@@ -316,14 +295,12 @@ public class Camera2Capture {
                         try {
                             ous = new FileOutputStream(file);
                             ous.write(faceByteArray);
-                            Log.e("TAG", "cropFace: Cropped face saved");
                             ous.close();
                             prevCapturetimeCropped = nowtime;
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-
                     //endregion
 
                     //submitting data to server
@@ -345,16 +322,20 @@ public class Camera2Capture {
         long timestamp = System.currentTimeMillis();
         String smile_type = "SMILE";
         String photo_byteArray_type = "PHOTO";
+        String position_type = "POSITION";
 
         //gravity sensor values
         float x_value = MainService.x_value_gravity;
         float y_value = MainService.y_value_gravity;
         float z_value = MainService.z_value_gravity;
 
-        assert capturedPhotoDataSrcId != -1;
-        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
-        timestamp = System.currentTimeMillis();
-        DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, x_value, y_value, z_value, photo_byteArray_type);
+        if (capturedPhotoDataSrcId != -1) {
+            DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, smile, smile_type);
+            timestamp = System.currentTimeMillis();
+            DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, photo, photo_byteArray_type);
+            timestamp = System.currentTimeMillis();
+            DbMgr.saveMixedData(capturedPhotoDataSrcId, timestamp, 1.0f, timestamp, x_value, y_value, z_value, position_type);
+        }
 
     }
 
@@ -366,4 +347,91 @@ public class Camera2Capture {
         canvas.drawRect(0F, 0F, (float) width, (float) height, paint);
         return bitmap;
     }
+
+    private Range<Integer> getRange() {
+        CameraManager mCameraManager = (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+        CameraCharacteristics chars = null;
+        try {
+            chars = mCameraManager.getCameraCharacteristics(cameraId);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        Range<Integer>[] ranges = chars.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+
+        Range<Integer> result = null;
+
+        for (Range<Integer> range : ranges) {
+            int upper = range.getUpper();
+
+            // 10 - min range upper for my needs
+            if (upper >= 10) {
+                if (result == null || upper < result.getUpper().intValue()) {
+                    result = range;
+                }
+            }
+        }
+        return result;
+    }
+
+    private void processImageAndroidQandMore(ImageReader mImageReader) {
+        ByteBuffer buffer;
+        byte[] bytes;
+
+        Image image = mImageReader.acquireNextImage();
+        if (image != null) {
+            buffer = image.getPlanes()[0].getBuffer();
+            bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
+            buffer.get(bytes); // copies image from buffer to byte array
+            try {
+                image.close();
+            } catch (Exception e) {
+                Log.e("TAG", "onImageAvailable: image could not be closed");
+            }
+
+
+            try {
+                cropFace(bytes, mContext);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (cameraDevice != null) {
+            image.close();
+            cameraDevice.close();
+            cameraDevice = null;
+        }
+    }
+
+    private void processImageAndroidQandLess(ImageReader mImageReader) {
+        ByteBuffer buffer;
+        byte[] bytes;
+
+        Image image = mImageReader.acquireLatestImage();
+        if (image != null) {
+            if (System.currentTimeMillis() > cameraCaptureStartTime + CAMERA_CALIBRATION_DELAY) {
+                buffer = image.getPlanes()[0].getBuffer();
+                bytes = new byte[buffer.remaining()]; // makes byte array large enough to hold image
+                buffer.get(bytes); // copies image from buffer to byte array
+                try {
+                    image.close();
+                } catch (Exception e) {
+                    Log.e("TAG", "onImageAvailable: image could not be closed");
+                }
+
+
+                try {
+                    cropFace(bytes, mContext);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (cameraDevice != null) {
+                image.close();
+                cameraDevice.close();
+                cameraDevice = null;
+            }
+        }
+    }
+
+
 }

@@ -50,20 +50,22 @@ class AudioFeatureRecorder {
         final String sound_feature_type_mfcc = "MFCC";
         final int dataSourceId = prefs.getInt("SOUND_DATA", -1);
 
-        assert dataSourceId != -1;
-
         AudioProcessor mainProcessor = new AudioProcessor() {
 
             @Override
             public boolean process(AudioEvent audioEvent) {
                 long nowTime = System.currentTimeMillis();
                 if (silenceDetector.currentSPL() >= -110.0D) {
-                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, silenceDetector.currentSPL(), sound_feature_type_energy);
+                    if (dataSourceId != -1) {
+                        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, silenceDetector.currentSPL(), sound_feature_type_energy);
+                    }
                 }
 
                 float[] mfccs = mfccProcessor.getMFCC();
-                nowTime = System.currentTimeMillis();
-                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, Arrays.toString(mfccs).replace(" ", ""), sound_feature_type_mfcc);
+                if (dataSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, Arrays.toString(mfccs).replace(" ", ""), sound_feature_type_mfcc);
+                }
                 return true;
             }
 
@@ -79,7 +81,9 @@ class AudioFeatureRecorder {
             long nowTime = System.currentTimeMillis();
 
             if (currentPitch > -1.0f && currentPitch != 918.75f) {
-                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, currentPitch, sound_feature_type_pitch);
+                if (dataSourceId != -1) {
+                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, currentPitch, sound_feature_type_pitch);
+                }
             }
 
             //speaking duration

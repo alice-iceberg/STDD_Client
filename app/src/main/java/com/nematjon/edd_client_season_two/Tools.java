@@ -6,10 +6,10 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
+import android.app.Dialog;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -28,10 +28,12 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 
+import com.nematjon.edd_client_season_two.services.DataSubmissionService;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.services.KeyLogger;
 import com.nematjon.edd_client_season_two.services.NotificationService;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.util.Calendar;
 import java.util.Date;
@@ -49,9 +51,6 @@ import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 import static com.nematjon.edd_client_season_two.services.MainService.EMA_RESPONSE_EXPIRE_TIME;
 
 public class Tools {
-
-    private static final String TAG = Tools.class.getSimpleName();
-
     static final String DATA_SOURCE_SEPARATOR = " ";
     static int PERMISSION_ALL = 1;
     public static String[] PERMISSIONS = {
@@ -149,11 +148,7 @@ public class Tools {
                 .setTitle(activity.getString(R.string.permissions))
                 .setMessage(activity.getString(R.string.grant_permissions))
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Tools.grantPermissions(activity, PERMISSIONS);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> Tools.grantPermissions(activity, PERMISSIONS))
                 .setNegativeButton(android.R.string.cancel, null);
         return alertDialog.show();
     }
@@ -168,27 +163,21 @@ public class Tools {
 
         if (isAppUsageAccessNotGranted(activity.getApplicationContext())) {
             activity.startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            Log.e(TAG, "grantPermissions: APP usage");
         }
         if (!isGPSLocationOn(activity.getApplicationContext())) {
             activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            Log.e(TAG, "grantPermissions: GPS");
         }
         if (!Settings.canDrawOverlays(activity.getApplicationContext())) {
-            Log.e(TAG, "grantPermissions: OVERLAY");
             activity.startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
         if (isAccessibilityServiceNotEnabled(activity.getApplicationContext())) {
-            Log.e(TAG, "grantPermissions: ACCESSABILITY");
             activity.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
         if (isNotificationServiceNotEnabled(activity.getApplicationContext())) {
-            Log.e(TAG, "grantPermissions: APP NOTIF");
             activity.startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
 
         if (!simple_permissions_granted) {
-            Log.e(TAG, "grantPermissions: SIMPLE");
             ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL);
         }
     }
@@ -277,36 +266,48 @@ public class Tools {
         return false;
     }
 
-    public static synchronized void sendHeartbeat(final Context con) {
-        final SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
+    static boolean isDataSubmissionServiceRunning(Context con) {
+        ActivityManager manager = (ActivityManager) con.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : Objects.requireNonNull(manager).getRunningServices(Integer.MAX_VALUE)) {
+            if (DataSubmissionService.class.getName().equals(service.service.getClassName())) {
+                Log.e("Tools", "DataSubmissionServiceRunning");
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public static synchronized void sendHeartbeat(Context con) {
+        SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
         if (Tools.isNetworkAvailable()) {
-            new Thread() {
-                @Override
-                public void run() {
-                    super.run();
-                    ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                            con.getString(R.string.grpc_host),
-                            Integer.parseInt(con.getString(R.string.grpc_port))
-                    ).usePlaintext().build();
-                    ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-                    EtService.SubmitHeartbeat.Request submitHeartbeatRequest = EtService.SubmitHeartbeat.Request.newBuilder()
-                            .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
-                            .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
-                            .setCampaignId(Integer.parseInt(con.getString(R.string.campaign_id)))
-                            .build();
-                    try {
-                        EtService.SubmitHeartbeat.Response responseMessage = stub.submitHeartbeat(submitHeartbeatRequest);
-                        if (responseMessage.getSuccess()) {
-                            Log.d("Tools", "Heartbeat sent successfully");
-                        }
-                    } catch (StatusRuntimeException e) {
-                        Log.e("Tools", "DataCollectorService.setUpHeartbeatSubmissionThread() exception: " + e.getMessage());
-                        e.printStackTrace();
-                    } finally {
-                        channel.shutdown();
-                    }
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                    con.getString(R.string.grpc_host),
+                    Integer.parseInt(con.getString(R.string.grpc_port))
+            ).usePlaintext().build();
+            ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
+            EtService.SubmitHeartbeat.Request submitHeartbeatRequest = EtService.SubmitHeartbeat.Request.newBuilder()
+                    .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
+                    .setEmail(loginPrefs.getString(AuthActivity.usrEmail, null))
+                    .setCampaignId(Integer.parseInt(con.getString(R.string.campaign_id)))
+                    .build();
+
+            try {
+                Log.d("Tools", "Sending heartbeat");
+                EtService.SubmitHeartbeat.Response responseMessage = stub.submitHeartbeat(submitHeartbeatRequest);
+                if (responseMessage.getSuccess()) {
+                    Log.d("Tools", "Heartbeat sent successfully");
+                } else {
+                    Log.d("Tools", "Heartbeat failed");
                 }
-            }.start();
+            } catch (StatusRuntimeException e) {
+                Log.e("Tools", "DataCollectorService.setUpHeartbeatSubmissionThread() exception: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                channel.shutdown();
+            }
+        } else {
+            Log.e("Tools", "");
         }
     }
 
@@ -324,10 +325,31 @@ public class Tools {
         SharedPreferences loginPrefs = con.getSharedPreferences("UserLogin", MODE_PRIVATE);
         SharedPreferences locationPrefs = con.getSharedPreferences("UserLocations", MODE_PRIVATE);
         SharedPreferences instagramPrefs = con.getSharedPreferences("InstagramPrefs", MODE_PRIVATE);
+        SharedPreferences rewardPrefs = con.getSharedPreferences("Rewards", MODE_PRIVATE);
+        SharedPreferences networkPrefs = con.getSharedPreferences("NetworkVariables", MODE_PRIVATE);
+        SharedPreferences phoneUsageVariablesPrefs = con.getSharedPreferences("PhoneUsageVariablesPrefs", MODE_PRIVATE);
+        SharedPreferences keylogVariablesPrefs = con.getSharedPreferences("KeyLogVariables", MODE_PRIVATE);
 
         SharedPreferences.Editor editorLocation = locationPrefs.edit();
         editorLocation.clear();
         editorLocation.apply();
+
+        SharedPreferences.Editor editorRewards = rewardPrefs.edit();
+        editorRewards.clear();
+        editorRewards.apply();
+
+        SharedPreferences.Editor editorNetwork = networkPrefs.edit();
+        editorNetwork.clear();
+        editorNetwork.apply();
+
+        SharedPreferences.Editor editorPhoneUsage = phoneUsageVariablesPrefs.edit();
+        editorPhoneUsage.clear();
+        editorPhoneUsage.apply();
+
+        SharedPreferences.Editor editorKeylog = keylogVariablesPrefs.edit();
+        editorKeylog.clear();
+        editorKeylog.apply();
+
 
         SharedPreferences.Editor editorLogin = loginPrefs.edit();
         editorLogin.remove("username");
@@ -343,20 +365,25 @@ public class Tools {
         editorInstagram.putBoolean("is_logged_in", false);
         editorInstagram.clear();
         editorInstagram.apply();
+
+        //removing taken photos
+        File file = new File(con.getExternalFilesDir("Taken photos") + "");
+        deleteDir(file);
+
     }
 
-    static String formatMinutes(int minutes) {
+    static String formatMinutes(int minutes, Context context) {
         if (minutes > 60) {
             if (minutes > 1440)
-                return minutes / 60 / 24 + "days";
+                return minutes / 60 / 24 + context.getResources().getString(R.string.days);
             else {
                 int h = minutes / 60;
                 float dif = (float) minutes / 60 - h;
                 int m = (int) (dif * 60);
-                return h + "h " + m + "m";
+                return h + context.getResources().getString(R.string.hour) + " " + m + context.getResources().getString(R.string.min);
             }
         } else
-            return minutes + "m";
+            return minutes + context.getResources().getString(R.string.min);
     }
 
     public static boolean inRange(long value, long start, long end) {
@@ -382,5 +409,20 @@ public class Tools {
         return false;
     }
 
+    // For to Delete the directory inside list of files and inner Directory
+    public static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+        // The directory is now empty so delete it
+        return dir.delete();
+    }
 
 }

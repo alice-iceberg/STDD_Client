@@ -24,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.github.instagram4j.instagram4j.IGAndroidDevice;
 import com.github.instagram4j.instagram4j.IGClient;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
@@ -174,8 +175,23 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                         .username(usernameNoSpaces)
                         .password(passwordNoSpaces)
                         .login();
-                usernameCheck = client.getSelfProfile().getFull_name();
 
+                //region setting the user's device
+                final String androidVersion = Build.VERSION.SDK_INT + "";
+                final String androidRelease = Build.VERSION.RELEASE + "";
+                final String dpi = getResources().getDisplayMetrics().densityDpi + "";
+                final String displayResolution = getResources().getDisplayMetrics().widthPixels + "x" + getResources().getDisplayMetrics().heightPixels;
+                final String manufacturer = Build.MANUFACTURER + "";
+                final String model = Build.MODEL + "";
+                final String device = Build.DEVICE + "";
+                final String cpu = Build.BOARD + "";
+
+                final String androidDeviceInfo = androidVersion + "/" + androidRelease + "; " + dpi + "dpi; " + displayResolution + "; " + manufacturer + "; " + model + "; " + device + "; " + cpu;
+                IGAndroidDevice igAndroidDevice = new IGAndroidDevice(androidDeviceInfo);
+                client.setDevice(igAndroidDevice);
+                //endregion
+
+                usernameCheck = client.getSelfProfile().getFull_name();
                 isSuccessfullyLoggedIn = !usernameCheck.equals("");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -250,7 +266,6 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
                     runOnUiThread(() -> dialog = Tools.requestPermissions(MediaSetActivity.this));
                 } else {
-                    Log.e(TAG, "restartServiceClick: 3");
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
                         Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

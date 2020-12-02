@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">version 1.1.1</string>
+    <string name="version">version 1.2.2</string>
     <string name="status_today">현재 상태:</string>
     <string name="authentication_txt">회원가입</string>
     <string name="authentication_btn">회원가입하기</string>
@@ -19,11 +19,14 @@
     <string name="daily_notif_text">설문 시간입니다. 클릭하시어 설문에 응답해주세요 :)</string>
     <string name="uploading">업로드 중…</string>
     <string name="noti_service_running">서비스 작동 중…</string>
-    <string name="day_num">참여일수: %1$d일</string>
-    <string name="ema_responses">EMA 응답 </string>
+    <string name="day_num">참여일수 : %1$d일</string>
+    <string name="day_num_holder">참여일수 : </string>
+    <string name="ema_responses_holder">EMA 응답 : </string>
     <string name="ema_responses_rate">EMA 응답 : %1$d/4</string>
-    <string name="data_loaded">데이터 업로드:  %1$s</string>
-    <string name="last_active">최신 접속:  %1$s</string>
+    <string name="data_loaded">데이터 업로드 :  %1$s</string>
+    <string name="data_loaded_holder">데이터 업로드 : </string>
+    <string name="last_active">최신 접속 :  %1$s</string>
+    <string name="last_active_holder">최신 접속 : </string>
     <string name="restart_data_collection">재시작</string>
     <string name="set_locations">장소 설정</string>
     <string name="service_running">서비스 : 작동 중 :)</string>
@@ -80,6 +83,8 @@
     <string name="home_drawer_layout">홈</string>
     <string name="general_drawer_layout">기본</string>
     <string name="smartwatch">스마트워치</string>
+    <string name="smartwatch_connected">스마트워치 : ON</string>
+    <string name="smartwatch_not_connected">스마트워치 : OFF</string>
     <string name="ON">ON</string>
     <string name="OFF">OFF</string>
     <string name="ready_to_accept_connection">연결 준비 완료</string>
@@ -104,4 +109,18 @@
     <string name="canceled">취소되었습니다</string>
     <string name="technical_issue">기술적 문제가 발생했습니다. 기기 연동 여부를 확인하고 다시 시도해주세요!</string>
     <string name="install_et">EasyTrack Authenticator을 설치하고 어플리케이션을 다시 실시해주세요.</string>
+    <string name="ago">전</string>
+    <string name="younoone_notif_channel">YouNoOne 알림 채널</string>
+    <string name="channel_description">이 채널은 YouNoOne 어플리케이션에서 알림을 전송하기 위해 사용됩니다.</string>
+    <string name="min">분</string>
+    <string name="hour">시간</string>
+    <string name="days">일</string>
+    <string name="connect_internet_first_launch">"첫 시작을 위해 인터넷에 연결해 주세요"</string>
+    <string name="continue_btn">계속해주세요</string>
+    <string name="welcome">환영합니다</string>
+    <string name="thank_you">YouNoOne에 참여해주셔서 감사합니다</string>
+    <string name="ask_for_permissions">데이터 수집을 위해 다음 사항을 모두 허가해주세요</string>
+    <string name="lte">LTE </string>
+    <string name="lte_enabled_toast">LTE로 데이터 전송이 가능합니다.</string>
+    <string name="lte_disabled_toast">LTE로 데이터 전송이 불가능합니다.</string>
 </resources>

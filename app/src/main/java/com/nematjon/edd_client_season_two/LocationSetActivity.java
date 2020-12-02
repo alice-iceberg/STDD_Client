@@ -286,10 +286,10 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
 
         SharedPreferences confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = confPrefs.getInt("LOCATIONS_MANUAL", -1);
-        assert dataSourceId != -1;
-        long nowTime = System.currentTimeMillis();
-        DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, location.getmId(), (float) location.getmLatLng().latitude, (float) location.getmLatLng().longitude);
-
+        if (dataSourceId != -1) {
+            long nowTime = System.currentTimeMillis();
+            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, location.getmId(), (float) location.getmLatLng().latitude, (float) location.getmLatLng().longitude);
+        }
         onMapReady(mMap);
     }
 

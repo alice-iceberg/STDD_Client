@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.TrafficStats;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -28,12 +29,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.CalendarContract;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import com.github.instagram4j.instagram4j.IGAndroidDevice;
 import com.github.instagram4j.instagram4j.IGClient;
 import com.github.instagram4j.instagram4j.models.media.reel.ReelMedia;
 import com.github.instagram4j.instagram4j.models.media.timeline.TimelineMedia;
@@ -51,11 +54,13 @@ import com.google.android.gms.location.ActivityTransition;
 import com.google.android.gms.location.ActivityTransitionRequest;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.protobuf.ByteString;
+import com.nematjon.edd_client_season_two.AppUseDb;
 import com.nematjon.edd_client_season_two.AuthActivity;
 import com.nematjon.edd_client_season_two.Camera2Capture;
 import com.nematjon.edd_client_season_two.DbMgr;
 import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.R;
+import com.nematjon.edd_client_season_two.StoredMedia;
 import com.nematjon.edd_client_season_two.smartwatch.SAPAndroidAgent;
 import com.nematjon.edd_client_season_two.Tools;
 import com.nematjon.edd_client_season_two.receivers.ActivityTransRcvr;
@@ -72,6 +77,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -88,14 +94,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final String TAG = MainService.class.getSimpleName();
 
     //region Constants
-    private static final int ID_SERVICE = 101;
+    public static final int ID_SERVICE = 101;
     public static final int EMA_NOTIFICATION_ID = 1234; // in sec
     public static final int PERMISSION_REQUEST_NOTIFICATION_ID = 1111; // in sec
     public static final long EMA_RESPONSE_EXPIRE_TIME = 60 * 60;  // in sec
     public static final int SERVICE_START_X_MIN_BEFORE_EMA = 3 * 60; // min
     public static final short HEARTBEAT_PERIOD = 30;  // in sec
-    public static final short DATA_SUBMIT_PERIOD = 60;  // in sec
-    private static final short AUDIO_RECORDING_PERIOD = 5 * 60;  // in sec
+    private static final short AUDIO_RECORDING_PERIOD = 2 * 60;  // in sec
     private static final short LIGHT_SENSOR_PERIOD = 5 * 60;  // in sec
     private static final short PRESSURE_SENSOR_PERIOD = 5 * 60; // in sec
     private static final short GRAVITY_SENSOR_PERIOD = 3; // in sec
@@ -103,14 +108,18 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
     private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
-    private static final int TAKE_PHOTO_PERIOD = 15; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int SMARTWATCH_PERIOD = 90; // in sec
+    private static final int APP_USAGE_PERIOD = 60 * 60; // in sec
+    private static final int NETWORK_USAGE_PERIOD = 20 * 60; // in sec
+    private static final int STORED_MEDIA_PERIOD = 4 * 60 * 60; // in sec
+    private static final int CALENDAR_EVENTS_PERIOD = 4 * 60 * 60; // in sec
+    private static final int DEVICE_INFO_PERIOD = 24 * 60 * 60; // in sec
     private static final int INSTAGRAM_POSTS_NUMBER = 5;
     private static final int HOURS24 = 24 * 60 * 60; // in sec
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
-    private static final float Y_GRAVITY_MIN = 7.6f;
+    public static final float Y_GRAVITY_MIN = 7.6f;
     public static final String LOCATIONS_TXT = "locations.txt";
     //endregion
 
@@ -133,6 +142,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     static SharedPreferences confPrefs;
     static SharedPreferences phoneUsageVariablesPrefs;
     static SharedPreferences instagramPrefs;
+    static SharedPreferences networkPrefs;
 
     static int stepDetectorDataSrcId;
     static int pressureDataSrcId;
@@ -146,6 +156,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static long prevPressureStopTime = 0;
     private static long prevAudioRecordStartTime = 0;
     private static long prevWifiScanStartTime = 0;
+    private static long prevAppUsageStartTime = System.currentTimeMillis(); //at the beginning app usage db is empty
+    private static long prevNetworkUsageStartTime = System.currentTimeMillis();
+    private static long prevCalendarEventsStartTime = 0;
+    private static long prevStoredMediaStartTime = 0;
+    private static long prevDeviceInfoStartTime = 0;
 
     static NotificationManager mNotificationManager;
     static Boolean permissionNotificationPosted;
@@ -262,70 +277,169 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
                     }
                     prevWifiScanStartTime = currentTime;
-                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(BSSIDs.toArray()).replace(" ", ""), data_type_bssid);
-                    currentTime = System.currentTimeMillis();
-                    DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(SSIDs.toArray()).replace(" ", ""), data_type_ssid);
+                    if (wifiScanDataSrcId != -1) {
+                        DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(BSSIDs.toArray()).replace(" ", ""), data_type_bssid);
+                        currentTime = System.currentTimeMillis();
+                        DbMgr.saveMixedData(wifiScanDataSrcId, currentTime, 1.0f, currentTime, Arrays.toString(SSIDs.toArray()).replace(" ", ""), data_type_ssid);
+                    }
                 }
             }
             //endregion
+
+            // region checking and updating device information
+            currentTime = System.currentTimeMillis();
+            boolean canDeviceInfoCheck = (currentTime > prevDeviceInfoStartTime + DEVICE_INFO_PERIOD * 1000);
+            String current_device_model = Build.MODEL;
+            int current_api_level = Build.VERSION.SDK_INT;
+            boolean deviceInfoChanged = false;
+
+            int deviceInfoSourceId = confPrefs.getInt("ANDROID_DEVICE_INFO", -1);
+            int appVersionDataSourceId = confPrefs.getInt("APP_VERSION", -1);
+            String deviceModelType = "DEVICE MODEL";
+            String apiLevelType = "API";
+
+            if (canDeviceInfoCheck) {
+                String stored_device_model = loginPrefs.getString("deviceModel", null);
+                int stored_api_level = loginPrefs.getInt("apiLevel", 0);
+
+
+                if (!current_device_model.equals(stored_device_model) || (current_api_level != stored_api_level)) {
+                    SharedPreferences.Editor editorLogin = loginPrefs.edit();
+                    editorLogin.putString("deviceModel", current_device_model);
+                    editorLogin.putInt("apiLevel", current_api_level);
+                    editorLogin.apply();
+                }
+
+                String updated_device_model = loginPrefs.getString("deviceModel", null);
+                int updated_api_level = loginPrefs.getInt("apiLevel", 0);
+
+                if (deviceInfoSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_device_model, deviceModelType);
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(deviceInfoSourceId, nowTime, 1.0f, nowTime, updated_api_level, apiLevelType);
+                }
+
+                if (appVersionDataSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    String app_version = getResources().getString(R.string.version);
+                    DbMgr.saveMixedData(appVersionDataSourceId, nowTime, 1.0f, nowTime, app_version);
+                }
+
+                prevDeviceInfoStartTime = currentTime;
+            }
+            // endregion
+
+            //region saving the total number of Calendar Events
+            Cursor calendarCursor;
+            int total_number_of_events = 0;
+            String calendar_type = "EVENT";
+            currentTime = System.currentTimeMillis();
+            boolean canCalendarEventsScan = (currentTime > prevCalendarEventsStartTime + CALENDAR_EVENTS_PERIOD * 1000);
+            if (canCalendarEventsScan) {
+                calendarCursor = getApplicationContext().getContentResolver().query(CalendarContract.Events.CONTENT_URI, null, null, null, null);
+                if (calendarCursor != null) {
+                    total_number_of_events = calendarCursor.getCount();
+                }
+                int calendarSourceId = confPrefs.getInt("CALENDAR", -1);
+                if (calendarSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(calendarSourceId, nowTime, 1.0f, nowTime, total_number_of_events, calendar_type);
+                }
+                assert calendarCursor != null;
+                calendarCursor.close();
+
+                prevCalendarEventsStartTime = currentTime;
+            }
+            //endregion
+
+            //region saving the total number of Images, Music and Video Files stored
+            currentTime = System.currentTimeMillis();
+            boolean canStoredMediaCheck = (currentTime > prevStoredMediaStartTime + STORED_MEDIA_PERIOD * 1000);
+            StoredMedia storedMedia = new StoredMedia();
+            String image_media_type = "IMAGE";
+            String video_media_type = "VIDEO";
+            String music_media_type = "MUSIC";
+            int totalNumOfImages = 0;
+            int totalNumOfVideoFiles = 0;
+            int totalNumOfMusic = 0;
+            if (canStoredMediaCheck) {
+                totalNumOfImages = storedMedia.totalNumberOfImages(getApplicationContext().getContentResolver());
+                totalNumOfVideoFiles = storedMedia.totalNumberOfVideoFiles(getApplicationContext().getContentResolver());
+                totalNumOfMusic = storedMedia.totalNumOfMusic(getApplicationContext().getContentResolver());
+                int storedMediaSourceId = confPrefs.getInt("STORED_MEDIA", -1);
+                if (storedMediaSourceId != -1) {
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfImages, image_media_type);
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfVideoFiles, video_media_type);
+                    nowTime = System.currentTimeMillis();
+                    DbMgr.saveMixedData(storedMediaSourceId, nowTime, 1.0f, nowTime, totalNumOfMusic, music_media_type);
+                }
+                prevStoredMediaStartTime = currentTime;
+            }
+            //endregion
+
+            //region saving transmitted & received network data
+            currentTime = System.currentTimeMillis();
+            boolean canNetworkUsageCheck = (currentTime > prevNetworkUsageStartTime + NETWORK_USAGE_PERIOD * 1000);
+            networkPrefs = getSharedPreferences("NetworkVariables", MODE_PRIVATE);
+            String usage_tx_type = "TX";
+            String usage_rx_type = "RX";
+
+            if (canNetworkUsageCheck) {
+
+                long prevRx = networkPrefs.getLong("prev_rx_network_data", 0);
+                long prevTx = networkPrefs.getLong("prev_tx_network_data", 0);
+
+                long rxBytes = TrafficStats.getTotalRxBytes() - prevRx;
+                long txBytes = TrafficStats.getTotalTxBytes() - prevTx;
+
+                final long time_start = (nowTime - SERVICE_START_X_MIN_BEFORE_EMA * 60 * 1000) + 1000; // add one second to start time
+                int networkDataSourceId = confPrefs.getInt("NETWORK_USAGE", -1);
+                DbMgr.saveMixedData(networkDataSourceId, nowTime, 1.0f, time_start, nowTime, rxBytes, usage_tx_type);
+                nowTime = System.currentTimeMillis();
+                DbMgr.saveMixedData(networkDataSourceId, nowTime, 1.0f, time_start, nowTime, txBytes, usage_rx_type);
+
+                SharedPreferences.Editor editor = networkPrefs.edit();
+                editor.putLong("prev_rx_network_data", rxBytes);
+                editor.putLong("prev_tx_network_data", txBytes);
+                editor.apply();
+                prevNetworkUsageStartTime = nowTime;
+                //endregion
+
+                // saving app usage data
+                currentTime = System.currentTimeMillis();
+                boolean canAppUsageUpload = (currentTime > prevAppUsageStartTime + APP_USAGE_PERIOD * 1000);
+                if (canAppUsageUpload) {
+                    final long app_usage_time_end = System.currentTimeMillis();
+                    final long app_usage_time_start = (app_usage_time_end - SERVICE_START_X_MIN_BEFORE_EMA * 60 * 1000) + 1000; // add one second to start time
+                    int appUseDataSourceId = confPrefs.getInt("APPLICATION_USAGE", -1);
+                    Cursor cursor = AppUseDb.getAppUsage();
+                    if (cursor.moveToFirst()) {
+                        do {
+                            String package_name = cursor.getString(1);
+                            long start_time = cursor.getLong(2);
+                            long end_time = cursor.getLong(3);
+                            if (Tools.inRange(start_time, app_usage_time_start, app_usage_time_end) && Tools.inRange(end_time, app_usage_time_start, app_usage_time_end))
+                                if (start_time < end_time) {
+                                    DbMgr.saveMixedData(appUseDataSourceId, start_time, 1.0f, start_time, end_time, package_name);
+                                }
+                        }
+                        while (cursor.moveToNext());
+                    }
+                    cursor.close();
+
+                    prevAppUsageStartTime = currentTime;
+                }
+                //endregion
+
+            }
 
             mainHandler.postDelayed(mainRunnable, 5 * 1000);
         }
     };
 
-    private Handler dataSubmissionHandler = new Handler();
-    private Runnable dataSubmitRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Log.e(TAG, "Data submission Runnable run()");
-            new Thread(() -> {
-                Log.e(TAG, "Data submission Runnable run() -> Thread run()");
-                if (Tools.isConnectedToWifi(getApplicationContext())) {
-                    Log.e(TAG, "Data submission Runnable run() -> Thread run() -> Network available condition (True)");
-                    uploadingSuccessfully = true;
-                    Cursor cursor = DbMgr.getSensorData();
-                    if (cursor.moveToFirst()) {
-                        ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                                getString(R.string.grpc_host),
-                                Integer.parseInt(getString(R.string.grpc_port))
-                        ).usePlaintext().build();
-
-                        ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-
-                        loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
-                        int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
-                        String email = loginPrefs.getString(AuthActivity.usrEmail, null);
-                        try {
-                            do {
-                                EtService.SubmitDataRecord.Request submitDataRecordRequest = EtService.SubmitDataRecord.Request.newBuilder()
-                                        .setUserId(userId)
-                                        .setEmail(email)
-                                        .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
-                                        .setDataSource(cursor.getInt(cursor.getColumnIndex("dataSourceId")))
-                                        .setTimestamp(cursor.getLong(cursor.getColumnIndex("timestamp")))
-                                        .setValue(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8))
-                                        .build();
-
-                                EtService.SubmitDataRecord.Response responseMessage = stub.submitDataRecord(submitDataRecordRequest);
-                                if (responseMessage.getSuccess()) {
-                                    DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
-                                }
-
-                            } while (cursor.moveToNext());
-                        } catch (StatusRuntimeException e) {
-                            Log.e(TAG, "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
-                            uploadingSuccessfully = false;
-                            e.printStackTrace();
-                        } finally {
-                            channel.shutdown();
-                        }
-                    }
-                    cursor.close();
-                }
-            }).start();
-            dataSubmissionHandler.postDelayed(dataSubmitRunnable, DATA_SUBMIT_PERIOD * 1000);
-        }
-    };
 
     private Handler appUsageSaveHandler = new Handler();
     private Runnable appUsageSaveRunnable = new Runnable() {
@@ -344,39 +458,11 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 permissionNotificationPosted = true;
                 sendNotificationForPermissionSetting(); // send notification if any permission is disabled
             }
-            Tools.sendHeartbeat(MainService.this);
+            new Thread(() -> Tools.sendHeartbeat(getApplicationContext())).start();
             heartBeatHandler.postDelayed(heartBeatSendRunnable, HEARTBEAT_PERIOD * 1000);
-            Log.e(TAG, "run: Heartbeat is sent");
         }
     };
 
-
-    private Handler takePhotoHandler = new Handler();
-    private Runnable takePhotoRunnable = new Runnable() {
-        @Override
-        public void run() {
-            boolean phoneUnlocked = phoneUsageVariablesPrefs.getBoolean("unlocked", false);
-            if (phoneUnlocked) {
-                // check position of the phone
-                Log.e("CAMERA", "run: PHONE IS UNLOCKED");
-                if (y_value_gravity > Y_GRAVITY_MIN || y_value_gravity == 0f) { // 0 when the device does not have a gravity sensor
-                    Log.e("CAMERA", "run: VERTICAL POSITION");
-                    //check whether camera is in use
-                    boolean cameraAvailable = phoneUsageVariablesPrefs.getBoolean("isCameraAvailable", false);
-                    if (cameraAvailable) {
-                        //take a photo
-                        Log.e("CAMERA", "run: CAMERA AVAILABLE");
-                        Camera2Capture camera2Capture = new Camera2Capture(getApplicationContext());
-                        camera2Capture.setupCamera2();
-                        Log.e("CAMERA", "run: CHECK GALLERY");
-                    } else {
-                        Log.e(TAG, "run: CAMERA NOT AVAILABLE");
-                    }
-                }
-            }
-            takePhotoHandler.postDelayed(takePhotoRunnable, TAKE_PHOTO_PERIOD * 1000);
-        }
-    };
 
     private Handler instagramHandler = new Handler();
     private Runnable instagramRunnable = new Runnable() {
@@ -406,7 +492,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
             getDataFromSmartwatchHandler.postDelayed(getDataFromSmartWatchRunnable, SMARTWATCH_PERIOD * 1000);
         }
     };
-
 
     @Override
     public void onCreate() {
@@ -513,8 +598,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         mainHandler.post(mainRunnable);
         heartBeatHandler.post(heartBeatSendRunnable);
         appUsageSaveHandler.post(appUsageSaveRunnable);
-        dataSubmissionHandler.post(dataSubmitRunnable);
-        takePhotoHandler.post(takePhotoRunnable);
         instagramHandler.post(instagramRunnable);
         getDataFromSmartwatchHandler.post(getDataFromSmartWatchRunnable);
         permissionNotificationPosted = false;
@@ -531,15 +614,13 @@ public class MainService extends Service implements SensorEventListener, Locatio
         Notification notification = builder.build();
         startForeground(ID_SERVICE, notification);
         //endregion
-
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     public String createNotificationChannel() {
         String id = "YouNoOne_channel_id";
-        String name = "You no one channel id";
-        String description = "This is description";
+        String name = getResources().getString(R.string.younoone_notif_channel);
+        String description = getResources().getString(R.string.channel_description);
         NotificationChannel mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW);
         mChannel.setDescription(description);
         mChannel.enableLights(true);
@@ -575,8 +656,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         mainHandler.removeCallbacks(mainRunnable);
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
-        dataSubmissionHandler.removeCallbacks(dataSubmitRunnable);
-        takePhotoHandler.removeCallbacks(takePhotoRunnable);
         instagramHandler.removeCallbacks(instagramRunnable);
         getDataFromSmartwatchHandler.removeCallbacks(getDataFromSmartWatchRunnable);
         manager.unregisterAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback);
@@ -653,7 +732,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
     public void onSensorChanged(SensorEvent event) {
         long timestamp = System.currentTimeMillis();
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            DbMgr.saveMixedData(stepDetectorDataSrcId, timestamp, event.accuracy, timestamp);
+            if (stepDetectorDataSrcId != -1) {
+                DbMgr.saveMixedData(stepDetectorDataSrcId, timestamp, event.accuracy, timestamp);
+            }
         } else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
             long nowTime = System.currentTimeMillis();
 
@@ -663,8 +744,10 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 canPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_PERIOD * 1000);
                 stopPressureSense = (nowTime > prevPressureStopTime + PRESSURE_SENSOR_DURATION * 1000 + PRESSURE_SENSOR_PERIOD * 1000);
                 if (canPressureSense) {
-                    timestamp = System.currentTimeMillis();
-                    DbMgr.saveMixedData(pressureDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
+                    if (pressureDataSrcId != -1) {
+                        timestamp = System.currentTimeMillis();
+                        DbMgr.saveMixedData(pressureDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
+                    }
                 }
                 if (stopPressureSense) {
                     prevPressureStopTime = nowTime;
@@ -674,8 +757,10 @@ public class MainService extends Service implements SensorEventListener, Locatio
             long nowTime = System.currentTimeMillis();
             boolean canLightSense = (nowTime > prevLightStartTime + LIGHT_SENSOR_PERIOD * 1000);
             if (canLightSense) {
-                timestamp = System.currentTimeMillis();
-                DbMgr.saveMixedData(lightDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
+                if (lightDataSrcId != -1) {
+                    timestamp = System.currentTimeMillis();
+                    DbMgr.saveMixedData(lightDataSrcId, timestamp, event.accuracy, timestamp, event.values[0]);
+                }
                 prevLightStartTime = nowTime;
             }
         } else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
@@ -690,7 +775,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 editor.putFloat("y_value_gravity", y_value_gravity);
                 editor.apply();
 
-                DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, x_value_gravity, y_value_gravity, z_value_gravity);
+                if (gravityDataSrcId != -1) {
+                    DbMgr.saveMixedData(gravityDataSrcId, nowTime, 1.0f, nowTime, x_value_gravity, y_value_gravity, z_value_gravity);
+                }
                 prevGravityStopTime = nowTime;
             }
         }
@@ -751,8 +838,24 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 .password(instagramPassword)
                                 .login();
 
-                        DbMgr.saveMixedData(instagramDataSrcId, System.currentTimeMillis(), 1.0f, System.currentTimeMillis(), instagramUsername, instagram_username_type);
-                        //region user info
+                        //region setting the user's device
+                        final String androidVersion = Build.VERSION.SDK_INT + "";
+                        final String androidRelease = Build.VERSION.RELEASE + "";
+                        final String dpi = getResources().getDisplayMetrics().densityDpi + "";
+                        final String displayResolution = getResources().getDisplayMetrics().widthPixels + "x" + getResources().getDisplayMetrics().heightPixels;
+                        final String manufacturer = Build.MANUFACTURER + "";
+                        final String model = Build.MODEL + "";
+                        final String device = Build.DEVICE + "";
+                        final String cpu = Build.BOARD + "";
+
+                        final String androidDeviceInfo = androidVersion + "/" + androidRelease + "; " + dpi + "dpi; " + displayResolution + "; " + manufacturer + "; " + model + "; " + device + "; " + cpu;
+                        IGAndroidDevice igAndroidDevice = new IGAndroidDevice(androidDeviceInfo);
+                        client.setDevice(igAndroidDevice);
+
+                        //endregion
+                        if (instagramDataSrcId != -1) {
+                            DbMgr.saveMixedData(instagramDataSrcId, System.currentTimeMillis(), 1.0f, System.currentTimeMillis(), instagramUsername, instagram_username_type);
+                        }//region user info
                         UsersInfoRequest usersInfoRequest = new UsersInfoRequest((client.getSelfProfile().getPk()));
                         CompletableFuture<UserResponse> userResponse = client.sendRequest(usersInfoRequest);
 
@@ -808,12 +911,9 @@ public class MainService extends Service implements SensorEventListener, Locatio
                             story_total_count = 0;
                         }
 
-                        Log.e(TAG, "run: STORY total count" + story_total_count);
-
                         if (story_total_count != 0) {
                             for (ReelMedia reelMedia : feedUserStoryResponse.get().getReel().getItems()) {
                                 story_viewers_count = reelMedia.getViewer_count();
-                                Log.e(TAG, "run: Story viewers count" + story_viewers_count);
                                 story_taken_at_timestamp = reelMedia.getTaken_at();
                                 story_expires_timestamp = (HOURS24 * 1000) + story_taken_at_timestamp;
                             }
@@ -833,17 +933,20 @@ public class MainService extends Service implements SensorEventListener, Locatio
                                 userfeed_like_count = timelineMedia.getLike_count();
                                 userfeed_likes_photo_himself = timelineMedia.isHas_liked();
                                 userfeed_items_count++;
-
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_taken_at_timestamp, userfeed_taken_at_timestamp_type);
-                                nowTime = System.currentTimeMillis();
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_likes_photo_himself, userfeed_likes_photo_himself_type);
-                                nowTime = System.currentTimeMillis();
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_like_count, userfeed_like_count_type);
-                                nowTime = System.currentTimeMillis();
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_comment_count, userfeed_comment_count_type);
-                                nowTime = System.currentTimeMillis();
+                                if (instagramDataSrcId != -1) {
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_taken_at_timestamp, userfeed_taken_at_timestamp_type);
+                                    nowTime = System.currentTimeMillis();
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_likes_photo_himself, userfeed_likes_photo_himself_type);
+                                    nowTime = System.currentTimeMillis();
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_like_count, userfeed_like_count_type);
+                                    nowTime = System.currentTimeMillis();
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_comment_count, userfeed_comment_count_type);
+                                    nowTime = System.currentTimeMillis();
+                                }
                             } else {
-                                DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_items_count, userfeed_items_count_type);
+                                if (instagramDataSrcId != -1) {
+                                    DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userfeed_items_count, userfeed_items_count_type);
+                                }
                                 userfeed_items_count = 0;
                                 break;
                             }
@@ -852,41 +955,40 @@ public class MainService extends Service implements SensorEventListener, Locatio
                         //endregion
 
                         //region Instagram data submission
-                        nowTime = System.currentTimeMillis();
-
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_media_count, userinfo_total_media_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_followers_count, userinfo_followers_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_count, userinfo_following_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_usertags_count, userinfo_usertags_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_igtv_videos, userinfo_total_igtv_videos_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_besties_count, userinfo_besties_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_tag_count, userinfo_following_tag_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_recently_bestied_by_count, userinfo_recently_bestied_by_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_has_highlight_reels, userinfo_has_highlight_reels_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_clips_count, userinfo_total_clips_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_unseen_dialogs_count, direct_unseen_dialogs_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_pending_requests_dialogs_count, direct_pending_requests_dialogs_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_total_count, story_total_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_viewers_count, story_viewers_count_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_taken_at_timestamp, story_taken_at_timestamp_type);
-                        nowTime = System.currentTimeMillis();
-                        DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_expires_timestamp, story_expires_timestamp_type);
-
-                        Log.e(TAG, "run: Instagram data submitted");
+                        if (instagramDataSrcId != -1) {
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_media_count, userinfo_total_media_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_followers_count, userinfo_followers_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_count, userinfo_following_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_usertags_count, userinfo_usertags_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_igtv_videos, userinfo_total_igtv_videos_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_besties_count, userinfo_besties_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_following_tag_count, userinfo_following_tag_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_recently_bestied_by_count, userinfo_recently_bestied_by_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_has_highlight_reels, userinfo_has_highlight_reels_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, userinfo_total_clips_count, userinfo_total_clips_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_unseen_dialogs_count, direct_unseen_dialogs_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, direct_pending_requests_dialogs_count, direct_pending_requests_dialogs_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_total_count, story_total_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_viewers_count, story_viewers_count_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_taken_at_timestamp, story_taken_at_timestamp_type);
+                            nowTime = System.currentTimeMillis();
+                            DbMgr.saveMixedData(instagramDataSrcId, nowTime, 1.0f, nowTime, story_expires_timestamp, story_expires_timestamp_type);
+                        }
                         //endregion
                     } catch (IOException | InterruptedException | ExecutionException e) {
                         e.printStackTrace();

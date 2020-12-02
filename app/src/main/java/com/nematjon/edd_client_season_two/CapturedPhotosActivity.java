@@ -116,7 +116,6 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
                         }
                     });
                 } else {
-                    Log.e(TAG, "restartServiceClick: 3");
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
                         Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

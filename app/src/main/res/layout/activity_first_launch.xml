@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginBottom="40dp">
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="30dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/ic_launcher_no_bg"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:text="@string/welcome"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="30dp"
+        android:text="@string/thank_you"
+        android:textSize="20sp" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dp"
+        android:background="#c0c0c0" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="50dp"
+        android:text="@string/ask_for_permissions"
+        android:textSize="17sp"
+
+        />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_location"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="20dp"
+            android:layout_weight="0.02"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/location" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_microphone"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginEnd="20dp"
+            android:layout_weight="0.02"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/microphone_permissions" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_camera"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="20dp"
+            android:layout_weight="0.02"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/camera_permission" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_storage"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginEnd="20dp"
+            android:layout_weight="0.02"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/storage_permissions" />
+
+    </LinearLayout>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <Button
+        android:id="@+id/continueBtn"
+        android:onClick="continueBtnOnClick"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="@string/continue_btn"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_ema_answer_background"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>
+
+</LinearLayout>

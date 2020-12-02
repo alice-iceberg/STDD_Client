@@ -10,7 +10,6 @@ import java.util.Locale;
 
 public class AppUseDb {
     static private SQLiteDatabase db;
-    private static final String TAG = AppUseDb.class.getSimpleName();
 
     static void init(Context context) {
         db = context.openOrCreateDatabase(context.getPackageName(), Context.MODE_PRIVATE, null);
@@ -79,7 +78,6 @@ public class AppUseDb {
     static void saveAppUsageStat(String packageName, long endTimestamp, long totalTimeInForeground) {
         AppUsageRecord lastRecord = getLastRecord(packageName);
         if (lastRecord == null) {
-            //Log.e(TAG, "saveAppUsageStat: Inserted 1 -> " + packageName + "; " + totalTimeInForeground);
             db.execSQL(String.format(
                     Locale.getDefault(),
                     "insert into AppUse(package_name, start_timestamp, end_timestamp, total_time_in_foreground) values(?, %d, %d, %d);",
@@ -88,11 +86,9 @@ public class AppUseDb {
                     totalTimeInForeground
             ), new String[]{packageName});
         } else {
-            // the interesting part
             long startTimestamp = endTimestamp - (totalTimeInForeground - lastRecord.totalTimeInForeground);
             if (startTimestamp != endTimestamp) {
                 if (startTimestamp == lastRecord.endTimestamp) {
-                    //Log.e(TAG, "saveAppUsageStat: Updated 2 -> " + packageName + "; " + totalTimeInForeground);
                     db.execSQL(String.format(
                             Locale.getDefault(),
                             "update AppUse set end_timestamp = %d and total_time_in_foreground = %d where id=%d;",
@@ -103,7 +99,6 @@ public class AppUseDb {
                 } else if (isUniqueRecord(packageName, startTimestamp)) {
                     List<AppUsageRecord> overlappingElements = getOverlappingRecords(packageName, startTimestamp, endTimestamp);
                     if (overlappingElements.isEmpty()) {
-                        //Log.e(TAG, "saveAppUsageStat: Inserted 2 -> " + packageName + "; " + totalTimeInForeground);
                         db.execSQL(String.format(
                                 Locale.getDefault(),
                                 "insert into AppUse(package_name, start_timestamp, end_timestamp, total_time_in_foreground) values(?, %d, %d, %d);",

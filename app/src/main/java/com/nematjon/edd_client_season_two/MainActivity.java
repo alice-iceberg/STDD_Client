@@ -1,7 +1,9 @@
 package com.nematjon.edd_client_season_two;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.os.Handler;
 
@@ -26,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +36,8 @@ import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
 import com.google.protobuf.ByteString;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
+import com.nematjon.edd_client_season_two.services.DataSubmissionService;
+import com.nematjon.edd_client_season_two.services.EMAOverlayShowingService;
 import com.nematjon.edd_client_season_two.services.MainService;
 
 import org.json.JSONArray;
@@ -52,9 +57,8 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import kotlin.text.Charsets;
 
+import com.nematjon.edd_client_season_two.smartwatch.ServiceConnection;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
-
-import static com.nematjon.edd_client_season_two.EMAActivity.EMA_NOTIF_HOURS;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -69,9 +73,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvInternetStatus;
     public TextView tvFileCount;
     public TextView tvDayNum;
-    public TextView tvEmaNum;
+    // public TextView tvEmaNum;
     public TextView tvHBPhone;
-    public TextView tvDataLoadedPhone;
+   // public TextView tvDataLoadedPhone;
+    public TextView tvWatchConnected;
     private RelativeLayout loadingPanel;
     private TextView ema_tv_1;
     private TextView ema_tv_2;
@@ -80,32 +85,65 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvRewards;
     private TextView tvBonus;
     private TextView tvTotalReward;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private Switch lteSwitch;
     private NavigationView navigationView;
+    private AlertDialog dialog;
+    Dialog permissionsPopUp;
     //endregion
 
     private Intent customSensorsService;
+    private Intent dataSubmissionService;
 
     private SharedPreferences loginPrefs;
     private SharedPreferences configPrefs;
     private SharedPreferences rewardPrefs;
 
-    private AlertDialog dialog;
+    private static List<String> uniqueValues = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
+        boolean firstLaunch = loginPrefs.getBoolean("firstLaunch", true);
+
+        if (firstLaunch) {
+            showFirstLaunchActivity();
+        }
+
         init();
+
+        // saving switch button state (use LTE or WiFi only)
+
+        lteSwitch.setChecked(loginPrefs.getBoolean("lte_on", false));
+        lteSwitch.setOnClickListener(view -> {
+            if(lteSwitch.isChecked()){
+                SharedPreferences.Editor editor = getSharedPreferences("UserLogin", MODE_PRIVATE).edit();
+                editor.putBoolean("lte_on", true);
+                editor.apply();
+                lteSwitch.setChecked(true);
+                Toast.makeText(this, R.string.lte_enabled_toast, Toast.LENGTH_SHORT).show();
+            } else{
+                SharedPreferences.Editor editor = getSharedPreferences("UserLogin", MODE_PRIVATE).edit();
+                editor.putBoolean("lte_on", false);
+                editor.apply();
+                lteSwitch.setChecked(false);
+                Toast.makeText(this, R.string.lte_disabled_toast, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(() -> {
             initUI();
             updateUI();
 
-            Tools.sendHeartbeat(getApplicationContext());
+            new Thread(() -> Tools.sendHeartbeat(getApplicationContext())).start();
             pullToRefresh.setRefreshing(false);
+
         });
+
 
     }
 
@@ -120,9 +158,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvFileCount = findViewById(R.id.filesCountTextView);
         loadingPanel = findViewById(R.id.loadingPanel);
         tvDayNum = findViewById(R.id.txt_day_num);
-        tvEmaNum = findViewById(R.id.ema_responses_phone);
+        lteSwitch = findViewById(R.id.lte_switch);
+        // tvEmaNum = findViewById(R.id.ema_responses_phone);
+        tvWatchConnected = findViewById(R.id.watch_connected);
         tvHBPhone = findViewById(R.id.heartbeat_phone);
-        tvDataLoadedPhone = findViewById(R.id.data_loaded_phone);
+        //tvDataLoadedPhone = findViewById(R.id.data_loaded_phone);
         ema_tv_1 = findViewById(R.id.ema_tv_1);
         ema_tv_2 = findViewById(R.id.ema_tv_2);
         ema_tv_3 = findViewById(R.id.ema_tv_3);
@@ -156,9 +196,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Manifest.permission.CHANGE_WIFI_STATE,
                     Manifest.permission.READ_CALENDAR,
                     Manifest.permission.READ_SMS,
+                    Manifest.permission.RECEIVE_SMS,
                     Manifest.permission.CAMERA,
             };
         }
+
 
         DbMgr.init(getApplicationContext());
 
@@ -168,21 +210,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rewardPrefs = getSharedPreferences("Rewards", Context.MODE_PRIVATE);
 
         setEmaResetAlarm();
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Log.e(TAG, "onResume: ");
         navigationView.setCheckedItem(R.id.nav_home);
 
         if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
             dialog = Tools.requestPermissions(MainActivity.this);
         }
 
-        Tools.sendHeartbeat(getApplicationContext());
+        new Thread(() -> Tools.sendHeartbeat(getApplicationContext())).start();
 
         customSensorsService = new Intent(this, MainService.class);
+        dataSubmissionService = new Intent(this, DataSubmissionService.class);
+
 
         if (Tools.isNetworkAvailable()) {
             loadCampaign();
@@ -204,13 +248,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
         } else {
-            Toast.makeText(this, "Please connect to the Internet for the first launch!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.connect_internet_first_launch), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         initUI();
         updateUI();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(dataSubmissionService);
+            Log.e(TAG, "onResume: Started");
+        }
+        else{
+            startService(dataSubmissionService);
+        }
+
     }
 
     public void initUI() {
@@ -219,11 +272,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvInternetStatus.setTextColor(ContextCompat.getColor(this, R.color.red));
         tvInternetStatus.setText(getString(R.string.internet_off));
 
-        tvDayNum.setText("Duration:");
+        tvDayNum.setText(getResources().getString(R.string.day_num_holder));
         btnEMA.setVisibility(View.GONE);
-        tvHBPhone.setText("Last active:");
-        tvEmaNum.setText("EMA responses:");
-        tvDataLoadedPhone.setText("Data loaded:");
+        tvHBPhone.setText(getResources().getString(R.string.last_active_holder));
+        //tvEmaNum.setText(getResources().getString(R.string.ema_responses_holder));
+        tvWatchConnected.setText(getResources().getString(R.string.smartwatch));
+        // tvDataLoadedPhone.setText(getResources().getString(R.string.data_loaded_holder));
 
         ema_tv_1.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
         ema_tv_2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
@@ -237,21 +291,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvRewards.setText(getString(R.string.earned_points, rewardPoints));
         tvBonus.setText(getString(R.string.bonus_points, bonus));
         tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
+
+        emaButtonVisibilityCheck();
     }
 
     public void updateUI() {
 
-        int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
-        if (ema_order == 0) {
-            btnEMA.setVisibility(View.GONE);
-        } else {
-            boolean ema_btn_make_visible = loginPrefs.getBoolean("ema_btn_make_visible", true);
-            if (!ema_btn_make_visible) {
-                btnEMA.setVisibility(View.GONE);
-            } else {
-                btnEMA.setVisibility(View.VISIBLE);
-            }
-        }
+        emaButtonVisibilityCheck();
+
+//        else {
+//            boolean ema_btn_make_visible = loginPrefs.getBoolean("ema_btn_make_visible", true);
+//            if (!ema_btn_make_visible) {
+//                btnEMA.setVisibility(View.GONE);
+//            } else {
+//                btnEMA.setVisibility(View.VISIBLE);
+//            }
+//        }
 
         if (Tools.isNetworkAvailable()) {
             tvInternetStatus.setTextColor(ContextCompat.getColor(this, R.color.colorAccent));
@@ -309,12 +364,115 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ema_tv_4.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.unchecked_box, 0, 0);
             }
 
-            tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+            // tvEmaNum.setText(getString(R.string.ema_responses_rate, ema_answered_counter));
+            if (ServiceConnection.serviceConnectionAvailable) {
+                tvWatchConnected.setText(getResources().getString(R.string.smartwatch_connected));
+            } else {
+                tvWatchConnected.setText(getResources().getString(R.string.smartwatch_not_connected));
+            }
             tvTotalReward.setText(getString(R.string.total_reward_with_bonus, total_reward));
             //endregion
 
 
         }, 500);
+    }
+
+    public void updateEMAresponses(List<String> uniqueValues) {
+
+        Calendar fromCal = Calendar.getInstance();
+        fromCal.set(Calendar.HOUR_OF_DAY, 0);
+        fromCal.set(Calendar.MINUTE, 0);
+        fromCal.set(Calendar.SECOND, 0);
+        fromCal.set(Calendar.MILLISECOND, 0);
+
+        Calendar tillCal = (Calendar) fromCal.clone();
+        tillCal.set(Calendar.HOUR_OF_DAY, 23);
+        tillCal.set(Calendar.MINUTE, 59);
+        tillCal.set(Calendar.SECOND, 59);
+
+        if (uniqueValues.size() > 0) {
+
+            int emaAnsweredCountFromET = 0;
+            int emaAnsweredCountFromSharedPrefs = rewardPrefs.getInt("ema_answered_count", 0);
+
+            SharedPreferences.Editor editor = rewardPrefs.edit();
+
+            for (String val : uniqueValues) {
+                if (Tools.inRange(Long.parseLong(val.split(Tools.DATA_SOURCE_SEPARATOR)[0]), fromCal.getTimeInMillis(), tillCal.getTimeInMillis())) {
+                    emaAnsweredCountFromET++;
+                    switch (Integer.parseInt(val.split(Tools.DATA_SOURCE_SEPARATOR)[1])) {
+                        case 1:
+                            editor.putBoolean("ema1_answered", true);
+                            editor.apply();
+                            break;
+                        case 2:
+                            editor.putBoolean("ema2_answered", true);
+                            editor.apply();
+                            break;
+                        case 3:
+                            editor.putBoolean("ema3_answered", true);
+                            editor.apply();
+                            break;
+                        case 4:
+                            editor.putBoolean("ema4_answered", true);
+                            editor.apply();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (emaAnsweredCountFromET > emaAnsweredCountFromSharedPrefs) {
+                editor.putInt("ema_answered_count", emaAnsweredCountFromET);
+                editor.apply();
+            }
+
+            if (emaAnsweredCountFromSharedPrefs == 0 && emaAnsweredCountFromET == 0) {
+                editor.putBoolean("ema1_answered", false);
+                editor.putBoolean("ema2_answered", false);
+                editor.putBoolean("ema3_answered", false);
+                editor.putBoolean("ema4_answered", false);
+                editor.apply();
+            }
+        }
+
+    }
+
+    public void emaButtonVisibilityCheck() {
+        boolean ema_1_answered = rewardPrefs.getBoolean("ema1_answered", false);
+        boolean ema_2_answered = rewardPrefs.getBoolean("ema2_answered", false);
+        boolean ema_3_answered = rewardPrefs.getBoolean("ema3_answered", false);
+        boolean ema_4_answered = rewardPrefs.getBoolean("ema4_answered", false);
+
+        int ema_order = Tools.getEMAOrderFromRangeAfterEMA(Calendar.getInstance());
+        if (ema_order == 0) {
+            btnEMA.setVisibility(View.GONE);
+        } else if (ema_order == 1) {
+            if (ema_1_answered) {
+                btnEMA.setVisibility(View.GONE);
+            } else {
+                btnEMA.setVisibility(View.VISIBLE);
+            }
+        } else if (ema_order == 2) {
+            if (ema_2_answered) {
+                btnEMA.setVisibility(View.GONE);
+            } else {
+                btnEMA.setVisibility(View.VISIBLE);
+            }
+        } else if (ema_order == 3) {
+            if (ema_3_answered) {
+                btnEMA.setVisibility(View.GONE);
+            } else {
+                btnEMA.setVisibility(View.VISIBLE);
+            }
+        } else if (ema_order == 4) {
+            if (ema_4_answered) {
+                btnEMA.setVisibility(View.GONE);
+            } else {
+                btnEMA.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     @Override
@@ -335,6 +493,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView.setCheckedItem(R.id.nav_home);
                 break;
             case R.id.nav_location:
+                finish();
                 startActivity(new Intent(MainActivity.this, LocationSetActivity.class));
                 navigationView.setCheckedItem(R.id.nav_location);
                 break;
@@ -350,28 +509,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 break;
             case R.id.nav_photos:
+                finish();
                 startActivity(new Intent(MainActivity.this, CapturedPhotosActivity.class));
                 navigationView.setCheckedItem(R.id.nav_photos);
                 break;
             case R.id.nav_smartwatch:
+                finish();
                 startActivity(new Intent(MainActivity.this, SmartwatchActivity.class));
                 navigationView.setCheckedItem(R.id.nav_smartwatch);
                 break;
             case R.id.nav_restart:
                 customSensorsService = new Intent(this, MainService.class);
+                dataSubmissionService = new Intent (this, DataSubmissionService.class);
 
                 //when the function is called by clicking the button
                 stopService(customSensorsService);
+                stopService(dataSubmissionService);
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
                     runOnUiThread(() -> dialog = Tools.requestPermissions(MainActivity.this));
                 } else {
-                    Log.e(TAG, "restartServiceClick: 3");
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
-                        Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             startForegroundService(customSensorsService);
+                            startForegroundService(dataSubmissionService);
                         } else {
                             startService(customSensorsService);
+                            startService(dataSubmissionService);
                         }
                     }
                 }
@@ -384,6 +547,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getString(R.string.yes), (dialog, which) -> {
                             Tools.perform_logout(getApplicationContext());
                             stopService(customSensorsService);
+                            stopService(dataSubmissionService);
                             finish();
                         });
                 alertDialog.setNegativeButton(
@@ -426,8 +590,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         else
                             tvHBPhone.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
                         tvDayNum.setText(getString(R.string.day_num, dayNum));
-                        tvDataLoadedPhone.setText(getString(R.string.data_loaded, String.valueOf(samples_amount)));
-                        String last_active_text = hb_phone == 0 ? "just now" : Tools.formatMinutes(heart_beat) + " ago";
+                        // tvDataLoadedPhone.setText(getString(R.string.data_loaded, String.valueOf(samples_amount)));
+                        String last_active_text = hb_phone == 0 ? "just now" : Tools.formatMinutes(heart_beat, getApplicationContext()) + " " + getResources().getString(R.string.ago);
                         tvHBPhone.setText(getString(R.string.last_active, last_active_text));
                     });
                 }
@@ -476,21 +640,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             tillCal1.set(Calendar.SECOND, 59);
 
                             //check for duplicates and get only unique ones
-                            List<String> uniqueValues = new ArrayList<>();
+                            // List<String> uniqueValues = new ArrayList<>();
                             for (ByteString item : responseMessage.getValueList()) {
                                 String strItem = item.toString(Charsets.UTF_8);
                                 if (!uniqueValues.contains(strItem))
                                     uniqueValues.add(strItem);
                             }
 
-                            int rewardPoints = uniqueValues.size() * 250;
-                            int bonus = calculateBonusPoints(uniqueValues);
+                            updateEMAresponses(uniqueValues);
 
-                            // saving results to Shared Preferences
+                            int rewardPointsFromSharedPrefs = rewardPrefs.getInt("rewardPoints", 0);
+                            int rewardPointsFromET = uniqueValues.size() * 250;
+
+                            int bonus = calculateBonusPoints(uniqueValues);
                             SharedPreferences.Editor editor = rewardPrefs.edit();
-                            editor.putInt("rewardPoints", rewardPoints);
+
+                            if (rewardPointsFromSharedPrefs > rewardPointsFromET) {
+                                //send more updated reward value to ET
+                                String reward_from_sharedPrefs_no_bonus_type = "TOTAL REWARD FROM SHARED PREFS WITHOUT BONUS";
+                                long nowTime = System.currentTimeMillis();
+                                int dataSourceId = configPrefs.getInt("REWARD_POINTS", -1);
+                                if (dataSourceId != -1) {
+                                    DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, rewardPointsFromSharedPrefs, reward_from_sharedPrefs_no_bonus_type);
+                                }
+
+                            } else if (rewardPointsFromSharedPrefs < rewardPointsFromET) {
+                                // save more updated reward to Shared Preferences
+                                editor.putInt("rewardPoints", rewardPointsFromET);
+                            }
+
                             editor.putInt("bonus", bonus);
                             editor.apply();
+
 
                         }
                     });
@@ -554,8 +735,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String bonus_type = "BONUS";
         long currentTime = System.currentTimeMillis();
         int rewardDataSourceId = configPrefs.getInt("REWARD_POINTS", -1);
-        assert rewardDataSourceId != -1;
-        DbMgr.saveMixedData(rewardDataSourceId, currentTime, 1.0f, currentTime, total_bonus, bonus_type);
+        if (rewardDataSourceId != -1) {
+            DbMgr.saveMixedData(rewardDataSourceId, currentTime, 1.0f, currentTime, total_bonus, bonus_type);
+        }
         //endregion
 
         return total_bonus;
@@ -572,6 +754,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void restartService() {
         customSensorsService = new Intent(this, MainService.class);
+        dataSubmissionService = new Intent(this, DataSubmissionService.class);
         //when the function is called without clicking the button
         if (!Tools.isMainServiceRunning(getApplicationContext())) {
             customSensorsService = new Intent(this, MainService.class);
@@ -589,33 +772,103 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }
-    }
 
+        if (!Tools.isDataSubmissionServiceRunning(getApplicationContext())) {
+            dataSubmissionService = new Intent(this, DataSubmissionService.class);
+            stopService(dataSubmissionService);
+            if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
+                runOnUiThread(() -> dialog = Tools.requestPermissions(MainActivity.this));
+            } else {
+                if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(dataSubmissionService);
+                    } else {
+                        startService(dataSubmissionService);
+                    }
+                }
+            }
+        }
+
+    }
 
     public void setEmaResetAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        AlarmManager alarmManagerMorning = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         Intent intent_reset = new Intent(MainActivity.this, EMAAlarmRcvr.class);
         intent_reset.putExtra("ema_reset", true); //time to reset EMA to 0
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 10, intent_reset, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent_reset_morning = new Intent(MainActivity.this, EMAAlarmRcvr.class);
+        intent_reset.putExtra("ema_reset_morning", true); //time to reset EMA to 0
+
+        Intent intent_remove = new Intent(MainActivity.this, EMAOverlayShowingService.class);
+        intent_remove.setAction("EMA_POP_UP_REMOVE");
+        intent_remove.putExtra("ema_pop_up_remove", true); // time to remove EMA pop up
+
+
+        PendingIntent pendingIntentReset = PendingIntent.getBroadcast(MainActivity.this, 10, intent_reset, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentResetMorning = PendingIntent.getBroadcast(MainActivity.this, 8, intent_reset_morning, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentRemove = PendingIntent.getBroadcast(MainActivity.this, 11, intent_remove, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (alarmManager == null)
             return;
 
-        Calendar firingCal = Calendar.getInstance();
-        firingCal.set(Calendar.HOUR_OF_DAY, 23); // at 11:59pm
-        firingCal.set(Calendar.MINUTE, 59); // Particular minute
-        firingCal.set(Calendar.SECOND, 0); // particular second
-        firingCal.set(Calendar.MILLISECOND, 0); // particular second
+        if(alarmManagerMorning == null){
+            return;
+        }
 
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent); //repeat every day
+        Calendar firingCalReset = Calendar.getInstance();
+        firingCalReset.set(Calendar.HOUR_OF_DAY, 23); // at 11:59pm
+        firingCalReset.set(Calendar.MINUTE, 59); // Particular minute
+        firingCalReset.set(Calendar.SECOND, 0); // particular second
+        firingCalReset.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCalResetMorning = Calendar.getInstance();
+        firingCalResetMorning.set(Calendar.HOUR_OF_DAY, 9); // at 9:30am
+        firingCalResetMorning.set(Calendar.MINUTE, 30); // Particular minute
+        firingCalResetMorning.set(Calendar.SECOND, 0); // particular second
+        firingCalResetMorning.set(Calendar.MILLISECOND, 0); // particular second
+
+        //remove EMA pop up
+        Calendar firingCalRemove11 = Calendar.getInstance();
+        firingCalRemove11.set(Calendar.HOUR_OF_DAY, 11); // at 11:01am
+        firingCalRemove11.set(Calendar.MINUTE, 1); // Particular minute
+        firingCalRemove11.set(Calendar.SECOND, 0); // particular second
+        firingCalRemove11.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCalRemove15 = Calendar.getInstance();
+        firingCalRemove15.set(Calendar.HOUR_OF_DAY, 15); // at 3:01pm
+        firingCalRemove15.set(Calendar.MINUTE, 1); // Particular minute
+        firingCalRemove15.set(Calendar.SECOND, 0); // particular second
+        firingCalRemove15.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCalRemove19 = Calendar.getInstance();
+        firingCalRemove19.set(Calendar.HOUR_OF_DAY, 19); // at 7:01pm
+        firingCalRemove19.set(Calendar.MINUTE, 1); // Particular minute
+        firingCalRemove19.set(Calendar.SECOND, 0); // particular second
+        firingCalRemove19.set(Calendar.MILLISECOND, 0); // particular second
+
+        Calendar firingCalRemove23 = Calendar.getInstance();
+        firingCalRemove23.set(Calendar.HOUR_OF_DAY, 23); // at 11:01pm
+        firingCalRemove23.set(Calendar.MINUTE, 1); // Particular minute
+        firingCalRemove23.set(Calendar.SECOND, 0); // particular second
+        firingCalRemove23.set(Calendar.MILLISECOND, 0); // particular second
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalReset.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentReset); //repeat every day
+        alarmManagerMorning.setRepeating(AlarmManager.RTC_WAKEUP, firingCalResetMorning.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentResetMorning); //repeat every day
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove11.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove15.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove19.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firingCalRemove23.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntentRemove); //repeat every day
     }
+
 
     private void loadCampaign() {
         new Thread(() -> {
             ManagedChannel channel = ManagedChannelBuilder.forAddress(getString(R.string.grpc_host), Integer.parseInt(getString(R.string.grpc_port))).usePlaintext().build();
+            Log.e(TAG, "loadCampaign: Channel built");
             try {
+                Log.e(TAG, "loadCampaign: Trying to load");
                 ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
                 EtService.RetrieveCampaign.Request retrieveCampaignRequest = EtService.RetrieveCampaign.Request.newBuilder()
                         .setUserId(loginPrefs.getInt(AuthActivity.user_id, -1))
@@ -634,6 +887,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             retrieveCampaignResponse.getEndTimestamp(),
                             retrieveCampaignResponse.getParticipantCount()
                     );
+
+                    Log.e(TAG, "loadCampaign: Campaign retrieved");
                     SharedPreferences.Editor editor = configPrefs.edit();
                     editor.putString("name", retrieveCampaignResponse.getName());
                     editor.putString("notes", retrieveCampaignResponse.getNotes());
@@ -679,6 +934,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         editor.apply();
     }
 
+//    public void showAboutPermissionsPopUp(){
+//        permissionsPopUp.setContentView(R.layout.popup_about_permissions);
+//        Button okBtn = permissionsPopUp.findViewById(R.id.okBtnId);
+//        okBtn.setOnClickListener(v -> permissionsPopUp.dismiss());
+//
+//        Objects.requireNonNull(permissionsPopUp.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//        permissionsPopUp.setCanceledOnTouchOutside(false);
+//        permissionsPopUp.show();
+//    }
+
+    public void showFirstLaunchActivity() {
+        startActivity(new Intent(MainActivity.this, FirstLaunchActivity.class));
+        SharedPreferences.Editor editor = loginPrefs.edit();
+        editor.putBoolean("firstLaunch", false);
+        editor.apply();
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -697,6 +969,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stopService(dataSubmissionService);
         loadingPanel.setVisibility(View.GONE);
         if (dialog != null) {
             dialog.dismiss();

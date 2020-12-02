@@ -18,8 +18,9 @@ public class CallRcvr extends PhonecallReceiver {
         Log.e(TAG, "onOutgoingCallEnded -> " + "number: " + number + "; start date: " + start + "; end date: " + end);
         SharedPreferences prefs = ctx.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = prefs.getInt("CALLS", -1);
-        assert dataSourceId != -1;
-        DbMgr.saveMixedData(dataSourceId, start, 1.0f, start, end, CALL_TYPE_OUTGOING);
+        if (dataSourceId != -1) {
+            DbMgr.saveMixedData(dataSourceId, start, 1.0f, start, end, CALL_TYPE_OUTGOING);
+        }
         //finish the audio
         AudioRunningForCall = false;
 
@@ -31,8 +32,10 @@ public class CallRcvr extends PhonecallReceiver {
         long duration = (end - start) / 1000; // in seconds
         SharedPreferences prefs = ctx.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = prefs.getInt("CALLS", -1);
-        assert dataSourceId != -1;
-        DbMgr.saveMixedData(dataSourceId, start, 1.0f, start, end, CALL_TYPE_INCOMING);
+
+        if (dataSourceId != -1) {
+            DbMgr.saveMixedData(dataSourceId, start, 1.0f, start, end, CALL_TYPE_INCOMING);
+        }
         //finish the audio
         AudioRunningForCall = false;
     }
@@ -61,8 +64,9 @@ public class CallRcvr extends PhonecallReceiver {
         Log.e(TAG, "onMissedCall -> " + "number: " + number + "; start date: " + start);
         SharedPreferences prefs = ctx.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
         int dataSourceId = prefs.getInt("CALLS", -1);
-        assert dataSourceId != -1;
-        DbMgr.saveMixedData(dataSourceId, start, 1.0f, start, -1, CALL_TYPE_MISSED);
+        if (dataSourceId != -1) {
+            DbMgr.saveMixedData(dataSourceId, start, 1.0f, start, -1, CALL_TYPE_MISSED);
+        }
         //finish the audio
         AudioRunningForCall = false;
     }

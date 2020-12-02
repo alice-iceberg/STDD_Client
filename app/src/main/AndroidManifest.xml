@@ -46,6 +46,7 @@
         tools:ignore="MockLocation,ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS"/>
 
     <uses-feature android:name="android.hardware.sensor.stepdetector" />
     <uses-feature android:name="android.hardware.sensor.stepcounter" />
@@ -113,6 +114,10 @@
             android:name=".smartwatch.SmartwatchActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".FirstLaunchActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".services.KeyLogger"
@@ -137,7 +142,12 @@
         </service>
         <service
             android:name=".services.MainService"
-            android:foregroundServiceType="location" />
+            android:foregroundServiceType="location"
+            />
+        <service
+            android:name=".services.DataSubmissionService"
+            android:foregroundServiceType="location"
+            />
         <service
             android:name=".FirebaseNotifications"
             android:exported="false">
@@ -163,7 +173,11 @@
 
 
 
-        <receiver android:name=".receivers.EMAAlarmRcvr" />
+        <receiver android:name=".receivers.EMAAlarmRcvr">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".receivers.ActivityTransRcvr" />
         <receiver android:name=".receivers.ScreenAndUnlockRcvr" />
         <receiver android:name=".receivers.ConnectionRcvr">

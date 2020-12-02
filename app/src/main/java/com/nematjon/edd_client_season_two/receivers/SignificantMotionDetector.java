@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
+import android.util.Log;
 
 import com.nematjon.edd_client_season_two.DbMgr;
 
@@ -31,8 +32,9 @@ public class SignificantMotionDetector extends TriggerEventListener {
             final Sensor sensorSM = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
             SharedPreferences prefs = context.getSharedPreferences("Configurations", Context.MODE_PRIVATE);
             int dataSourceId = prefs.getInt("ANDROID_SIGNIFICANT_MOTION", -1);
-            assert dataSourceId != -1;
-            DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime);
+            if (dataSourceId != -1) {
+                DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime);
+            }
             mSensorManager.requestTriggerSensor(this, sensorSM);
         }
     }

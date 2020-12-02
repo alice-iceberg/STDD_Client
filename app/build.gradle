@@ -8,10 +8,10 @@ android {
 
     defaultConfig {
         applicationId "com.nematjon.edd_client_season_two"
-        minSdkVersion 26
+        minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
-        versionName "1.1.2"
+        versionName "1.2.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -91,6 +91,10 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.11.2'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.2'
     implementation 'commons-codec:commons-codec:1.14'
+
+    //Animation library
+    implementation 'com.airbnb.android:lottie:3.4.1'
+
 
 
 }
