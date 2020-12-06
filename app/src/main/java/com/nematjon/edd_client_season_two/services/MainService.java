@@ -449,162 +449,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         }
     };
 
-    private Handler dataSubmissionHandler = new Handler();
-    private Runnable dataSubmissionRunnable = new Runnable() {
-        @Override
-        public void run() {
-            new Thread(() -> {
-
-            SharedPreferences loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
-            SharedPreferences confPrefs = getSharedPreferences("Configurations", Context.MODE_PRIVATE);
-
-            boolean lteEnabled = loginPrefs.getBoolean("lte_on", false);
-            int capturedPhotosDataSourceId = confPrefs.getInt("CAPTURED_PHOTOS", -1);
-
-            //init DbMgr if it's null
-            if (DbMgr.getDB() == null)
-                DbMgr.init(getApplicationContext());
-
-            Log.e("DataSubmissionService", "onCreate: Created Data submission service");
-            DbMgr.cleanupUselessData();
-
-            if (Tools.isConnectedToWifi(getApplicationContext()) || (Tools.isNetworkAvailable() && lteEnabled)) {
-                Log.e("DataSubmissionService", "Data submission service running... Network available");
-                uploadingSuccessfully = true;
-
-                ids.clear();
-                dataSourceIdList.clear();
-                timestampsList.clear();
-                valueList.clear();
-
-                Cursor cursor = DbMgr.getSensorData();
-
-                if (cursor != null && cursor.moveToFirst()) {
-                    boolean stop = false;
-                    do {
-                        dataSourceIdCheck = cursor.getInt(cursor.getColumnIndex("dataSourceId"));
-
-                        if (dataSourceIdCheck!=capturedPhotosDataSourceId) {
-                            ids.add(cursor.getInt(cursor.getColumnIndex("id")));
-                            timestampsList.add(cursor.getLong(cursor.getColumnIndex("timestamp")));
-                            dataSourceIdList.add(cursor.getInt(cursor.getColumnIndex("dataSourceId")));
-                            valueList.add(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8));
-
-                            if (ids.size() == BULK_SIZE) {
-                                stop = true;
-                                Log.e("DataSubmissionService", "Bulk size is 500");
-                            }
-
-                        }
-                    } while (cursor.moveToNext() && !stop);
-                }
-
-                if (cursor != null) {
-                    cursor.close();
-                }
-
-                int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
-                String email = loginPrefs.getString(AuthActivity.usrEmail, null);
-
-                ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                        getString(R.string.grpc_host),
-                        Integer.parseInt(getString(R.string.grpc_port))
-                ).usePlaintext().build();
-                ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-
-                try{
-                    Log.e("DataSubmissionService", "Submitting data...");
-                    EtService.SubmitDataRecords.Request submitDataRecordsRequest = EtService.SubmitDataRecords.Request.newBuilder()
-                            .setUserId(userId)
-                            .setEmail(email)
-                            .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
-                            .addAllDataSource(dataSourceIdList)
-                            .addAllTimestamp(timestampsList)
-                            .addAllValue(valueList)
-                            .build();
-                    EtService.SubmitDataRecords.Response responseMessage = stub.submitDataRecords(submitDataRecordsRequest);
-
-                    if (responseMessage.getSuccess()) {
-                        Log.e("DataSubmissionService", "SUCCESS");
-                        for (int id : ids) {
-                            try {
-                                DbMgr.deleteRecord(id);
-                            } catch (Exception exception) {
-                                Log.e("DataSubmissionService", "Error with deleting the record");
-                            }
-                        }
-                    }
-
-                }catch (StatusRuntimeException e) {
-                    Log.e("DataSubmissionService", "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
-                    uploadingSuccessfully = false;
-                    e.printStackTrace();
-                } finally {
-                    channel.shutdown();
-                    //clear for the next round
-                    ids.clear();
-                    dataSourceIdList.clear();
-                    timestampsList.clear();
-                    valueList.clear();
-                }
-
-            }
-            if (Tools.isConnectedToWifi(getApplicationContext()) || (Tools.isNetworkAvailable() && lteEnabled)) {
-                Log.e("DataSubmissionService", "Photos submission service running... Network available");
-                uploadingSuccessfully = true;
-
-                Cursor cursor = DbMgr.getSensorData();
-
-                if (cursor.moveToFirst()) {
-                    ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                            getString(R.string.grpc_host),
-                            Integer.parseInt(getString(R.string.grpc_port))
-                    ).usePlaintext().build();
-
-                    ETServiceGrpc.ETServiceBlockingStub stub = ETServiceGrpc.newBlockingStub(channel);
-
-                    loginPrefs = getSharedPreferences("UserLogin", MODE_PRIVATE);
-                    int userId = loginPrefs.getInt(AuthActivity.user_id, -1);
-                    String email = loginPrefs.getString(AuthActivity.usrEmail, null);
-
-                    try {
-                        do {
-                            dataSourceIdCheck = cursor.getColumnIndex("dataSourceId");
-                            if(dataSourceIdCheck == capturedPhotosDataSourceId) {
-                                long timestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
-                                EtService.SubmitDataRecord.Request submitDataRecordRequest = EtService.SubmitDataRecord.Request.newBuilder()
-                                        .setUserId(userId)
-                                        .setEmail(email)
-                                        .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
-                                        .setDataSource(cursor.getInt(cursor.getColumnIndex("dataSourceId")))
-                                        .setTimestamp(timestamp)
-                                        .setValue(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8))
-                                        .build();
-
-                                EtService.SubmitDataRecord.Response responseMessage = stub.submitDataRecord(submitDataRecordRequest);
-
-                                if (responseMessage.getSuccess()) {
-                                    DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
-                                }
-                            }
-                        } while (cursor.moveToNext());
-                    } catch (StatusRuntimeException e) {
-                        Log.e("DataSubmissionService Photos", "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
-                        uploadingSuccessfully = false;
-                        e.printStackTrace();
-                    } finally {
-                        channel.shutdown();
-                        dataSubmissionHandler.post(dataSubmissionRunnable);
-                    }
-                }
-                cursor.close();
-            }
-
-            }).start();
-        }
-
-    };
-
     private Handler appUsageSaveHandler = new Handler();
     private Runnable appUsageSaveRunnable = new Runnable() {
         public void run() {
@@ -761,7 +605,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
 
         mainHandler.post(mainRunnable);
         heartBeatHandler.post(heartBeatSendRunnable);
-        dataSubmissionHandler.post(dataSubmissionRunnable);
         appUsageSaveHandler.post(appUsageSaveRunnable);
         instagramHandler.post(instagramRunnable);
         getDataFromSmartwatchHandler.post(getDataFromSmartWatchRunnable);
@@ -820,7 +663,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
         unregisterReceiver(mCallReceiver);
         mainHandler.removeCallbacks(mainRunnable);
         heartBeatHandler.removeCallbacks(heartBeatSendRunnable);
-        dataSubmissionHandler.removeCallbacks(dataSubmissionRunnable);
         appUsageSaveHandler.removeCallbacks(appUsageSaveRunnable);
         instagramHandler.removeCallbacks(instagramRunnable);
         getDataFromSmartwatchHandler.removeCallbacks(getDataFromSmartWatchRunnable);

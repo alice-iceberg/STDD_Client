@@ -88,7 +88,6 @@ public class DataSubmissionService extends Service {
 
                                 if (ids.size() == bulkSize) {
                                     stop = true;
-                                    Log.e("DataSubmissionService", "Bulk size is 500");
                                 }
 
                             }
@@ -121,7 +120,6 @@ public class DataSubmissionService extends Service {
                         EtService.SubmitDataRecords.Response responseMessage = stub.submitDataRecords(submitDataRecordsRequest);
 
                         if (responseMessage.getSuccess()) {
-                            Log.e("DataSubmissionService", "SUCCESS");
                             for (int id : ids) {
                                 try {
                                     DbMgr.deleteRecord(id);

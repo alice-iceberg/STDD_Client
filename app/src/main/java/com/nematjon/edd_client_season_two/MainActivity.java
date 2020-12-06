@@ -49,6 +49,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import inha.nsl.easytrack.ETServiceGrpc;
 import inha.nsl.easytrack.EtService;
@@ -596,7 +597,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     });
                 }
             } catch (StatusRuntimeException e) {
-                Log.e("Tools", "DataCollectorService.setUpHeartbeatSubmissionThread() exception: " + e.getMessage());
+                Log.e("Tools", "DataCollectorService.retrieveParticipantStats() exception: " + e.getMessage());
                 e.printStackTrace();
             } finally {
                 channel.shutdown();
@@ -677,7 +678,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     });
                 }
             } catch (StatusRuntimeException e) {
-                Log.e("Tools", "DataCollectorService.setUpHeartbeatSubmissionThread() exception: " + e.getMessage());
+                Log.e("Tools", "DataCollectorService.retrieveFilteredDataRecords() exception: " + e.getMessage());
                 e.printStackTrace();
             } finally {
                 channel.shutdown();
