@@ -2,7 +2,7 @@
     <!-- REST API Server URLs -->
     <string name="grpc_host" translatable="false">165.246.42.173</string>
     <string name="grpc_port" translatable="false">50051</string>
-    <string name="campaign_id" translatable="false">1</string>
+    <string name="campaign_id" translatable="false">4</string>
     <string name="app_name" translatable="false">YouNoOne</string>
     <string name="dummy" translatable="false">Dummy</string>
     <string name="default_notification_channel_id" translatable="false">ema_notif_channel_id</string>

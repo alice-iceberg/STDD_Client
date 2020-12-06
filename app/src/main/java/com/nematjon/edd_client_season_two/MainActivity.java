@@ -36,6 +36,7 @@ import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
 import com.google.protobuf.ByteString;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
+import com.nematjon.edd_client_season_two.services.DataSubmissionService;
 import com.nematjon.edd_client_season_two.services.EMAOverlayShowingService;
 import com.nematjon.edd_client_season_two.services.MainService;
 
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //endregion
 
     private Intent customSensorsService;
+    private Intent dataSubmissionService;
 
     private SharedPreferences loginPrefs;
     private SharedPreferences configPrefs;
@@ -223,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         new Thread(() -> Tools.sendHeartbeat(getApplicationContext())).start();
 
         customSensorsService = new Intent(this, MainService.class);
+        dataSubmissionService = new Intent(this, DataSubmissionService.class);
 
 
         if (Tools.isNetworkAvailable()) {
@@ -252,6 +255,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         initUI();
         updateUI();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(dataSubmissionService);
+        }
+        else{
+            startService(dataSubmissionService);
+        }
 
     }
 
@@ -509,17 +519,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_restart:
                 customSensorsService = new Intent(this, MainService.class);
+                dataSubmissionService = new Intent (this, DataSubmissionService.class);
 
                 //when the function is called by clicking the button
                 stopService(customSensorsService);
+                stopService(dataSubmissionService);
+
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
                     runOnUiThread(() -> dialog = Tools.requestPermissions(MainActivity.this));
                 } else {
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             startForegroundService(customSensorsService);
+                            startForegroundService(dataSubmissionService);
                         } else {
                             startService(customSensorsService);
+                            startService(dataSubmissionService);
                         }
                     }
                 }
@@ -532,6 +547,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getString(R.string.yes), (dialog, which) -> {
                             Tools.perform_logout(getApplicationContext());
                             stopService(customSensorsService);
+                            stopService(dataSubmissionService);
                             finish();
                         });
                 alertDialog.setNegativeButton(
@@ -738,6 +754,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void restartService() {
         customSensorsService = new Intent(this, MainService.class);
+        dataSubmissionService = new Intent(this, DataSubmissionService.class);
         //when the function is called without clicking the button
         if (!Tools.isMainServiceRunning(getApplicationContext())) {
             customSensorsService = new Intent(this, MainService.class);
@@ -751,6 +768,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         startForegroundService(customSensorsService);
                     } else {
                         startService(customSensorsService);
+                    }
+                }
+            }
+        }
+
+        if (!Tools.isDataSubmissionServiceRunning(getApplicationContext())) {
+            dataSubmissionService = new Intent(this, DataSubmissionService.class);
+            stopService(dataSubmissionService);
+            if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
+                runOnUiThread(() -> dialog = Tools.requestPermissions(MainActivity.this));
+            } else {
+                if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(dataSubmissionService);
+                    } else {
+                        startService(dataSubmissionService);
                     }
                 }
             }

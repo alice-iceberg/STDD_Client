@@ -118,7 +118,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
     public static final float Y_GRAVITY_MIN = 7.6f;
-    public int BULK_SIZE = 500;
+    public int BULK_SIZE = 1000;
     public static final String LOCATIONS_TXT = "locations.txt";
 
     String instagram_username_type = "USERNAME";
