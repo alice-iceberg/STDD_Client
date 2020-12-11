@@ -32,19 +32,21 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
-import static com.nematjon.edd_client_season_two.services.MainService.ID_SERVICE;
-import static com.nematjon.edd_client_season_two.services.MainService.PERMISSION_REQUEST_NOTIFICATION_ID;
-import static com.nematjon.edd_client_season_two.services.MainService.mNotificationManager;
-
 public class DataSubmissionService extends Service {
 
-    public int bulkSize = 2000;
+    public static final int DATA_SUBMISSION_ID_SERVICE = 101;
+    static NotificationManager mNotificationManager;
+    public int bulkSize = 200;
     public int dataSourceIdCheck = -1;
     public static boolean uploadingSuccessfully = true;
     ArrayList<Integer> ids = new ArrayList<>();
     ArrayList<Long> timestampsList = new ArrayList<>();
     ArrayList<Integer> dataSourceIdList = new ArrayList<>();
     ArrayList<ByteString> valueList = new ArrayList<>();
+    ArrayList<Integer> photosIds = new ArrayList<>();
+    ArrayList<Long> photosTimestampsList = new ArrayList<>();
+    ArrayList<Integer> photosDataSourceIdList = new ArrayList<>();
+    ArrayList<ByteString> photosValueList = new ArrayList<>();
 
     private Handler dataSubmissionHandler = new Handler();
     private Runnable dataSubmissionRunnable = new Runnable() {
@@ -60,8 +62,6 @@ public class DataSubmissionService extends Service {
                 //init DbMgr if it's null
                 if (DbMgr.getDB() == null)
                     DbMgr.init(getApplicationContext());
-
-                Log.e("DataSubmissionService", "onCreate: Created Data submission service");
                 DbMgr.cleanupUselessData();
 
                 if (Tools.isConnectedToWifi(getApplicationContext()) || (Tools.isNetworkAvailable() && lteEnabled)) {
@@ -72,6 +72,11 @@ public class DataSubmissionService extends Service {
                     dataSourceIdList.clear();
                     timestampsList.clear();
                     valueList.clear();
+
+                    photosIds.clear();
+                    photosDataSourceIdList.clear();
+                    photosTimestampsList.clear();
+                    photosValueList.clear();
 
                     Cursor cursor = DbMgr.getSensorData();
 
@@ -86,11 +91,17 @@ public class DataSubmissionService extends Service {
                                 dataSourceIdList.add(cursor.getInt(cursor.getColumnIndex("dataSourceId")));
                                 valueList.add(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8));
 
-                                if (ids.size() == bulkSize) {
-                                    stop = true;
-                                }
-
+                            } else {
+                                photosIds.add(cursor.getInt(cursor.getColumnIndex("id")));
+                                photosTimestampsList.add(cursor.getLong(cursor.getColumnIndex("timestamp")));
+                                photosDataSourceIdList.add(cursor.getInt(cursor.getColumnIndex("dataSourceId")));
+                                photosValueList.add(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8));
                             }
+                            if (ids.size() + photosIds.size() >= bulkSize) {
+                                stop = true;
+                            }
+
+
                         } while (cursor.moveToNext() && !stop);
                     }
 
@@ -147,9 +158,9 @@ public class DataSubmissionService extends Service {
                     Log.e("DataSubmissionService", "Photos submission service running... Network available");
                     uploadingSuccessfully = true;
 
-                    Cursor cursor = DbMgr.getSensorData();
-
-                    if (cursor.moveToFirst()) {
+                    Log.e("TAG", "run: Photos size" + photosIds.size());
+                    if (!photosIds.isEmpty()) {
+                        Log.e("TAG", "run: Photos size" + photosIds.size());
                         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                                 getString(R.string.grpc_host),
                                 Integer.parseInt(getString(R.string.grpc_port))
@@ -162,58 +173,68 @@ public class DataSubmissionService extends Service {
                         String email = loginPrefs.getString(AuthActivity.usrEmail, null);
 
                         try {
-                            do {
-                                dataSourceIdCheck = cursor.getColumnIndex("dataSourceId");
-                                if (dataSourceIdCheck == capturedPhotosDataSourceId) {
-                                    long timestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
+                                for(int i = 0; i < photosIds.size(); i++) {
                                     EtService.SubmitDataRecord.Request submitDataRecordRequest = EtService.SubmitDataRecord.Request.newBuilder()
                                             .setUserId(userId)
                                             .setEmail(email)
                                             .setCampaignId(Integer.parseInt(getString(R.string.campaign_id)))
-                                            .setDataSource(cursor.getInt(cursor.getColumnIndex("dataSourceId")))
-                                            .setTimestamp(timestamp)
-                                            .setValue(ByteString.copyFrom(cursor.getString(cursor.getColumnIndex("data")), StandardCharsets.UTF_8))
+                                            .setDataSource(photosDataSourceIdList.get(i))
+                                            .setTimestamp(photosTimestampsList.get(i))
+                                            .setValue(ByteString.copyFrom((photosValueList.get(i).toString()), StandardCharsets.UTF_8))
                                             .build();
 
                                     EtService.SubmitDataRecord.Response responseMessage = stub.submitDataRecord(submitDataRecordRequest);
 
                                     if (responseMessage.getSuccess()) {
-                                        DbMgr.deleteRecord(cursor.getInt(cursor.getColumnIndex("id")));
+                                        Log.e("TAG", "run: Deleting photo");
+                                        DbMgr.deleteRecord(photosIds.get(i));
                                     }
+
                                 }
-                            } while (cursor.moveToNext());
                         } catch (StatusRuntimeException e) {
                             Log.e("DataSubmissionService Photos", "DataCollectorService.setUpDataSubmissionThread() exception: " + e.getMessage());
                             uploadingSuccessfully = false;
                             e.printStackTrace();
                         } finally {
+                            Log.e("TAG", "run: Both finished");
                             channel.shutdown();
-                            dataSubmissionHandler.post(dataSubmissionRunnable);
+
+                            photosIds.clear();
+                            photosDataSourceIdList.clear();
+                            photosTimestampsList.clear();
+                            photosValueList.clear();
+
+
                         }
                     }
-                    cursor.close();
+
+                    dataSubmissionHandler.post(dataSubmissionRunnable);
                 }
             }).start();
         }
     };
 
+
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-
-
+    public void onCreate() {
         dataSubmissionHandler.post(dataSubmissionRunnable);
+        Log.e("TAG", "onStartCommand: Data submission runnable posted");
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         String channel_id = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel() : "";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channel_id)
                 .setOngoing(true)
-                .setSubText(getString(R.string.noti_service_running))
+                .setSubText(getString(R.string.noti_data_submission_running))
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setSmallIcon(R.mipmap.ic_launcher_no_bg)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE);
         Notification notification = builder.build();
-        startForeground(ID_SERVICE, notification);
+        startForeground(DATA_SUBMISSION_ID_SERVICE, notification);
 
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
 
@@ -225,7 +246,7 @@ public class DataSubmissionService extends Service {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public String createNotificationChannel() {
-        String id = "YouNoOne_channel_id";
+        String id = "YouNoOne_channel_id_data_submission";
         String name = getResources().getString(R.string.younoone_notif_channel);
         String description = getResources().getString(R.string.channel_description);
         NotificationChannel mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW);
@@ -245,8 +266,7 @@ public class DataSubmissionService extends Service {
         super.onDestroy();
         //region Stop foreground service
         stopForeground(false);
-        mNotificationManager.cancel(ID_SERVICE);
-        mNotificationManager.cancel(PERMISSION_REQUEST_NOTIFICATION_ID);
+        mNotificationManager.cancel(DATA_SUBMISSION_ID_SERVICE);
         dataSubmissionHandler.removeCallbacks(dataSubmissionRunnable);
         //endregion
     }

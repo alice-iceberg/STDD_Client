@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">version 1.2.2</string>
+    <string name="version">version 1.2.3</string>
     <string name="status_today">현재 상태:</string>
     <string name="authentication_txt">회원가입</string>
     <string name="authentication_btn">회원가입하기</string>
@@ -19,6 +19,7 @@
     <string name="daily_notif_text">설문 시간입니다. 클릭하시어 설문에 응답해주세요 :)</string>
     <string name="uploading">업로드 중…</string>
     <string name="noti_service_running">서비스 작동 중…</string>
+    <string name="noti_data_submission_running">Data is submitting…</string>
     <string name="day_num">참여일수 : %1$d일</string>
     <string name="day_num_holder">참여일수 : </string>
     <string name="ema_responses_holder">EMA 응답 : </string>
@@ -111,6 +112,7 @@
     <string name="install_et">EasyTrack Authenticator을 설치하고 어플리케이션을 다시 실시해주세요.</string>
     <string name="ago">전</string>
     <string name="younoone_notif_channel">YouNoOne 알림 채널</string>
+    <string name="younoone_notif_channel_data_submission">YouNoOne notification channel data submission</string>
     <string name="channel_description">이 채널은 YouNoOne 어플리케이션에서 알림을 전송하기 위해 사용됩니다.</string>
     <string name="min">분</string>
     <string name="hour">시간</string>

@@ -764,7 +764,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 runOnUiThread(() -> dialog = Tools.requestPermissions(MainActivity.this));
             } else {
                 if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
-                    Log.e(TAG, "RESTART SERVICE");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         startForegroundService(customSensorsService);
                     } else {

@@ -242,7 +242,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable mainRunnable = new Runnable() {
         @Override
         public void run() {
-
             //check if all permissions are set then dismiss notification for request
             if (Tools.hasPermissions(getApplicationContext(), Tools.PERMISSIONS)) {
                 mNotificationManager.cancel(PERMISSION_REQUEST_NOTIFICATION_ID);
@@ -460,7 +459,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Handler heartBeatHandler = new Handler();
     private Runnable heartBeatSendRunnable = new Runnable() {
         public void run() {
-            Log.e(TAG, "heartbeat");
             //before sending heart-beat check permissions granted or not. If not grant first
             if (!Tools.hasPermissions(getApplicationContext(), Tools.PERMISSIONS) && !permissionNotificationPosted) {
                 permissionNotificationPosted = true;
@@ -476,7 +474,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private Runnable instagramRunnable = new Runnable() {
         @Override
         public void run() {
-
             InstagramFeaturesCollector instagramFeaturesCollector = new InstagramFeaturesCollector();
             instagramFeaturesCollector.execute();
 
@@ -492,7 +489,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
             try {
                 if (mProviderServiceSocket != null) {
                     boolean sent = SAPAndroidAgent.sendMessage(new byte[]{1});
-                    Log.e(TAG, "Request data from SmartWatch : " + sent);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

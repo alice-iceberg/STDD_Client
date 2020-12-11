@@ -267,7 +267,6 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                     runOnUiThread(() -> dialog = Tools.requestPermissions(MediaSetActivity.this));
                 } else {
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
-                        Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             startActivity(new Intent(MediaSetActivity.this, MainActivity.class));
                             startForegroundService(customSensorsService);

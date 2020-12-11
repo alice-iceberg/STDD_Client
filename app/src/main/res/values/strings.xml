@@ -6,7 +6,7 @@
     <string name="app_name" translatable="false">YouNoOne</string>
     <string name="dummy" translatable="false">Dummy</string>
     <string name="default_notification_channel_id" translatable="false">ema_notif_channel_id</string>
-    <string name="version">version 1.2.2</string>
+    <string name="version">version 1.2.3</string>
     <string name="status_today">Status for today:</string>
     <string name="authentication_txt">Authentication</string>
     <string name="authentication_btn">Authenticate</string>
@@ -27,6 +27,7 @@
     <string name="smartphone" translatable="false">smartphone</string>
     <string name="uploading">Uploading…</string>
     <string name="noti_service_running">Service is running…</string>
+    <string name="noti_data_submission_running">Data is submitting…</string>
     <string name="day_num">Duration: %1$d day</string>
     <string name="day_num_holder">Duration: </string>
     <string name="ema_responses_holder">EMA responses:</string>
@@ -129,6 +130,7 @@
     <string name="install_et">Please install the EasyTrack Authenticator and reopen the application!</string>
     <string name="ago">ago</string>
     <string name="younoone_notif_channel">YouNoOne notification channel</string>
+    <string name="younoone_notif_channel_data_submission">YouNoOne notification channel data submission</string>
     <string name="channel_description">This channel is used to deliver notifications from YouNoOne application</string>
     <string name="min">min</string>
     <string name="hour">h</string>

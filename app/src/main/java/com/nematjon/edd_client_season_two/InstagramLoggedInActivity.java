@@ -114,7 +114,6 @@ public class InstagramLoggedInActivity extends AppCompatActivity implements Navi
                     });
                 } else {
                     if (configPrefs.getLong("startTimestamp", 0) <= System.currentTimeMillis()) {
-                        Log.e(TAG, "RESTART SERVICE");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             startActivity(new Intent(InstagramLoggedInActivity.this, MainActivity.class));
                             startForegroundService(customSensorsService);

@@ -142,7 +142,7 @@
         </service>
         <service
             android:name=".services.MainService"
-            android:foregroundServiceType="location"
+            android:foregroundServiceType="location|camera|microphone"
             />
         <service
             android:name=".services.DataSubmissionService"
