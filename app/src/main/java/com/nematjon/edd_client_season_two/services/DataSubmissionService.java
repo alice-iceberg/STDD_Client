@@ -36,7 +36,7 @@ public class DataSubmissionService extends Service {
 
     public static final int DATA_SUBMISSION_ID_SERVICE = 101;
     static NotificationManager mNotificationManager;
-    public int bulkSize = 200;
+    public int bulkSize = 500;
     public int dataSourceIdCheck = -1;
     public static boolean uploadingSuccessfully = true;
     ArrayList<Integer> ids = new ArrayList<>();
