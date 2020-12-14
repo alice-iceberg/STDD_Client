@@ -97,6 +97,7 @@ public class ActivityTransRcvr extends BroadcastReceiver {
                                         break;
                                 }
                                 if (dataSourceId != -1) {
+                                    nowTime = System.currentTimeMillis();
                                     DbMgr.saveMixedData(dataSourceId, nowTime, 1.0f, nowTime, activity_name, "EXIT");
                                 }
                             }

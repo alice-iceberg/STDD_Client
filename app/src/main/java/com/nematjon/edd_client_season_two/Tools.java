@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
-import android.app.Dialog;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
@@ -23,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.WindowManager;
@@ -204,6 +204,7 @@ public class Tools {
         Intent intent = new Intent("android.intent.action.MAIN");
         intent.addCategory("android.intent.category.HOME");
         String launcher_packageName = Objects.requireNonNull(localPackageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)).activityInfo.packageName;
+
 
         UsageStatsManager usageStatsManager = (UsageStatsManager) con.getSystemService(Context.USAGE_STATS_SERVICE);
         List<UsageStats> stats = Objects.requireNonNull(usageStatsManager).queryUsageStats(UsageStatsManager.INTERVAL_BEST, fromCal.getTimeInMillis(), System.currentTimeMillis());

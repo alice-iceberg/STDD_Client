@@ -129,8 +129,10 @@ public class DataSubmissionService extends Service {
                                 .addAllValue(valueList)
                                 .build();
                         EtService.SubmitDataRecords.Response responseMessage = stub.submitDataRecords(submitDataRecordsRequest);
-
-                        if (responseMessage.getSuccess()) {
+                        Log.e("TAG", "run: Response message" + responseMessage );
+                        if (responseMessage.getSuccess())
+                        {
+                            Log.e("TAG", "run: Deleting records" + ids.size());
                             for (int id : ids) {
                                 try {
                                     DbMgr.deleteRecord(id);
@@ -198,18 +200,10 @@ public class DataSubmissionService extends Service {
                         } finally {
                             Log.e("TAG", "run: Both finished");
                             channel.shutdown();
-
-                            photosIds.clear();
-                            photosDataSourceIdList.clear();
-                            photosTimestampsList.clear();
-                            photosValueList.clear();
-
-
                         }
                     }
-
-                    dataSubmissionHandler.post(dataSubmissionRunnable);
                 }
+                dataSubmissionHandler.post(dataSubmissionRunnable);
             }).start();
         }
     };
