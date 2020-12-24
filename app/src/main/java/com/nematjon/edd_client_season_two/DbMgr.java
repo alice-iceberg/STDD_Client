@@ -20,12 +20,6 @@ public class DbMgr {
         });
     }
 
-    public static void cleanupSoundData(){
-        db.execSQL("delete from Data where dataSourceId=?;", new Object[]{
-                -1,
-        });
-    }
-
     public static SQLiteDatabase getDB(){
         return db;
     }
