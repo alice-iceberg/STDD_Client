@@ -118,7 +118,6 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final int LOCATION_UPDATE_MIN_INTERVAL = 5 * 60 * 1000; //milliseconds
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0; // meters
     public static final float Y_GRAVITY_MIN = 7.6f;
-    public int BULK_SIZE = 1000;
     public static final String LOCATIONS_TXT = "locations.txt";
 
     String instagram_username_type = "USERNAME";
@@ -599,12 +598,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
         manager.registerAvailabilityCallback((CameraManager.AvailabilityCallback) cameraCallback, cameraAvailabilityHandler);
         //endregion
 
-        mainHandler.post(mainRunnable);
-        heartBeatHandler.post(heartBeatSendRunnable);
-        appUsageSaveHandler.post(appUsageSaveRunnable);
-        instagramHandler.post(instagramRunnable);
-        getDataFromSmartwatchHandler.post(getDataFromSmartWatchRunnable);
-        permissionNotificationPosted = false;
+
 
         //region Posting Foreground notification when service is started
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -618,6 +612,14 @@ public class MainService extends Service implements SensorEventListener, Locatio
         Notification notification = builder.build();
         startForeground(ID_SERVICE, notification);
         //endregion
+
+
+        mainHandler.post(mainRunnable);
+        heartBeatHandler.post(heartBeatSendRunnable);
+        appUsageSaveHandler.post(appUsageSaveRunnable);
+        instagramHandler.post(instagramRunnable);
+        getDataFromSmartwatchHandler.post(getDataFromSmartWatchRunnable);
+        permissionNotificationPosted = false;
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
