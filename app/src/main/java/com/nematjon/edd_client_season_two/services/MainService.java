@@ -105,7 +105,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
     private static final short PRESSURE_SENSOR_DURATION = 2; // in sec
     private static final short AUDIO_RECORDING_DURATION = 5;  // in sec
     private static final int APP_USAGE_SEND_PERIOD = 3; // in sec
-    private static final int WIFI_SCANNING_PERIOD = 31 * 60; // in sec
+    private static final int WIFI_SCANNING_PERIOD = 30 * 60; // in sec
     private static final int INSTAGRAM_PERIOD = 6 * 60 * 60; // in sec
     private static final int SMARTWATCH_PERIOD = 90; // in sec
     private static final int APP_USAGE_PERIOD = 60 * 60; // in sec
@@ -405,6 +405,8 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 editor.apply();
                 prevNetworkUsageStartTime = nowTime;
                 //endregion
+            }
+
 
                 // saving app usage data
                 currentTime = System.currentTimeMillis();
@@ -432,7 +434,7 @@ public class MainService extends Service implements SensorEventListener, Locatio
                 }
                 //endregion
 
-            }
+
 
             mainHandler.postDelayed(mainRunnable, 5 * 1000);
         }

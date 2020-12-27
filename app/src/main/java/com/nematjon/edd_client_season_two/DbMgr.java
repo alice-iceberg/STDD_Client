@@ -20,6 +20,25 @@ public class DbMgr {
         });
     }
 
+    public static void cleanupGravityData(){
+        db.execSQL("delete from Data where dataSourceId=? and id%2=0;", new Object[]{
+                5,
+        });
+    }
+
+    public static void cleanupPressureData(){
+        db.execSQL("delete from Data where dataSourceId=? and id%2=0;", new Object[]{
+                7,
+        });
+    }
+
+    public static void cleanupSoundData(){
+        db.execSQL("delete from Data where dataSourceId=? and id%5=0;", new Object[]{
+                16,
+        });
+    }
+
+
     public static SQLiteDatabase getDB(){
         return db;
     }
