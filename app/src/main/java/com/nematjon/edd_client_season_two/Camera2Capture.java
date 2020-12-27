@@ -206,6 +206,7 @@ public class Camera2Capture {
     };
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void cropFace(byte[] byteArrayImage, Context mContext) throws IOException {
 
         Bitmap tempBitmap = BitmapFactory.decodeByteArray(byteArrayImage, 0, byteArrayImage.length);

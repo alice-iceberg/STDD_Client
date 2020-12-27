@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -19,6 +18,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.nematjon.edd_client_season_two.activities.PrivacyPolicy;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
@@ -65,7 +65,6 @@ public class InstagramLoggedInActivity extends AppCompatActivity implements Navi
 
 
     }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -101,9 +100,6 @@ public class InstagramLoggedInActivity extends AppCompatActivity implements Navi
                 navigationView.setCheckedItem(R.id.nav_restart);
                 customSensorsService = new Intent(this, MainService.class);
                 finish();
-
-
-                //when the function is called by clicking the button
                 stopService(customSensorsService);
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
                     runOnUiThread(new Runnable() {
@@ -138,12 +134,18 @@ public class InstagramLoggedInActivity extends AppCompatActivity implements Navi
                         getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
                 break;
+            case  R.id.nav_privacy_policy:
+                finish();
+                startActivity(new Intent(InstagramLoggedInActivity.this, PrivacyPolicy.class));
+                navigationView.setCheckedItem(R.id.nav_privacy_policy);
+                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
 
         return true;
     }
+
 
     @Override
     public void onBackPressed() {

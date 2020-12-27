@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -28,6 +27,7 @@ import com.github.instagram4j.instagram4j.IGAndroidDevice;
 import com.github.instagram4j.instagram4j.IGClient;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.nematjon.edd_client_season_two.activities.PrivacyPolicy;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
@@ -290,6 +290,11 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                 alertDialog.setNegativeButton(
                         getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
+                break;
+            case  R.id.nav_privacy_policy:
+                finish();
+                startActivity(new Intent(MediaSetActivity.this, PrivacyPolicy.class));
+                navigationView.setCheckedItem(R.id.nav_privacy_policy);
                 break;
         }
 

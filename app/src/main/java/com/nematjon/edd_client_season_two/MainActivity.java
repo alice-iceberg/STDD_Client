@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.protobuf.ByteString;
+import com.nematjon.edd_client_season_two.activities.PrivacyPolicy;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 import com.nematjon.edd_client_season_two.services.DataSubmissionService;
 import com.nematjon.edd_client_season_two.services.EMAOverlayShowingService;
@@ -49,7 +50,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import inha.nsl.easytrack.ETServiceGrpc;
 import inha.nsl.easytrack.EtService;
@@ -92,6 +92,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AlertDialog dialog;
     Dialog permissionsPopUp;
     //endregion
+
+
+
 
     private Intent customSensorsService;
     private Intent dataSubmissionService;
@@ -555,6 +558,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
                 break;
+            case  R.id.nav_privacy_policy:
+                finish();
+                startActivity(new Intent(MainActivity.this, PrivacyPolicy.class));
+                navigationView.setCheckedItem(R.id.nav_privacy_policy);
+                break;
+
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -934,15 +943,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         editor.apply();
     }
 
-//    public void showAboutPermissionsPopUp(){
-//        permissionsPopUp.setContentView(R.layout.popup_about_permissions);
-//        Button okBtn = permissionsPopUp.findViewById(R.id.okBtnId);
-//        okBtn.setOnClickListener(v -> permissionsPopUp.dismiss());
-//
-//        Objects.requireNonNull(permissionsPopUp.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//        permissionsPopUp.setCanceledOnTouchOutside(false);
-//        permissionsPopUp.show();
-//    }
+
 
     public void showFirstLaunchActivity() {
         startActivity(new Intent(MainActivity.this, FirstLaunchActivity.class));

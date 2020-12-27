@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.GridView;
 
@@ -19,6 +18,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.nematjon.edd_client_season_two.activities.PrivacyPolicy;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
@@ -56,8 +56,6 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
             startActivity(intent);
 
         });
-
-
         setSupportActionBar(toolbar);
         navigationView.bringToFront();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -66,9 +64,6 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
 
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_photos);
-
-
-
     }
 
     @Override
@@ -106,7 +101,6 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
                 navigationView.setCheckedItem(R.id.nav_restart);
                 finish();
                 customSensorsService = new Intent(this, MainService.class);
-                //when the function is called by clicking the button
                 stopService(customSensorsService);
                 if (!Tools.hasPermissions(this, Tools.PERMISSIONS)) {
                     runOnUiThread(new Runnable() {
@@ -141,10 +135,14 @@ public class CapturedPhotosActivity extends AppCompatActivity implements Navigat
                         getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
                 break;
+            case  R.id.nav_privacy_policy:
+                finish();
+                startActivity(new Intent(CapturedPhotosActivity.this, PrivacyPolicy.class));
+                navigationView.setCheckedItem(R.id.nav_privacy_policy);
+                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
-
         return true;
     }
 

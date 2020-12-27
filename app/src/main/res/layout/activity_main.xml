@@ -220,16 +220,6 @@
                         android:textSize="@dimen/question_txt_size"
                         tools:ignore="RtlHardcoded,UseSwitchCompatOrMaterialXml" />
 
-                    <!--                    <TextView-->
-                    <!--                        android:id="@+id/ema_responses_phone"-->
-                    <!--                        android:layout_width="match_parent"-->
-                    <!--                        android:layout_height="wrap_content"-->
-                    <!--                        android:visibility="invisible"-->
-                    <!--                        android:layout_marginTop="10dp"-->
-                    <!--                        android:text="@string/dummy"-->
-                    <!--                        android:textColor="@color/black"-->
-                    <!--                        android:textSize="@dimen/question_txt_size"-->
-                    <!--                        android:textStyle="bold" />-->
 
                     <TextView
                         android:id="@+id/watch_connected"
@@ -240,15 +230,6 @@
                         android:textSize="@dimen/question_txt_size"
                         android:textStyle="bold" />
 
-                    <!--                    <TextView-->
-                    <!--                        android:id="@+id/data_loaded_phone"-->
-                    <!--                        android:layout_width="match_parent"-->
-                    <!--                        android:layout_height="wrap_content"-->
-                    <!--                        android:layout_marginTop="10dp"-->
-                    <!--                        android:text="@string/dummy"-->
-                    <!--                        android:textColor="@color/black"-->
-                    <!--                        android:textSize="@dimen/question_txt_size"-->
-                    <!--                        android:textStyle="bold" />-->
 
                 </LinearLayout>
             </LinearLayout>

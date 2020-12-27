@@ -121,8 +121,10 @@ public class AuthActivity extends Activity {
                                     Toast.makeText(AuthActivity.this, txt, Toast.LENGTH_LONG).show();
                                 });
                         } catch (StatusRuntimeException e) {
+                            e.printStackTrace();
                             runOnUiThread(() -> Toast.makeText(AuthActivity.this, getResources().getString(R.string.et_error), Toast.LENGTH_SHORT).show());
-                            Log.e(TAG, "onCreate: gRPC server unavailable");
+                            Log.e(TAG, "onCreate: gRPC server unavailable" +  e.getMessage());
+
                         } finally {
                             channel.shutdown();
                         }

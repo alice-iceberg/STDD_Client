@@ -53,6 +53,7 @@ import static com.nematjon.edd_client_season_two.services.MainService.EMA_RESPON
 public class Tools {
     static final String DATA_SOURCE_SEPARATOR = " ";
     static int PERMISSION_ALL = 1;
+    public static final String privacyPolicyUrl = "https://sites.google.com/view/younoone/home";
     public static String[] PERMISSIONS = {
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.READ_CALL_LOG,

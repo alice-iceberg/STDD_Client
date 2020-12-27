@@ -28,6 +28,11 @@
             android:icon="@drawable/watch_icon"
             android:title="@string/smartwatch" />
 
+        <item
+            android:id="@+id/nav_privacy_policy"
+            android:icon="@drawable/ic_baseline_privacy_tip_24"
+            android:title="@string/privacy_policy" />
+
     </group>
 
         <item android:title="@string/general_drawer_layout">

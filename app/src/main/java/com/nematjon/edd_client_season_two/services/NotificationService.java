@@ -9,15 +9,10 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import com.nematjon.edd_client_season_two.CapturedPhotosActivity;
 import com.nematjon.edd_client_season_two.DbMgr;
-import com.nematjon.edd_client_season_two.EMAActivity;
-import com.nematjon.edd_client_season_two.MainActivity;
-import com.nematjon.edd_client_season_two.MediaSetActivity;
 import com.nematjon.edd_client_season_two.Tools;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 
