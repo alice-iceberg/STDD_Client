@@ -77,6 +77,8 @@ public class PrivacyPolicy extends AppCompatActivity implements NavigationView.O
 
         switch (item.getItemId()) {
             case R.id.nav_home:
+
+
                 Toast.makeText(this, "pressed", Toast.LENGTH_SHORT).show();
                 finish();
                 navigationView.setCheckedItem(R.id.nav_home);
