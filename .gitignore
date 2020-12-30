@@ -1,4 +1,8 @@
-# Project exclude paths
+/.idea/
+/.dart_tool/
 /.gradle/
-/app/build/
-/app/build/intermediates/javac/debug/classes/
+.packages
+build/
+pubspec.lock
+.DS_Store
+*.iml

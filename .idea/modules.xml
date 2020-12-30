@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/STDD_Client.iml" filepath="$PROJECT_DIR$/.idea/modules/STDD_Client.iml" group="STDD_Client" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="STDD_Client/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/STDD_Client.iml" filepath="$PROJECT_DIR$/.idea/modules/STDD_Client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/STDD_Client.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/STDD_Client.app.iml" />
     </modules>
   </component>
 </project>

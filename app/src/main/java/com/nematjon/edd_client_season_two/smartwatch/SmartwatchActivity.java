@@ -29,6 +29,7 @@ import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.MediaSetActivity;
 import com.nematjon.edd_client_season_two.R;
 import com.nematjon.edd_client_season_two.Tools;
+import com.nematjon.edd_client_season_two.drive_upload.GoogleDrive;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.samsung.android.sdk.accessory.SAAgentV2;
 
@@ -238,6 +239,10 @@ public class SmartwatchActivity extends AppCompatActivity implements NavigationV
                 alertDialog.setNegativeButton(
                         getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
+                break;
+            case  R.id.nav_upload:
+                finish();
+                startActivity(new Intent(SmartwatchActivity.this, GoogleDrive.class));
                 break;
         }
 
