@@ -73,7 +73,7 @@ public class PrivacyPolicy extends AppCompatActivity implements NavigationView.O
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show();
 
-        Log.e("TAG", "onNavigationItemSelected: " + item.getItemId());
+        Log.e("Tags", "onNavigationItemSelected: " + item.getItemId());
 
         switch (item.getItemId()) {
             case R.id.nav_home:
