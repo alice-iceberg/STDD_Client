@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.protobuf.ByteString;
+import com.nematjon.edd_client_season_two.drive_upload.GoogleDrive;
 import com.nematjon.edd_client_season_two.receivers.EMAAlarmRcvr;
 import com.nematjon.edd_client_season_two.services.DataSubmissionService;
 import com.nematjon.edd_client_season_two.services.EMAOverlayShowingService;
@@ -555,6 +556,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
                 break;
+            case  R.id.nav_upload:
+                finish();
+                startActivity(new Intent(MainActivity.this, GoogleDrive.class));
+                break;
+
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

