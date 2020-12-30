@@ -149,5 +149,6 @@
     <string name="try_again">Error occured, try  again!</string>
     <string name="cancelled">Submission  cancelled!</string>
     <string name="submit_data">Submit data</string>
+    <string name="no_db">You  do not have a database file to submit!</string>
 
 </resources>
