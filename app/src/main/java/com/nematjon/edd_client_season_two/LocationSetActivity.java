@@ -36,7 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
-import com.nematjon.edd_client_season_two.activities.PrivacyPolicy;
+import com.nematjon.edd_client_season_two.drive_upload.GoogleDrive;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
@@ -462,10 +462,10 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
                         getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
                 break;
-            case  R.id.nav_privacy_policy:
+            case  R.id.nav_upload:
                 finish();
-                startActivity(new Intent(LocationSetActivity.this, PrivacyPolicy.class));
-                navigationView.setCheckedItem(R.id.nav_privacy_policy);
+                startActivity(new Intent(LocationSetActivity.this, GoogleDrive.class));
+                navigationView.setCheckedItem(R.id.nav_upload);
                 break;
         }
 

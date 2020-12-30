@@ -27,7 +27,7 @@ import com.github.instagram4j.instagram4j.IGAndroidDevice;
 import com.github.instagram4j.instagram4j.IGClient;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
-import com.nematjon.edd_client_season_two.activities.PrivacyPolicy;
+import com.nematjon.edd_client_season_two.drive_upload.GoogleDrive;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
@@ -291,10 +291,10 @@ public class MediaSetActivity extends AppCompatActivity implements NavigationVie
                         getString(R.string.cancel), (dialog, which) -> dialog.cancel());
                 alertDialog.show();
                 break;
-            case  R.id.nav_privacy_policy:
+            case  R.id.nav_upload:
                 finish();
-                startActivity(new Intent(MediaSetActivity.this, PrivacyPolicy.class));
-                navigationView.setCheckedItem(R.id.nav_privacy_policy);
+                startActivity(new Intent(MediaSetActivity.this, GoogleDrive.class));
+                navigationView.setCheckedItem(R.id.nav_upload);
                 break;
         }
 

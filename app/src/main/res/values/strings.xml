@@ -143,6 +143,11 @@
     <string name="lte">LTE </string>
     <string name="lte_enabled_toast">You enabled using LTE for data submission</string>
     <string name="lte_disabled_toast">You disabled using LTE for data submission</string>
-    <string name="privacy_policy">Privacy Policy</string>
+
+    <string name="send_data">Send data</string>
+    <string name="success">Submitted successfully!</string>
+    <string name="try_again">Error occured, try  again!</string>
+    <string name="cancelled">Submission  cancelled!</string>
+    <string name="submit_data">Submit data</string>
 
 </resources>

