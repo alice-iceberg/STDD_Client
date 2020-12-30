@@ -187,13 +187,13 @@ public class GoogleDrive extends AppCompatActivity implements NavigationView.OnN
     public void upload(View view) {
 
         if (Tools.isNetworkAvailable()) {
-            progressDialog = ProgressDialog.show(this, "Submitting  to Google  Drive", "in progress...");
+            progressDialog = ProgressDialog.show(this, getString(R.string.submit_to_google_drive), getString(R.string.submit_in_progress));
             loadingThread = new Thread(progressDialog::show);
             loadingThread.start();
 
             filePath = getDatabasePath("com.nematjon.edd_client_season_two");
             driveServiceHelper.createDBFile(GoogleDrive.this, filePath.getPath()).addOnSuccessListener(s -> {
-                Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.data_submit_success), Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
                 loadingThread.interrupt();
                 try {
@@ -212,7 +212,7 @@ public class GoogleDrive extends AppCompatActivity implements NavigationView.OnN
                 }
 
             }).addOnCanceledListener(() -> {
-                Toast.makeText(this, getString(R.string.cancelled), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.canceled), Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
                 loadingThread.interrupt();
                 try {
@@ -221,7 +221,7 @@ public class GoogleDrive extends AppCompatActivity implements NavigationView.OnN
                     er.printStackTrace();
                 }
             });
-        } else Toast.makeText(this, "Check your Internet connection!", Toast.LENGTH_SHORT).show();
+        } else Toast.makeText(this, getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
 
 
     }

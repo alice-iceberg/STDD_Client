@@ -143,11 +143,11 @@
     <string name="lte">LTE </string>
     <string name="lte_enabled_toast">You enabled using LTE for data submission</string>
     <string name="lte_disabled_toast">You disabled using LTE for data submission</string>
-
     <string name="send_data">Send data</string>
-    <string name="success">Submitted successfully!</string>
-    <string name="try_again">Error occured, try  again!</string>
-    <string name="cancelled">Submission  cancelled!</string>
-    <string name="submit_data">Submit data</string>
+    <string name="data_submit_success">Submitted successfully!</string>
+    <string name="try_again">Error occurred, try  again!</string>
+    <string name="submit_to_google_drive">Submitting to Google Drive</string>
+    <string name="submit_in_progress">in progress…</string>
+    <string name="check_internet">Please check your Internet connection</string>
 
 </resources>

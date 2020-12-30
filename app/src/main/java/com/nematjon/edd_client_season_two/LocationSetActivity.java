@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
+import com.nematjon.edd_client_season_two.drive_upload.GoogleDrive;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
@@ -420,6 +421,10 @@ public class LocationSetActivity extends AppCompatActivity implements OnMapReady
             case R.id.nav_smartwatch:
                 startActivity(new Intent(LocationSetActivity.this, SmartwatchActivity.class));
                 navigationView.setCheckedItem(R.id.nav_smartwatch);
+                break;
+            case R.id.nav_upload:
+                finish();
+                startActivity(new Intent(LocationSetActivity.this, GoogleDrive.class));
                 break;
             case R.id.nav_restart:
                 navigationView.setCheckedItem(R.id.nav_restart);

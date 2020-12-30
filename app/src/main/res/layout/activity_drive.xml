@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorGreen"
             android:onClick="upload"
-            android:text="@string/submit_data"
+            android:text="@string/send_data"
             android:textColor="@color/white" />
     </LinearLayout>
 
