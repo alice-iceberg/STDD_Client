@@ -149,5 +149,6 @@
     <string name="submit_to_google_drive">Submitting to Google Drive</string>
     <string name="submit_in_progress">in progress…</string>
     <string name="check_internet">Please check your Internet connection</string>
+    <string name="file_empty">File is empty. Try again later</string>
 
 </resources>

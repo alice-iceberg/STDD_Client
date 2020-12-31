@@ -37,6 +37,7 @@ import com.nematjon.edd_client_season_two.MainActivity;
 import com.nematjon.edd_client_season_two.MediaSetActivity;
 import com.nematjon.edd_client_season_two.R;
 import com.nematjon.edd_client_season_two.Tools;
+import com.nematjon.edd_client_season_two.drive_upload.GoogleDriveHelper;
 import com.nematjon.edd_client_season_two.services.MainService;
 import com.nematjon.edd_client_season_two.smartwatch.SmartwatchActivity;
 
@@ -61,7 +62,7 @@ public class GoogleDrive extends AppCompatActivity implements NavigationView.OnN
     SharedPreferences configPrefs;
     static Intent customSensorsService;
     private static final String TAG = "GoogleDrive";
-    File filePath;
+    File file;
 
     //endregion
     //region  overrides
@@ -185,43 +186,46 @@ public class GoogleDrive extends AppCompatActivity implements NavigationView.OnN
     }
 
     public void upload(View view) {
-
         if (Tools.isNetworkAvailable()) {
-            progressDialog = ProgressDialog.show(this, getString(R.string.submit_to_google_drive), getString(R.string.submit_in_progress));
+            progressDialog = ProgressDialog.show(this, "Submitting  to Google  Drive", "in progress...");
             loadingThread = new Thread(progressDialog::show);
             loadingThread.start();
 
-            filePath = getDatabasePath("com.nematjon.edd_client_season_two");
-            driveServiceHelper.createDBFile(GoogleDrive.this, filePath.getPath()).addOnSuccessListener(s -> {
-                Toast.makeText(this, getString(R.string.data_submit_success), Toast.LENGTH_SHORT).show();
-                progressDialog.dismiss();
-                loadingThread.interrupt();
-                try {
-                    loadingThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).addOnFailureListener(e -> {
-                Toast.makeText(this,getString( R.string.try_again), Toast.LENGTH_SHORT).show();
-                progressDialog.dismiss();
-                loadingThread.interrupt();
-                try {
-                    loadingThread.join();
-                } catch (InterruptedException er) {
-                    er.printStackTrace();
-                }
+            file = getDatabasePath("com.nematjon.edd_client_season_two");
+            if (file == null) {
+                Toast.makeText(this, getString(R.string.file_empty), Toast.LENGTH_SHORT).show();
+            } else {
+                driveServiceHelper.createDBFile(GoogleDrive.this, file.getPath()).addOnSuccessListener(s -> {
+                    Toast.makeText(this, getString(R.string.submit_in_progress), Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    loadingThread.interrupt();
+                    try {
+                        loadingThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(this, getString(R.string.try_again), Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    loadingThread.interrupt();
+                    try {
+                        loadingThread.join();
+                    } catch (InterruptedException er) {
+                        er.printStackTrace();
+                    }
 
-            }).addOnCanceledListener(() -> {
-                Toast.makeText(this, getString(R.string.canceled), Toast.LENGTH_SHORT).show();
-                progressDialog.dismiss();
-                loadingThread.interrupt();
-                try {
-                    loadingThread.join();
-                } catch (InterruptedException er) {
-                    er.printStackTrace();
-                }
-            });
-        } else Toast.makeText(this, getString(R.string.check_internet), Toast.LENGTH_SHORT).show();
+                }).addOnCanceledListener(() -> {
+                    Toast.makeText(this, getString(R.string.cancel), Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    loadingThread.interrupt();
+                    try {
+                        loadingThread.join();
+                    } catch (InterruptedException er) {
+                        er.printStackTrace();
+                    }
+                });
+            }
+        } else Toast.makeText(this, "Check your Internet connection!", Toast.LENGTH_SHORT).show();
 
 
     }
